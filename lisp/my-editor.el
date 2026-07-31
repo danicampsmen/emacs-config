@@ -355,40 +355,33 @@
   (interactive)
   (call-interactively #'gptel-send))
   
-;;;###autoload
 (defun my/export-config-as-txt ()
-  "Copia tus archivos de configuración .el a una carpeta con el prefijo emacs- y terminación .el.txt para compartirlos con la IA."
+  "Copia tus archivos .el a txt-export ignorando archivos de secretos."
   (interactive)
   (let* ((dest-dir (expand-file-name "txt-export" user-emacs-directory))
          (lisp-dir (expand-file-name "lisp" user-emacs-directory))
          (init-file (expand-file-name "init.el" user-emacs-directory))
-         (early-init-file (expand-file-name "early-init.el" user-emacs-directory)) ;; <--- NUEVO
-         ;; Recopilamos todos los .el recursivamente de la carpeta lisp
+         (early-init-file (expand-file-name "early-init.el" user-emacs-directory))
          (files (if (file-directory-p lisp-dir)
                     (directory-files-recursively lisp-dir "\\.el$")
                   nil))
          (count 0))
 
-    ;; 1. Crea el directorio de destino si no existe.
     (unless (file-exists-p dest-dir)
       (make-directory dest-dir t))
 
-    ;; 2. Añade los archivos maestros a la lista (init.el y early-init.el)
-    (when (file-exists-p init-file)
-      (push init-file files))
-    (when (file-exists-p early-init-file) ;; <--- NUEVO
-      (push early-init-file files))
+    (when (file-exists-p init-file) (push init-file files))
+    (when (file-exists-p early-init-file) (push early-init-file files))
 
-    ;; 3. Copia y renombra cada archivo iterativamente
     (dolist (file files)
-      (let* ((base-name (file-name-nondirectory file))
-             (dest-file (expand-file-name (concat "emacs-" base-name ".txt") dest-dir)))
-        
-        ;; Copiamos el archivo al destino sobreescribiendo si ya existe
-        (copy-file file dest-file t)
-        (setq count (1+ count))))
+      ;; ⚠️ PARCHE DE SEGURIDAD: Excluir explícitamente cualquier archivo de secretos
+      (unless (string-match-p "secrets" (file-name-nondirectory file))
+        (let* ((base-name (file-name-nondirectory file))
+               (dest-file (expand-file-name (concat "emacs-" base-name ".txt") dest-dir)))
+          (copy-file file dest-file t)
+          (setq count (1+ count)))))
 
-    (message "✅ Exportación completada: %d archivos copiados en %s" count dest-dir)))
+    (message "✅ Exportación completada: %d archivos copiados en %s (Secretos omitidos)" count dest-dir)))
 
 ;;;###autoload
 (defun my/export-project-tex-as-txt ()

@@ -1,16 +1,41 @@
-# Secretos y Claves Privadas
-lisp/my-secrets.el
-
-# Compilación y Caché
+# Archivos temporales y de auto-guardado de Emacs
+/#*#
+/.#*
+*~
 *.elc
-eln-cache/
-auto-save-list/
-backups/
-auto-saves/
+
+# Caché de paquetes y compilados
+/elpa/
+/tree-sitter/
+/transient/
+/auto-saves/
+/backups/
+/.local/
+
+# Caché de Aider y herramientas de IA
+.aider*
+.agent/
+
+# PDFs compilados e intermedios de LaTeX
+*.aux
+*.log
+*.toc
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+*.bbl
+*.bcf
+*.blg
+*.run.xml
 txt-export/
-var/
-tramp
-places
-history
-projectile-bookmarks.eld
-recentf
+my-secrets.el
+lisp/my-secrets.el
+txt-export/
+my-secrets.el
+lisp/my-secrets.el
+txt-export/
+my-secrets.el
+lisp/my-secrets.el
+my-secrets.el
+lisp/my-secrets.el
+txt-export/

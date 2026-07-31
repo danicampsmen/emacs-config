@@ -1,0 +1,268 @@
+;;; -*- coding: utf-8; mode: lisp-data -*-
+(("/home/fayfer/.emacs.d/MANUAL.org" . 712) ("/home/fayfer/.emacs.d/init.el" . 66)
+ ("/home/fayfer/.emacs.d/lisp/my-editor.el" . 16217)
+ ("/home/fayfer/Documentos/Cursos-2026-I/Monografia/monografia_practicas_pre-profesionales.tex" . 3052)
+ ("/home/fayfer/Documentos/Cursos-2026-I/Monografia/capitulos/01_anillos_ideales.tex" . 1468)
+ ("/home/fayfer/Documentos/Cursos-2026-I/Monografia/"
+  (dired-filename . "/home/fayfer/Documentos/Cursos-2026-I/Monografia/monografia_practicas_pre-profesionales.pdf"))
+ ("/home/fayfer/Documentos/Cursos-2026-I/Monografia/capitulos/02_modulos.tex" . 4169)
+ ("/home/fayfer/Documentos/Cursos-2026-I/Monografia/apendice.tex" . 51)
+ ("/home/fayfer/.emacs.d/lisp/my-latex-snippets.el" . 1964)
+ ("/home/fayfer/Documentos/Cursos-2026-I/Programacion No Lineal/apuntes_latex_refactorización/Apuntes-Programacion-No-Lineal.tex"
+  . 988)
+ ("/home/fayfer/Documentos/Cursos-2026-I/Programacion No Lineal/apuntes_latex_refactorización/chapters/part2_metodos/chapter10_opt_no_diferenciable/02_metodos_subgradiente.tex"
+  . 2192)
+ ("/home/fayfer/Documentos/Cursos-2026-I/Monografia/capitulos/"
+  (dired-filename . "/home/fayfer/Documentos/Cursos-2026-I/Monografia/capitulos/01_anillos_ideales.tex"))
+ ("/home/fayfer/Documentos/Cursos-2026-I/" (dired-filename . "/home/fayfer/Documentos/Cursos-2026-I/Monografia"))
+ ("/home/fayfer/Documentos/" (dired-filename . "/home/fayfer/Documentos/Cursos-2026-I"))
+ ("/home/fayfer/Drive-Virtual/Cursos-2026-I/Monografia/"
+  (dired-filename . "/home/fayfer/Drive-Virtual/Cursos-2026-I/Monografia/monografia_practicas_pre-profesionales.pdf"))
+ ("/home/fayfer/Drive-Virtual/Cursos-2026-I/" (dired-filename . "/home/fayfer/Drive-Virtual/Cursos-2026-I/Monografia"))
+ ("/home/fayfer/Drive-Virtual/" (dired-filename . "/home/fayfer/Drive-Virtual/Cursos-2026-I"))
+ ("/home/fayfer/Documentos/Ejecutables/syncclient/.gitignore" . 2)
+ ("/home/fayfer/.emacs.d/" (dired-filename . "/home/fayfer/.emacs.d/txt-export"))
+ ("/home/fayfer/.emacs.d/txt-export/" (dired-filename . "/home/fayfer/.emacs.d/txt-export/emacs-aas.el.txt"))
+ ("/home/fayfer/.emacs.d/txt-export/emacs-aas.el.txt" . 351) ("/home/fayfer/.zshrc" . 6961)
+ ("/home/fayfer/Documentos/Cursos-2026-I/Monografia/tesis-uni.cls" . 3394)
+ ("/home/fayfer/Documentos/Cursos-2026-I/Monografia/bibliografia.bib" . 10142)
+ ("/home/fayfer/.emacs.d/lisp/laas.el" . 6355)
+ ("/home/fayfer/Documentos/Cursos-2026-I/Monografia/monografia_practicas_pre-profesionales.toc" . 1759)
+ ("/home/fayfer/.emacs.d/lisp/tesis-tools.el" . 4729) ("/home/fayfer/.emacs.d/lisp/my-keys.el" . 10360)
+ ("/home/fayfer/.emacs.d/lisp/my-second-brain.el" . 1206) ("/home/fayfer/.emacs.d/lisp/my-latex-core.el" . 2532)
+ ("/home/fayfer/.emacs.d/lisp/gdrive-sync.el" . 2793)
+ ("/home/fayfer/Documentos/LaTeX/manual-documentclass/manual-documentclass.tex" . 16014)
+ ("/home/fayfer/Documentos/Cursos-2026-I/Hola.txt" . 336) ("/home/fayfer/.emacs.d/lisp/my-ui.el" . 8418)
+ ("/rclone:GoogleDrive-Documentos_Ubuntu_Fayfer:/Documentos-Ubuntu-Fayfer/" . 3)
+ ("/home/fayfer/Descargas/roman-bookmarks.txt" . 129)
+ ("/home/fayfer/Documentos/Segundo-Cerebro/10-Matematicas/Apuntes-Complex-Variables-Berenstein/apuntes-complex-variables-berenstein.tex"
+  . 4302)
+ ("/home/fayfer/Documentos/Segundo-Cerebro/10-Matematicas/Apuntes-Complex-Variables-Berenstein/"
+  (dired-filename
+   . "/home/fayfer/Documentos/Segundo-Cerebro/10-Matematicas/Apuntes-Complex-Variables-Berenstein/apuntes-complex-variables-berenstein.tex"))
+ ("/home/fayfer/texmf/tex/latex/apuntes/apuntes-scr.cls" . 1539)
+ ("/home/fayfer/Documentos/Cursos-2026-I/Programacion No Lineal/apuntes_latex_refactorización/chapters/part2_metodos/chapter8_opt_no_restringida/01_metodos_descenso_armijo.tex"
+  . 26830)
+ ("/home/fayfer/Documentos/Cursos-2026-I/Programacion No Lineal/apuntes_latex_refactorización/chapters/part2_metodos/chapter8_opt_no_restringida/02_metodo_gradiente.tex"
+  . 28906)
+ ("/home/fayfer/Documentos/Segundo-Cerebro/referencias.bib..path2" . 38039)
+ ("/home/fayfer/Documentos/Cursos-2026-I/Programacion No Lineal/apuntes_latex_refactorización/chapters/part2_metodos/chapter9_opt_restringida/10_lagrangianas_aumentadas_igualdad.tex"
+  . 13472)
+ ("/home/fayfer/Documentos/Cursos-2026-I/Programacion No Lineal/apuntes_latex_refactorización/chapters/part2_metodos/chapter9_opt_restringida/15_identificacion_restricciones_activas.tex"
+  . 1732)
+ ("/home/fayfer/Documentos/Cursos-2026-I/Programacion No Lineal/apuntes_latex_refactorización/chapters/part2_metodos/chapter9_opt_restringida/14_sqp_globalizacion.tex"
+  . 17534)
+ ("/home/fayfer/Documentos/Cursos-2026-I/Programacion No Lineal/apuntes_latex_refactorización/chapters/part2_metodos/chapter8_opt_no_restringida/03_metodo_newton.tex"
+  . 14806)
+ ("/home/fayfer/Documentos/Cursos-2026-I/Programacion No Lineal/apuntes_latex_refactorización/chapters/part2_metodos/chapter8_opt_no_restringida/06_regiones_confianza.tex"
+  . 30394)
+ ("/home/fayfer/Documentos/Cursos-2026-I/Programacion No Lineal/apuntes_latex_refactorización/chapters/part2_metodos/chapter8_opt_no_restringida/07_direcciones_conjugadas.tex"
+  . 14055)
+ ("/home/fayfer/Documentos/Cursos-2026-I/Programacion No Lineal/apuntes_latex_refactorización/chapters/part2_metodos/chapter9_opt_restringida/02_direcciones_factibles.tex"
+  . 2236)
+ ("/home/fayfer/Documentos/Cursos-2026-I/Programacion No Lineal/apuntes_latex_refactorización/chapters/part2_metodos/chapter9_opt_restringida/01_gradiente_proyectado.tex"
+  . 8429)
+ ("/home/fayfer/Documentos/Cursos-2026-I/Programacion No Lineal/apuntes_latex_refactorización/chapters/part2_metodos/chapter8_opt_no_restringida/exercises.tex"
+  . 1063)
+ ("/home/fayfer/Documentos/Cursos-2026-I/Programacion No Lineal/apuntes_latex_refactorización/chapters/part2_metodos/chapter8_opt_no_restringida/08_metodos_sin_derivadas.tex"
+  . 4424)
+ ("/home/fayfer/Documentos/Cursos-2026-I/Programacion No Lineal/Apuntes_PNL_2026/capitulos/05_restricciones_general.tex"
+  . 1898)
+ ("/home/fayfer/Documentos/Cursos-2026-I/Programacion No Lineal/Apuntes_PNL_2026/capitulos/13_subdiferencial.tex" . 4141)
+ ("/home/fayfer/Documentos/Cursos-2026-I/Programacion No Lineal/Apuntes_PNL_2026/capitulos/15_dualidad_puntos_silla.tex"
+  . 1900)
+ ("/home/fayfer/Documentos/Cursos-2026-I/Programacion No Lineal/Apuntes_PNL_2026/capitulos/18_direcciones_conjugadas.tex"
+  . 10458)
+ ("/home/fayfer/Documentos/Cursos-2026-I/Programacion No Lineal/Apuntes_PNL_2026/capitulos/20_penalizacion_externa_mm.tex"
+  . 1720)
+ ("/home/fayfer/Documentos/Cursos-2026-I/Programacion No Lineal/Apuntes_PNL_2026/capitulos/17_newton_cuasinewton.tex"
+  . 7524)
+ ("/home/fayfer/Documentos/Cursos-2026-I/Programacion No Lineal/Apuntes_PNL_2026/capitulos/10_fritz_john_kkt.tex"
+  . 15562)
+ ("/home/fayfer/Documentos/Cursos-2026-I/Programacion No Lineal/Apuntes_PNL_2026/capitulos/11_geometria_convexa.tex"
+  . 7131)
+ ("/home/fayfer/Documentos/Cursos-2026-I/Programacion No Lineal/Apuntes_PNL_2026/capitulos/12_cono_dual.tex" . 1498)
+ ("/home/fayfer/Documentos/Cursos-2026-I/Programacion No Lineal/Apuntes_PNL_2026/capitulos/06_igualdad_tfi.tex" . 5715)
+ ("/home/fayfer/Documentos/Cursos-2026-I/Programacion No Lineal/Apuntes_PNL_2026/main.tex" . 1478)
+ ("/home/fayfer/Documentos/Cursos-2026-I/Programacion No Lineal/Apuntes_PNL_2026/capitulos/09_desigualdad_linealizado.tex"
+  . 18188)
+ ("/home/fayfer/Documentos/Cursos-2026-I/Programacion No Lineal/Apuntes_PNL_2026/capitulos/01_conceptos_weierstrass.tex"
+  . 13117)
+ ("/home/fayfer/Documentos/Cursos-2026-I/Programacion No Lineal/Apuntes_PNL_2026/capitulos/04_conos_farkas.tex" . 12086)
+ ("/home/fayfer/Documentos/Cursos-2026-I/Programacion No Lineal/apuntes_latex_refactorización/chapters/part2_metodos/chapter9_opt_restringida/13_sqp_teoria_basica.tex"
+  . 1753)
+ ("/home/fayfer/Documentos/Cursos-2026-I/Programacion No Lineal/apuntes_latex_refactorización/chapters/part2_metodos/chapter10_opt_no_diferenciable/03_planos_cortantes.tex"
+  . 1053)
+ ("/home/fayfer/Documentos/Cursos-2026-I/Programacion No Lineal/transcripción_clases/transcripcion_clases_pnl.tex"
+  . 80573)
+ ("/home/fayfer/Documentos/Cursos-2026-I/Programacion No Lineal/apuntes_latex_refactorización/chapters/part1_optimalidad/chapter1_intro_optimizacion/exercises.tex"
+  . 2691)
+ ("/home/fayfer/Documentos/Cursos-2026-I/Programacion No Lineal/apuntes_latex_refactorización/chapters/part1_optimalidad/chapter1_intro_optimizacion/01_conceptos_basicos.tex"
+  . 5083)
+ ("/home/fayfer/Documentos/Cursos-2026-I/Programacion No Lineal/apuntes_latex_refactorización/chapters/part2_metodos/chapter6_preliminares_vol2/exercises.tex"
+  . 126)
+ ("/home/fayfer/Documentos/Cursos-2026-I/Programacion No Lineal/apuntes_latex_refactorización/chapters/part2_metodos/chapter7_intro_metodos/02_tasas_parada.tex"
+  . 3001)
+ ("/home/fayfer/Documentos/Cursos-2026-I/Programacion No Lineal/apuntes_latex_refactorización/chapters/part2_metodos/chapter7_intro_metodos/01_clasificacion_convergencia.tex"
+  . 5593)
+ ("/home/fayfer/Documentos/Cursos-2026-I/Programacion No Lineal/apuntes_latex_refactorización/chapters/part2_metodos/chapter6_preliminares_vol2/01_existencia_soluciones.tex"
+  . 1420)
+ ("/home/fayfer/Documentos/Cursos-2026-I/Programacion No Lineal/apuntes_latex_refactorización/chapters/part2_metodos/chapter6_preliminares_vol2/02_condiciones_optimalidad.tex"
+  . 6961)
+ ("/home/fayfer/Documentos/Cursos-2026-I/Programacion No Lineal/apuntes_latex_refactorización/chapters/part2_metodos/chapter6_preliminares_vol2/03_convexidad.tex"
+  . 684)
+ ("/home/fayfer/Documentos/Cursos-2026-I/Programacion No Lineal/apuntes_latex_refactorización/chapters/part2_metodos/chapter6_preliminares_vol2/04_dualidad.tex"
+  . 2204)
+ ("/home/fayfer/Documentos/Cursos-2026-I/Programacion No Lineal/apuntes_latex_refactorización/chapters/part2_metodos/chapter7_intro_metodos/03_opt_unidimensional.tex"
+  . 4941)
+ ("/home/fayfer/Documentos/Cursos-2026-I/Programacion No Lineal/apuntes_latex_refactorización/chapters/part2_metodos/chapter6_preliminares_vol2/06_analisis_no_diferenciable.tex"
+  . 10003)
+ ("/home/fayfer/Documentos/Cursos-2026-I/Programacion No Lineal/apuntes_latex_refactorización/chapters/part2_metodos/chapter10_opt_no_diferenciable/01_introduccion.tex"
+  . 41)
+ ("/home/fayfer/Documentos/Cursos-2026-I/Programacion No Lineal/apuntes_latex_refactorización/chapters/part2_metodos/chapter9_opt_restringida/exercises.tex"
+  . 4357)
+ ("/home/fayfer/Documentos/Cursos-2026-I/Programacion No Lineal/apuntes_latex_refactorización/chapters/part2_metodos/chapter7_intro_metodos/exercises.tex"
+  . 41)
+ ("/home/fayfer/Documentos/Cursos-2026-I/Programacion No Lineal/apuntes_latex_refactorización/chapters/part1_optimalidad/chapter5_teoria_dualidad/exercises.tex"
+  . 3979)
+ ("/home/fayfer/Documentos/Cursos-2026-I/Programacion No Lineal/apuntes_latex_refactorización/chapters/part1_optimalidad/chapter4_restricciones_mixtas/exercises.tex"
+  . 7496)
+ ("/home/fayfer/Documentos/Cursos-2026-I/Programacion No Lineal/apuntes_latex_refactorización/chapters/part1_optimalidad/chapter3_analisis_convexo/exercises.tex"
+  . 17238)
+ ("/home/fayfer/Documentos/Cursos-2026-I/Programacion No Lineal/apuntes_latex_refactorización/chapters/part1_optimalidad/chapter3_analisis_convexo/04_funciones_convexas.tex"
+  . 11868)
+ ("/home/fayfer/Documentos/Cursos-2026-I/Programacion No Lineal/apuntes_latex_refactorización/chapters/part1_optimalidad/chapter3_analisis_convexo/02_teoremas_separacion.tex"
+  . 22375)
+ ("/home/fayfer/Documentos/Cursos-2026-I/Programacion No Lineal/apuntes_latex_refactorización/chapters/part1_optimalidad/chapter3_analisis_convexo/01_conjuntos_funciones_convexas.tex"
+  . 10218)
+ ("/home/fayfer/Documentos/Cursos-2026-I/Programacion No Lineal/apuntes_latex_refactorización/chapters/part1_optimalidad/chapter2_restricciones_igualdad/exercises.tex"
+  . 14538)
+ ("/home/fayfer/Documentos/Cursos-2026-I/Tesis-2/Proyecto_de_Tesis_II_CM5D1_edicion_propia/Proyecto_de_Tesis_II_CM5D1.tex"
+  . 3119)
+ ("/home/fayfer/Documentos/Cursos-2026-I/Tesis-2/beamer/beamer_tesis_2.tex" . 24147)
+ ("/home/fayfer/Documentos/Cursos-2026-I/Tesis-2/Proyecto_de_Tesis_II_CM5D1_edicion_propia/capitulos/01_teoria_local.tex"
+  . 6158)
+ ("/home/fayfer/Documentos/Cursos-2026-I/Programacion No Lineal/apuntes_latex_refactorización/chapters/part1_optimalidad/chapter1_intro_optimizacion/"
+  (dired-filename
+   . "/home/fayfer/Documentos/Cursos-2026-I/Programacion No Lineal/apuntes_latex_refactorización/chapters/part1_optimalidad/chapter1_intro_optimizacion/exercises.tex"))
+ ("/home/fayfer/Documentos/Cursos-2026-I/Programacion No Lineal/apuntes_latex_refactorización/chapters/part1_optimalidad/"
+  (dired-filename
+   . "/home/fayfer/Documentos/Cursos-2026-I/Programacion No Lineal/apuntes_latex_refactorización/chapters/part1_optimalidad/chapter1_intro_optimizacion"))
+ ("/home/fayfer/Documentos/Cursos-2026-I/Programacion No Lineal/apuntes_latex_refactorización/chapters/part1_optimalidad/chapter2_restricciones_igualdad/"
+  (dired-filename
+   . "/home/fayfer/Documentos/Cursos-2026-I/Programacion No Lineal/apuntes_latex_refactorización/chapters/part1_optimalidad/chapter2_restricciones_igualdad/exercises.tex"))
+ ("/home/fayfer/Documentos/Cursos-2026-I/Programacion No Lineal/apuntes_latex_refactorización/chapters/part1_optimalidad/chapter4_restricciones_mixtas/"
+  (dired-filename
+   . "/home/fayfer/Documentos/Cursos-2026-I/Programacion No Lineal/apuntes_latex_refactorización/chapters/part1_optimalidad/chapter4_restricciones_mixtas/exercises.tex"))
+ ("/home/fayfer/Documentos/Cursos-2026-I/Programacion No Lineal/apuntes_latex_refactorización/chapters/part1_optimalidad/chapter5_teoria_dualidad/"
+  (dired-filename
+   . "/home/fayfer/Documentos/Cursos-2026-I/Programacion No Lineal/apuntes_latex_refactorización/chapters/part1_optimalidad/chapter5_teoria_dualidad/exercises.tex"))
+ ("/home/fayfer/Documentos/Cursos-2026-I/Programacion No Lineal/apuntes_latex_refactorización/chapters/part1_optimalidad/chapter3_analisis_convexo/"
+  (dired-filename
+   . "/home/fayfer/Documentos/Cursos-2026-I/Programacion No Lineal/apuntes_latex_refactorización/chapters/part1_optimalidad/chapter3_analisis_convexo/exercises.tex"))
+ ("/home/fayfer/Documentos/Cursos-2026-I/Programacion No Lineal/PC6/informe/informe-pc6.tex" . 15299)
+ ("/home/fayfer/Documentos/LaTeX/clase-particular-7-julio-2026-problemas/lista_problemas_7_julio_2026.tex" . 2493)
+ ("/home/fayfer/Documentos/Cursos-2026-I/Tesis-2/Proyecto_de_Tesis_II_CM5D1_edicion_propia/capitulos/02_variedades_complejas-1.tex"
+  . 10345)
+ ("/home/fayfer/Documentos/Cursos-2026-I/Tesis-2/Proyecto_de_Tesis_II_CM5D1_edicion_propia/apendice.tex" . 712)
+ ("/home/fayfer/Documentos/Cursos-2026-I/Tesis-2/Proyecto_de_Tesis_II_CM5D1_edicion_propia/capitulos/03_variedades_kahler.tex"
+  . 217)
+ ("/home/fayfer/Documentos/Cursos-2026-I/Tesis-2/Proyecto_de_Tesis_II_CM5D1_edicion_propia/capitulos/02_variedades_complejas-2.tex"
+  . 2910)
+ ("/home/fayfer/Documentos/Cursos-2026-I/Tesis-2/Proyecto_de_Tesis_II_CM5D1_edicion_propia/capitulos/04_teoria_de_hodge.tex"
+  . 1395)
+ ("/home/fayfer/Documentos/Cursos-2026-I/Programacion No Lineal/apuntes_latex_refactorización/Apuntes-Programacion-No-Lineal.bib"
+  . 104)
+ ("/home/fayfer/Documentos/Cursos-2026-I/Programacion No Lineal/apuntes_latex_refactorización/chapters/part2_metodos/chapter8_opt_no_restringida/"
+  (dired-filename
+   . "/home/fayfer/Documentos/Cursos-2026-I/Programacion No Lineal/apuntes_latex_refactorización/chapters/part2_metodos/chapter8_opt_no_restringida/07_direcciones_conjugadas.tex"))
+ ("/home/fayfer/Documentos/Cursos-2026-I/solicitud_electivo/"
+  (dired-filename . "/home/fayfer/Documentos/Cursos-2026-I/solicitud_electivo/solicitud_electivo_geometria_compleja.log"))
+ ("/home/fayfer/.emacs.d/lisp/my-latex-expansions.el" . 8412)
+ ("/home/fayfer/Documentos/Cursos-2026-I/Programacion No Lineal/Apuntes-LaTeX/chapters/chapter3-2.tex" . 74218)
+ ("/home/fayfer/Documentos/Cursos-2026-I/Programacion No Lineal/Apuntes-LaTeX/chapters/chapter3-1.tex" . 15689)
+ ("/home/fayfer/Documentos/Cursos-2026-I/solicitud_electivo/solicitud_electivo_geometria_compleja.tex" . 656)
+ ("/home/fayfer/Documentos/Cursos-2026-I/Programacion No Lineal/transcripción_clases/"
+  (dired-filename
+   . "/home/fayfer/Documentos/Cursos-2026-I/Programacion No Lineal/transcripción_clases/transcripcion_clases_pnl.tex"))
+ ("/home/fayfer/.emacs.d/early-init.el" . 431) ("/home/fayfer/texmf/tex/latex/apuntes/apuntes-scr.cls.txt" . 6977)
+ ("/home/fayfer/Documentos/Cursos-2026-I/Programacion No Lineal/Apuntes-LaTeX/chapters/chapter1.tex" . 38666)
+ ("/home/fayfer/.emacs.d/lisp/my-packages.el" . 361)
+ ("/home/fayfer/.config/" (dired-filename . "/home/fayfer/.config/Code")) ("/home/fayfer/.config/aider/.env" . 52)
+ ("/home/fayfer/.bashrc" . 5176)
+ ("/home/fayfer/Documentos/Cursos-2026-I/Programacion No Lineal/Apuntes-LaTeX/chapters/chapter2-1.tex" . 16767)
+ ("/home/fayfer/Documentos/Cursos-2026-I/Programacion No Lineal/Apuntes-LaTeX/chapters/chapter2-2.tex" . 2134)
+ ("/home/fayfer/Documentos/Cursos-2026-I/Programacion No Lineal/Apuntes-LaTeX/chapters/chapter2-3.tex" . 6403)
+ ("/home/fayfer/Documentos/Cursos-2026-I/Topicos 2: Superficies de Riemann/PD3/PD3-topicos.tex" . 1036)
+ ("/home/fayfer/Documentos/Cursos-2026-I/Programacion No Lineal/PC4-PNL/latex/informe/informe-pc4-pnl.tex" . 3)
+ ("/home/fayfer/Documentos/Cursos-2026-I/Programacion No Lineal/PC4-PNL/latex/paper/traduccion-paper-guler.tex" . 677)
+ ("/home/fayfer/Documentos/Segundo-Cerebro/10-Matematicas/superficies-riemann/apuntes-superficies-riemann.tex" . 3581)
+ ("/home/fayfer/Documentos/Segundo-Cerebro/10-Matematicas/superficies-riemann/"
+  (dired-filename
+   . "/home/fayfer/Documentos/Segundo-Cerebro/10-Matematicas/superficies-riemann/apuntes-superficies-riemann.tex"))
+ ("/home/fayfer/Documentos/Segundo-Cerebro/00-Diario/Bitácora-Personal.tex" . 388)
+ ("/home/fayfer/Documentos/Segundo-Cerebro/10-Matematicas/Apuntes-Algebra-Conmutativa/Notas-clase-algebra-conmutativa.tex"
+  . 2059)
+ ("/home/fayfer/Documentos/Segundo-Cerebro/00-Diario/2026/06/2026-06-22.tex" . 129)
+ ("/home/fayfer/Documentos/Segundo-Cerebro/main.tex" . 1428) ("/home/fayfer/" (dired-filename . "/home/fayfer/Público"))
+ ("/home/fayfer/Documentos/Segundo-Cerebro/10-Matematicas/Apuntes-Algebra-Conmutativa/chapters/chapter1/chapter1-section7.tex"
+  . 21402)
+ ("/home/fayfer/Documentos/Segundo-Cerebro/10-Matematicas/Apuntes-Algebra-Conmutativa/chapters/chapter1/chapter1-section8.tex"
+  . 24309)
+ ("/home/fayfer/Documentos/Segundo-Cerebro/10-Matematicas/Apuntes-Algebra-Conmutativa/chapters/chapter1/chapter1-section3.tex"
+  . 1541)
+ ("/home/fayfer/Documentos/Segundo-Cerebro/10-Matematicas/Apuntes-Algebra-Conmutativa/chapters/chapter1/chapter1-section4.tex"
+  . 22918)
+ ("/home/fayfer/Documentos/Segundo-Cerebro/10-Matematicas/Apuntes-Algebra-Conmutativa/chapters/chapter1/chapter1-section6.tex"
+  . 1161)
+ ("/home/fayfer/Documentos/Segundo-Cerebro/10-Matematicas/Apuntes-Algebra-Conmutativa/chapters/chapter1/chapter1-section5.tex"
+  . 40435)
+ ("/home/fayfer/Documentos/Cursos-2026-I/Programacion No Lineal/Apuntes-LaTeX/chapters/chapter5-3.tex" . 2975)
+ ("/home/fayfer/Documentos/Cursos-2026-I/Programacion No Lineal/Apuntes-LaTeX/chapters/chapter5-2.tex" . 9560)
+ ("/home/fayfer/Documentos/Cursos-2026-I/Programacion No Lineal/Apuntes-LaTeX/chapters/chapter5-1.tex" . 6173)
+ ("/home/fayfer/Documentos/Cursos-2026-I/Programacion No Lineal/Apuntes-LaTeX/chapters/chapter4-4.tex" . 14640)
+ ("/home/fayfer/Documentos/Cursos-2026-I/Programacion No Lineal/Apuntes-LaTeX/chapters/chapter4-3.tex" . 10278)
+ ("/home/fayfer/Documentos/Cursos-2026-I/Programacion No Lineal/Apuntes-LaTeX/chapters/chapter4-2.tex" . 17731)
+ ("/home/fayfer/Documentos/Cursos-2026-I/Programacion No Lineal/Apuntes-LaTeX/chapters/chapter4-1.tex" . 272)
+ ("/home/fayfer/Documentos/Cursos-2026-I/Programacion No Lineal/Apuntes-LaTeX/chapters/chapter2-4.tex" . 664)
+ ("/home/fayfer/Documentos/Cursos-2026-I/Tesis-2/Proyecto_de_Tesis_II_CM5D1_edicion_propia/tesis-uni.cls" . 3417)
+ ("/home/fayfer/Documentos/Cursos-2026-I/Programacion No Lineal/PC4-PNL/latex/beamer/pc4-pnl-beamer.tex" . 24542)
+ ("/home/fayfer/Documentos/Segundo-Cerebro/10-Matematicas/Apuntes-Real-Analysis/apuntes-real-analysis.tex" . 242)
+ ("/home/fayfer/Documentos/Cursos-2026-I/Programacion No Lineal/Traducción-Solodov/traduccion-solodov.tex" . 1143)
+ ("/home/fayfer/.emacs.d/lisp/my-latex-visuals.el" . 16196)
+ ("/home/fayfer/Documentos/Segundo-Cerebro/10-Matematicas/Apuntes-Algebra-Conmutativa/chapters/chapter1/chapter1-section1.tex"
+  . 26088)
+ ("/home/fayfer/Documentos/Segundo-Cerebro/10-Matematicas/Apuntes-Algebra-Conmutativa/chapters/chapter1/chapter1-section2.tex"
+  . 15168)
+ ("/home/fayfer/Documentos/Taller de Álgebra Conmutativa - GEM/" . 316)
+ ("/home/fayfer/Documentos/Segundo-Cerebro/_region_.tex" . 12524)
+ ("/home/fayfer/Documentos/Segundo-Cerebro/10-Matematicas/Apuntes-Algebra-Conmutativa/apuntes-algebra-conmutativa.bib"
+  . 7108)
+ ("/home/fayfer/Documentos/Cursos-2026-I/Análisis Numerico 2/PC4/expo-runge-kutta/metodo-runge-kutta.tex" . 46389)
+ ("/home/fayfer/.emacs.d/lisp/" (dired-filename . "/home/fayfer/.emacs.d/lisp/my-latex-visuals.el"))
+ ("/home/fayfer/Documentos/Notas_Tesis/bourbaki2014generaltopologychapters.org" . 111)
+ ("/home/fayfer/Documentos/Segundo-Cerebro/10-Matematicas/Apuntes-Lineal-Algebra/Apuntes-Lineal-Algebra.tex" . 2204)
+ ("/home/fayfer/Documentos/Cursos-2026-I/Programacion No Lineal/Apuntes-LaTeX/"
+  (dired-filename
+   . "/home/fayfer/Documentos/Cursos-2026-I/Programacion No Lineal/Apuntes-LaTeX/references-Apuntes-Programacion-No-Lineal.bib.gz"))
+ ("/home/fayfer/Documentos/Cursos-2026-I/Programacion No Lineal/Apuntes-LaTeX/chapters/"
+  (dired-filename . "/home/fayfer/Documentos/Cursos-2026-I/Programacion No Lineal/Apuntes-LaTeX/chapters/chapter7-4.tex"))
+ ("/home/fayfer/Documentos/Cursos-2026-I/Análisis Numerico 2/PC4/expo-runge-kutta/beamer/beamer-metodo-runge-kutta.tex"
+  . 24249)
+ ("/usr/local/texlive/2026/texmf-dist/tex/latex/minted/minted.sty" . 11603)
+ ("/home/fayfer/Documentos/Cursos-2026-I/Análisis Numerico 2/PC4/apuntes-pvi-edo.tex" . 407)
+ ("/home/fayfer/texmf/tex/latex/academia20/examen-article-academia20.cls" . 12563)
+ ("/home/fayfer/.config/zathura/zathurarc" . 2650) ("/home/fayfer/Documentos/LaTeX/carta-love/carta-brillth.tex" . 2395)
+ ("/home/fayfer/Documentos/Cursos-2026-I/Programacion No Lineal/Apuntes-LaTeX/chapters/auto/" . 164)
+ ("/home/fayfer/Documentos/Cursos-2026-I/Ayudantia - Medida/apuntes-latex/"
+  (dired-filename . "/home/fayfer/Documentos/Cursos-2026-I/Ayudantia - Medida/apuntes-latex/apuntes-teoria-medida.tex"))
+ ("/home/fayfer/Documentos/Cursos-2026-I/Ayudantia - Medida/"
+  (dired-filename . "/home/fayfer/Documentos/Cursos-2026-I/Ayudantia - Medida/apuntes-latex"))
+ ("/home/fayfer/Documentos/Cursos-2026-I/Programacion No Lineal/"
+  (dired-filename . "/home/fayfer/Documentos/Cursos-2026-I/Programacion No Lineal/Apuntes-LaTeX"))
+ ("/home/fayfer/Documentos/Segundo-Cerebro/10-Matematicas/Apuntes-Variational-Analysis/apuntes-variational-analysis.tex"
+  . 21064)
+ ("/home/fayfer/Documentos/Segundo-Cerebro/10-Matematicas/Apuntes-Programacion-No-Lineal/Apuntes-Programacion-No-Lineal.tex"
+  . 1161)
+ ("/home/fayfer/texmf/tex/latex/apuntes/informe-std.cls" . 3902)
+ ("/home/fayfer/.config/rclone/rclone-filters.txt" . 381) ("/home/fayfer/.emacs.d/lisp/aas.el" . 266))
