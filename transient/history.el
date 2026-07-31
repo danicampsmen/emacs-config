@@ -1,0 +1,1 @@
+((aidermacs-transient-menu nil))

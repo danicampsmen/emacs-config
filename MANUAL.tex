@@ -1,0 +1,817 @@
+% Created 2026-07-31 vie 08:03
+% Intended LaTeX compiler: pdflatex
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{longtable}
+\usepackage{wrapfig}
+\usepackage{rotating}
+\usepackage[normalem]{ulem}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{capt-of}
+\usepackage{hyperref}
+\author{Fayfer}
+\date{\today}
+\title{Manual de Configuración Emacs — \LaTeX{} + Tesis}
+\hypersetup{
+ pdfauthor={Fayfer},
+ pdftitle={Manual de Configuración Emacs — \LaTeX{} + Tesis},
+ pdfkeywords={},
+ pdfsubject={},
+ pdfcreator={Emacs 30.2 (Org mode 9.7.11)}, 
+ pdflang={Spanish}}
+\begin{document}
+
+\maketitle
+\setcounter{tocdepth}{3}
+\tableofcontents
+
+\section{Flujo de Trabajo PDF + SyncTeX}
+\label{sec:orgf0f5c8f}
+
+\subsection{Compilar un documento \LaTeX{}}
+\label{sec:org45444fe}
+\begin{description}
+\item[{\texttt{C-c C-c}}] Ejecuta el comando por defecto (normalmente \texttt{LaTeX} o \texttt{LuaTeX}). AUCTeX detecta automáticamente si necesita ejecutar BibTeX/biber o volver a compilar.
+\item[{\texttt{C-c C-a}}] Ejecuta \emph{todos} los pasos necesarios (\LaTeX{} → BibTeX → \LaTeX{} → \LaTeX{}) hasta que el documento esté listo.
+\end{description}
+\subsection{Visualizar el PDF}
+\label{sec:orgc4f0f0d}
+\begin{description}
+\item[{\texttt{C-c C-v}}] Abre el PDF compilado en Zathura con SyncTeX activo.
+\item Al compilar exitosamente, Zathura se abre/actualiza automáticamente y hace \emph{forward search} a la posición actual del cursor.
+\end{description}
+\subsection{Forward Search (código → PDF)}
+\label{sec:orgac193ca}
+\begin{itemize}
+\item \texttt{C-c C-v} desde el buffer \LaTeX{} salta a la posición correspondiente en el PDF.
+\end{itemize}
+\subsection{Inverse Search (PDF → código)}
+\label{sec:org272dc0b}
+\begin{itemize}
+\item En Zathura, presiona \texttt{Ctrl+clic} sobre el texto del PDF. Emacs saltará a la línea correspondiente en el código fuente.
+\end{itemize}
+\subsection{Abrir cualquier PDF}
+\label{sec:org5a26692}
+\begin{description}
+\item[{\texttt{M-x my/open-pdf}}] Abre un PDF arbitrario con Zathura (con selección interactiva de archivo).
+\end{description}
+\subsection{Compilación silenciosa}
+\label{sec:orga8af0df}
+La compilación está configurada para ser silenciosa (\texttt{TeX-show-compilation} nil). Si hay errores, se abre automáticamente el buffer de errores con \texttt{TeX-error-overview}.
+\section{Snippets Tempel (\textasciitilde{}75 snippets)}
+\label{sec:org3384402}
+
+Los snippets se expanden escribiendo el \textbf{trigger} y presionando \texttt{TAB}. Si el snippet tiene placeholders, \texttt{TAB} salta al siguiente y \texttt{S-TAB} retrocede.
+
+Para snippets que usan \texttt{r} (región), primero selecciona el texto con \texttt{v} (modo visual de Evil) y luego escribe el trigger + \texttt{TAB}.
+\subsection{Envoltura (Common)}
+\label{sec:org89e8fbb}
+\begin{center}
+\begin{tabular}{lll}
+Trigger & Resultado & Descripción\\
+\hline
+\texttt{dpp} & \texttt{\textbackslash{}left( ... \textbackslash{}right)} & Paréntesis grandes\\
+\texttt{pcc} & \texttt{\textbackslash{}left[ ... \textbackslash{}right]} & Corchetes grandes\\
+\texttt{dll} & \texttt{\textbackslash{}left\textbackslash{}\{ ... \textbackslash{}right\textbackslash{}\}} & Llaves grandes\\
+\texttt{dbb} & =\left & \ldots{} \right & = & Valor absoluto / norma\\
+\texttt{mk} & \texttt{\textbackslash{}( ... \textbackslash{})} & Math inline\\
+\texttt{dm} & \texttt{\textbackslash{}[ ... \textbackslash{}]} & Math display\\
+\end{tabular}
+\end{center}
+\subsection{Entornos (General)}
+\label{sec:org6ead665}
+\begin{center}
+\begin{tabular}{ll}
+Trigger & Entorno\\
+\hline
+\texttt{enu} & enumerate\\
+\texttt{itm} & itemize\\
+\texttt{thm} & theorem\\
+\texttt{pro} & proposition\\
+\texttt{lem} & lemma\\
+\texttt{cor} & corollary\\
+\texttt{def} & definition\\
+\texttt{ejm} & example\\
+\texttt{exc} & exercise\\
+\texttt{sol} & solution\\
+\texttt{prf} & proof\\
+\texttt{obs} & remark\\
+\texttt{nta} & notation\\
+\texttt{obj} & objective\\
+\texttt{eq} & equation\\
+\texttt{clm} & claim\\
+\texttt{clms} & claim*\\
+\texttt{env} & (cualquier entorno, pide nombre)\\
+\texttt{fig} & figure (con buscador de imágenes)\\
+\texttt{tab} & table (con caption y tabular)\\
+\texttt{tikz} & tikzcd (diagrama conmutativo)\\
+\texttt{subf} & subfigure\\
+\texttt{cases} & cases\\
+\texttt{align} & align*\\
+\end{tabular}
+\end{center}
+\subsection{Matemáticas: Fracciones y Operadores}
+\label{sec:orge1e5066}
+\begin{center}
+\begin{tabular}{ll}
+Trigger & Resultado\\
+\hline
+\texttt{fr} & \texttt{\textbackslash{}frac\{\}\{\}} (usa región como numerador)\\
+\texttt{dfr} & \texttt{\textbackslash{}dfrac\{\}\{\}} (fracción display)\\
+\texttt{tfr} & \texttt{\textbackslash{}tfrac\{\}\{\}} (fracción text)\\
+\texttt{part} & \texttt{\textbackslash{}frac\{\textbackslash{}partial\}\{\textbackslash{}partial x\}}\\
+\texttt{diff} & \texttt{\textbackslash{}frac\{df\}\{dx\}}\\
+\texttt{sum} & \texttt{\textbackslash{}sum\_\{i=1\}\textasciicircum{}\{\textbackslash{}infty\}}\\
+\texttt{lim} & \texttt{\textbackslash{}lim\_\{n\textbackslash{}to\textbackslash{}infty\}}\\
+\texttt{int} & \texttt{\textbackslash{}int\_\{a\}\textasciicircum{}\{b\}}\\
+\texttt{prod} & \texttt{\textbackslash{}prod\_\{i=1\}\textasciicircum{}\{n\}}\\
+\texttt{na} & =\(\nabla\)\\
+\texttt{dst} & =\displaystyle\\
+\end{tabular}
+\end{center}
+\subsection{Matemáticas: Fuentes}
+\label{sec:orgc27bcf4}
+\begin{center}
+\begin{tabular}{ll}
+Trigger & Resultado\\
+\hline
+\texttt{mbb} & \texttt{\textbackslash{}symbb\{\}} (blackboard bold)\\
+\texttt{mcal} & \texttt{\textbackslash{}symcal\{\}} (caligráfico)\\
+\texttt{mfr} & \texttt{\textbackslash{}symfrak\{\}} (fraktur)\\
+\texttt{mrm} & \texttt{\textbackslash{}mathrm\{\}} (romano)\\
+\texttt{mbf} & \texttt{\textbackslash{}mathbf\{\}} (negrita)\\
+\texttt{msf} & \texttt{\textbackslash{}mathsf\{\}} (sans serif)\\
+\texttt{mit} & \texttt{\textbackslash{}mathit\{\}} (itálica)\\
+\end{tabular}
+\end{center}
+\subsection{Matemáticas: Texto y Decoraciones}
+\label{sec:org3badf8f}
+\begin{center}
+\begin{tabular}{ll}
+Trigger & Resultado\\
+\hline
+\texttt{tx} & \texttt{\textbackslash{}text\{\}} (texto en modo matemático)\\
+\texttt{ol} & \texttt{\textbackslash{}overline\{\}} (overline / conjugado)\\
+\texttt{ts} & \texttt{\textbackslash{}widetilde\{\}} (tilde ancha)\\
+\texttt{ht} & \texttt{\textbackslash{}widehat\{\}} (sombrero ancho)\\
+\texttt{pmod} & \texttt{\textbackslash{}pmod\{\}} (módulo entre paréntesis)\\
+\end{tabular}
+\end{center}
+\subsection{Matemáticas: Matrices}
+\label{sec:orge53f666}
+\begin{center}
+\begin{tabular}{ll}
+Trigger & Resultado\\
+\hline
+\texttt{bm} & \texttt{\textbackslash{}begin\{bmatrix\}...\textbackslash{}end\{bmatrix\}} (corchetes)\\
+\texttt{pm} & \texttt{\textbackslash{}begin\{pmatrix\}...\textbackslash{}end\{pmatrix\}} (paréntesis)\\
+\end{tabular}
+\end{center}
+\subsection{Matemáticas: Símbolos y Operadores}
+\label{sec:org284af16}
+\begin{center}
+\begin{tabular}{ll}
+Trigger & Resultado\\
+\hline
+\texttt{ot} & \texttt{\textbackslash{}otimes}\\
+\texttt{ceq} & \texttt{\textbackslash{}coloneq}\\
+\texttt{op} & \texttt{\textbackslash{}operatorname\{\}}\\
+\texttt{ix} & \texttt{\textbackslash{}index\{\}}\\
+\texttt{eqref} & \texttt{\textbackslash{}eqref\{eq:\}} (referencia a ecuación)\\
+\texttt{mini} & Entorno mini* (optimización con restricciones)\\
+\texttt{maxi} & Entorno maxi* (optimización dual)\\
+\texttt{acon} & \texttt{\textbackslash{}addConstraint\{\}\{\}}\\
+\texttt{dmap} & \texttt{\textbackslash{}map\{\}\{\}\{\}\{\}\{\}\{\}} (función dominio→codominio)\\
+\texttt{evr} & \texttt{\textbackslash{}Evr} (evaluación real)\\
+\texttt{evc} & \texttt{\textbackslash{}Evc} (evaluación compleja)\\
+\end{tabular}
+\end{center}
+\subsection{Geometría Compleja / Kähler (Math)}
+\label{sec:org740344b}
+\begin{center}
+\begin{tabular}{ll}
+Trigger & Resultado\\
+\hline
+\texttt{dox} & \texttt{\textbackslash{}overline\{\textbackslash{}partial\}} (∂̄, Dolbeault)\\
+\texttt{del} & \texttt{\textbackslash{}partial} (∂)\\
+\texttt{delb} & \texttt{\textbackslash{}overline\{\textbackslash{}partial\}} (alias ∂̄)\\
+\texttt{om} & \texttt{\textbackslash{}omega} (forma de Kähler)\\
+\texttt{hodge} & \texttt{\textbackslash{}Delta\_\{d\}} (Laplaciano de Hodge)\\
+\texttt{drc} & \texttt{d\textasciicircum{}\{c\}} (d\textsuperscript{c} = J⁻¹ d J)\\
+\end{tabular}
+\end{center}
+\subsection{Optimización No Lineal (Math)}
+\label{sec:org0677b68}
+\begin{center}
+\begin{tabular}{ll}
+Trigger & Resultado\\
+\hline
+\texttt{kkt} & Condición KKT completa\\
+\texttt{lagr} & \texttt{\textbackslash{}symcal\{L\}(x, \textbackslash{}lambda, \textbackslash{}mu) = f(x) + \textbackslash{}lambda\textasciicircum{}\{\textbackslash{}top\} h(x) + \textbackslash{}mu\textasciicircum{}\{\textbackslash{}top\} g(x)}\\
+\texttt{hess} & \texttt{\textbackslash{}nabla\textasciicircum{}\{2\} f(x)} (Hessiano)\\
+\texttt{grad} & \texttt{\textbackslash{}nabla f(x)} (Gradiente)\\
+\end{tabular}
+\end{center}
+\subsection{Álgebra Conmutativa (Math)}
+\label{sec:orgd8449af}
+\begin{center}
+\begin{tabular}{ll}
+Trigger & Resultado\\
+\hline
+\texttt{loc} & \texttt{S\textasciicircum{}\{-1\}R} (localización)\\
+\texttt{comp} & \texttt{\textbackslash{}widehat\{R\}} (completación)\\
+\texttt{mad} & \texttt{\textbackslash{}symfrak\{m\}-\textbackslash{}text\{ádico\}}\\
+\texttt{anill} & \texttt{(R, \textbackslash{}symfrak\{m\}, k)} (anillo local)\\
+\end{tabular}
+\end{center}
+\subsection{Entornos Especializados (Cursos 2026-I)}
+\label{sec:orge945ed2}
+\begin{center}
+\begin{tabular}{lll}
+Trigger & Entorno & Descripción\\
+\hline
+\texttt{pcs} & proofcases & Casos dentro de una demostración\\
+\texttt{cpf} & claimproof & Demostración de un claim\\
+\texttt{cmt} & commentary & Comentario / nota al margen\\
+\end{tabular}
+\end{center}
+\subsection{Snippets de Geometría Compleja (tesis-snippets.el) — solo en proyectos de tesis}
+\label{sec:orgcbf0056}
+
+Estos snippets se cargan automáticamente cuando el proyecto actual contiene "Tesis", "Monografia", "Variedades", "geometria", o "kahler" en su ruta.
+
+\begin{center}
+\begin{tabular}{ll}
+Trigger & Resultado\\
+\hline
+\texttt{ac} & \texttt{\textbackslash{}symcal\{A\}\textasciicircum{}\{p,q\}}\\
+\texttt{acf} & \texttt{\textbackslash{}symcal\{A\}\textasciicircum{}\{\textbackslash{}bullet\}\_\{\textbackslash{}Complex\}}\\
+\texttt{zco} & \texttt{\textbackslash{}Complex} (ℂ)\\
+\texttt{jop} & \texttt{J} (estructura casi-compleja)\\
+\texttt{nij} & \texttt{N\_\{J\}} (tensor de Nijenhuis)\\
+\texttt{t10} & \texttt{T\textasciicircum{}\{1,0\}M}\\
+\texttt{t01} & \texttt{T\textasciicircum{}\{0,1\}M}\\
+\texttt{dolb} & \texttt{H\_\{\textbackslash{}overline\{\textbackslash{}partial\}\}\textasciicircum{}\{p,q\}(X)}\\
+\texttt{dolr} & \texttt{H\textasciicircum{}\{p,q\}\_\{\textbackslash{}overline\{\textbackslash{}partial\}\}(X)}\\
+\texttt{betti} & \texttt{b\_\{k\}} (número de Betti)\\
+\texttt{hodge-d} & \texttt{H\textasciicircum{}\{k\}\_\{dR\}(X)} (de Rham)\\
+\texttt{kahm} & Fórmula de la métrica de Kähler\\
+\texttt{ric} & \texttt{\textbackslash{}operatorname\{Ric\}(\textbackslash{}omega)}\\
+\texttt{ricf} & \texttt{\textbackslash{}rho = \textbackslash{}operatorname\{Ric\}(\textbackslash{}omega)}\\
+\texttt{kahpot} & \texttt{\textbackslash{}omega = i\textbackslash{}partial\textbackslash{}overline\{\textbackslash{}partial\}\textbackslash{}phi}\\
+\texttt{dpart} & \texttt{\textbackslash{}partial}\\
+\texttt{dbarr} & \texttt{\textbackslash{}overline\{\textbackslash{}partial\}}\\
+\texttt{lef} & Operador de Lefschetz\\
+\texttt{lefs} & \texttt{\textbackslash{}Lambda} (adjunto de Lefschetz)\\
+\texttt{lald} & \texttt{\textbackslash{}Delta\_\{\textbackslash{}overline\{\textbackslash{}partial\}\}}\\
+\texttt{canb} & \texttt{K\_\{X\}} (fibrado canónico)\\
+\texttt{canbf} & \texttt{\textbackslash{}omega\_\{X\}} (haz canónico)\\
+\texttt{holsec} & \texttt{H\textasciicircum{}\{0\}(X, \textbackslash{}symcal\{O\}(D))}\\
+\texttt{divcl} & \texttt{\textbackslash{}operatorname\{Div\}(X)}\\
+\texttt{serre} & Dualidad de Serre\\
+\texttt{kodv} & \texttt{\textbackslash{}operatorname\{kod\}(X)} (Kodaira)\\
+\texttt{cy} & \texttt{c\_\{1\}(X) = 0} (Calabi-Yau)\\
+\texttt{calabi} & \texttt{\textbackslash{}operatorname\{Hol\}(X) \textbackslash{}subseteq SU(n)}\\
+\end{tabular}
+\end{center}
+\subsection{Arquitectura del sistema de snippets}
+\label{sec:org5fbec2f}
+
+El sistema tiene 3 componentes que trabajan juntos:
+
+\begin{enumerate}
+\item \textbf{Tempel} (motor de expansión): Registra los triggers y los expande al presionar \texttt{TAB}. Los snippets se definen como pares \texttt{(trigger . expansión)} en listas de Emacs Lisp.
+\item \textbf{Hydra} (menú visual): Muestra un menú flotante con todos los triggers organizados por categoría. Al presionar una tecla, llama a \texttt{my-latex-snippet-hydra-insert} que inserta el trigger y llama a \texttt{tempel-expand}.
+\item \textbf{General.el} (atajos de teclado): Define \texttt{; t h} para abrir la Hydra y \texttt{; i s} para \texttt{tempel-insert} (inserción manual).
+\end{enumerate}
+\subsection{Cómo agregar un snippet nuevo (paso a paso)}
+\label{sec:org9aa4846}
+
+\begin{enumerate}
+\item Editar \texttt{lisp/my-latex-snippets.el}.
+\item Agregar el par \texttt{(trigger . ("expansión" p r ... q))} a la lista correspondiente:
+\begin{itemize}
+\item \texttt{my-latex-common-snippets} para envolturas
+\item \texttt{my-latex-general-snippets} para entornos
+\item \texttt{my-latex-math-snippets} para matemáticas
+\item \texttt{my-latex-specialized-snippets} para entornos especializados
+\end{itemize}
+\item \textbf{(Opcional)} Si quieres que aparezca en la Hydra:
+\begin{itemize}
+\item Agregar la entrada al texto de ayuda del \texttt{defhydra} (con formato \texttt{\_trigger\_: descripción})
+\item Agregar el binding: \texttt{("trigger" (my-latex-snippet-hydra-insert "trigger") :exit t)}
+\end{itemize}
+\item Guardar el archivo y ejecutar \texttt{M-x my/reload-snippets} (o reiniciar Emacs).
+\end{enumerate}
+\subsection{Sintaxis de Tempel para expansiones}
+\label{sec:org0b7e207}
+
+\begin{center}
+\begin{tabular}{ll}
+Símbolo & Significado\\
+\hline
+\texttt{p} & Placeholder: Tempel se detiene aquí para que edites.\\
+\texttt{(p "texto")} & Placeholder con valor por defecto "texto".\\
+\texttt{r} & Región: si hay texto seleccionado, lo inserta aquí.\\
+\texttt{q} & Quit: finaliza la expansión (no hay más placeholders).\\
+\texttt{n>} & Nueva línea con indentación automática.\\
+\texttt{(s var)} & Pregunta interactivamente (usa \texttt{completing-read} o similar).\\
+\end{tabular}
+\end{center}
+\subsection{Recarga de snippets}
+\label{sec:org1944855}
+
+\begin{description}
+\item[{\texttt{M-x my/reload-snippets}}] Recarga \texttt{my-latex-snippets.el} en caliente (sin reiniciar Emacs).
+\item[{\texttt{M-x my/quick-add-snippet}}] Asistente para crear un snippet nuevo (experimental).
+\end{description}
+\subsection{Solución de problemas comunes}
+\label{sec:org01ca996}
+
+\begin{center}
+\begin{tabular}{lll}
+Problema & Causa probable & Solución\\
+\hline
+La Hydra no aparece con \texttt{; t h} & \texttt{my-latex-snippets.el} no está cargado & Verificar \texttt{(require 'my-latex-snippets)} en \texttt{init.el}\\
+La Hydra da error al cargar & Conflicto de teclas en \texttt{defhydra} & Ningún trigger puede ser prefijo de otro. Renombrar.\\
+El snippet no expande con \texttt{TAB} & Tempel no está activo en \LaTeX{} mode & Verificar \texttt{tempel-active-mode} o \texttt{M-x tempel-expand}\\
+\texttt{r} no usa la selección visual & No estás en Evil Visual mode & Presionar \texttt{v} antes de seleccionar y expandir\\
+El snippet expande texto incorrecto & El trigger no está en la lista & Verificar la lista correcta en el archivo .el\\
+\end{tabular}
+\end{center}
+\section{Expansiones Automáticas LAAS (\textasciitilde{}25 expansiones)}
+\label{sec:orgbf15063}
+
+Estas expansiones se activan solas al escribir en modo matemático (\texttt{laas-mode}). No requieren presionar \texttt{TAB}.
+\subsection{Operadores y relaciones}
+\label{sec:org9e84682}
+\begin{center}
+\begin{tabular}{ll}
+Escribes & Se convierte en\\
+\hline
+\texttt{:} & \texttt{\textbackslash{}coloneq}\\
+\texttt{!} & \texttt{\textbackslash{}ne}\\
+=--> & \texttt{\textbackslash{}longrightarrow}\\
+=-> & \texttt{\textbackslash{}to}\\
+\texttt{iff} & \texttt{\textbackslash{}iff}\\
+\texttt{imp} & \texttt{\textbackslash{}implies}\\
+\texttt{ot} & \texttt{\textbackslash{}otimes}\\
+\end{tabular}
+\end{center}
+\subsection{Exponentes frecuentes}
+\label{sec:orgc5ac3c9}
+\begin{center}
+\begin{tabular}{ll}
+Escribes & Se convierte en\\
+\hline
+\texttt{op} & \texttt{\textasciicircum{}\{\textbackslash{}mathrm\{op\}\}}\\
+\end{tabular}
+\end{center}
+\subsection{Símbolos caligráficos y fraktur (Álgebra Conmutativa)}
+\label{sec:orgd65f66c}
+\begin{center}
+\begin{tabular}{ll}
+Escribes & Se convierte en\\
+\hline
+\texttt{OO} & \texttt{\textbackslash{}symcal\{O\}}\\
+\texttt{AA} & \texttt{\textbackslash{}symcal\{A\}}\\
+\texttt{MM} & \texttt{\textbackslash{}symfrak\{m\}}\\
+\texttt{PP} & \texttt{\textbackslash{}symfrak\{p\}}\\
+\texttt{QQ} & \texttt{\textbackslash{}symfrak\{q\}}\\
+\end{tabular}
+\end{center}
+\subsection{Operadores algebraicos (comandos de tus documentclasses)}
+\label{sec:orgfb8dd2b}
+\begin{center}
+\begin{tabular}{ll}
+Escribes & Se convierte en\\
+\hline
+\texttt{Spec} & \texttt{\textbackslash{}Spec}\\
+\texttt{Hom} & \texttt{\textbackslash{}Hom}\\
+\texttt{Ker} & \texttt{\textbackslash{}Ker}\\
+\texttt{Cok} & \texttt{\textbackslash{}Coker}\\
+\texttt{Im} & \texttt{\textbackslash{}Image}\\
+\texttt{End} & \texttt{\textbackslash{}End}\\
+\texttt{Aut} & \texttt{\textbackslash{}Aut}\\
+\texttt{Ext} & \texttt{\textbackslash{}Ext}\\
+\texttt{Tor} & \texttt{\textbackslash{}Tor}\\
+\texttt{Frac} & \texttt{\textbackslash{}Frac}\\
+\texttt{Proj} & \texttt{\textbackslash{}Proj}\\
+\end{tabular}
+\end{center}
+\section{Atajos de Teclado}
+\label{sec:orgb3aa87d}
+
+\subsection{Líder SPC — General}
+\label{sec:org1d32ac2}
+\begin{center}
+\begin{tabular}{lll}
+Tecla & Función & Descripción\\
+\hline
+\texttt{SPC .} & \texttt{consult-find} & Buscar archivo en el proyecto\\
+\texttt{SPC b .} & \texttt{consult-buffer} & Cambiar de buffer\\
+\texttt{SPC b k} & \texttt{kill-current-buffer} & Cerrar buffer actual\\
+\texttt{SPC f s} & \texttt{save-buffer} & Guardar archivo\\
+\texttt{SPC f f} & \texttt{find-file} & Abrir archivo\\
+\texttt{SPC f r} & \texttt{consult-recent-file} & Archivos recientes\\
+\texttt{SPC f L} & \texttt{consult-locate} & Buscar archivo en el sistema\\
+\texttt{SPC p p} & \texttt{projectile-switch-project} & Cambiar de proyecto\\
+\texttt{SPC p f} & \texttt{projectile-find-file} & Buscar archivo en el proyecto\\
+\texttt{SPC p g} & \texttt{projectile-ripgrep} & Buscar texto en el proyecto (ripgrep)\\
+\texttt{SPC q q} & \texttt{save-buffers-kill-emacs} & Salir de Emacs\\
+\texttt{SPC w v} & \texttt{split-window-right} & Dividir ventana vertical\\
+\texttt{SPC w s} & \texttt{split-window-below} & Dividir ventana horizontal\\
+\texttt{SPC w c} & \texttt{delete-window} & Cerrar ventana actual\\
+\texttt{SPC w o} & \texttt{delete-other-windows} & Cerrar otras ventanas\\
+\texttt{SPC w h} & \texttt{windmove-left} & Ir a ventana izquierda\\
+\texttt{SPC w j} & \texttt{windmove-down} & Ir a ventana abajo\\
+\texttt{SPC w k} & \texttt{windmove-up} & Ir a ventana arriba\\
+\texttt{SPC w l} & \texttt{windmove-right} & Ir a ventana derecha\\
+\texttt{SPC w w} & \texttt{other-window} & Alternar ventana\\
+\texttt{SPC g s} & \texttt{magit-status} & Estado de Git (Magit)\\
+\texttt{SPC g l} & \texttt{magit-log} & Log de Git\\
+\texttt{SPC g b} & \texttt{magit-blame} & Git blame\\
+\texttt{SPC t t} & \texttt{my/toggle-term} & Terminal flotante (vterm)\\
+\texttt{SPC t n} & \texttt{my/vterm-new} & Nueva terminal\\
+\end{tabular}
+\end{center}
+\subsection{Líder SPC — \LaTeX{}}
+\label{sec:orgd5db2bb}
+\begin{center}
+\begin{tabular}{lll}
+Tecla & Función & Descripción\\
+\hline
+\texttt{SPC l c} & \texttt{TeX-command-master} & Compilar\\
+\texttt{SPC l v} & \texttt{TeX-view} & Ver PDF\\
+\texttt{SPC l e} & \texttt{LaTeX-environment} & Insertar entorno\\
+\texttt{SPC l s} & \texttt{LaTeX-section} & Insertar sección\\
+\texttt{SPC l f} & \texttt{TeX-font} & Insertar comando de fuente\\
+\texttt{SPC l r} & \texttt{my/smart-latex-label} & Insertar \label{} inteligente\\
+\texttt{SPC l q} & \texttt{my/insert-matrix} & Insertar matriz\\
+\texttt{SPC l n} & \texttt{tesis-tools-insert-note} & Insertar nota con fecha\\
+\texttt{SPC l z} & \texttt{tesis-tools-insert-citation-advanced} & Cita avanzada con Citar\\
+\texttt{SPC l i} & \texttt{tesis-tools-insert-inkscape-pdftex} & Crear figura con Inkscape\\
+\texttt{SPC l k} & \texttt{tesis-tools-todo-report} & Reporte de TODOs del proyecto\\
+\texttt{SPC l w} & \texttt{tesis-tools-status} & Conteo de palabras\\
+\texttt{SPC l h} & \texttt{my-latex-snippet-hydra/body} & Hydra visual de snippets\\
+\end{tabular}
+\end{center}
+\subsection{Líder SPC — IA (Inteligencia Artificial)}
+\label{sec:org37745b8}
+\begin{center}
+\begin{tabular}{lll}
+Tecla & Función & Descripción\\
+\hline
+\texttt{SPC a a} & \texttt{aidermacs-transient-menu} & Menú principal Aider\\
+\texttt{SPC a c} & \texttt{aidermacs-change-model} & Cambiar modelo de IA\\
+\texttt{SPC a s} & \texttt{aidermacs-show-output} & Mostrar salida de Aider\\
+\texttt{SPC a r} & \texttt{aidermacs-reset-context} & Reiniciar contexto\\
+\texttt{SPC a o} & \texttt{aidermacs-open-version-file} & Abrir archivo de versión\\
+\texttt{SPC a . cat} & \texttt{aidermacs-architect} & Modo arquitecto\\
+\texttt{SPC a . code} & \texttt{aidermacs-code} & Modo código\\
+\end{tabular}
+\end{center}
+\subsection{Evil Mode (navegación modal)}
+\label{sec:org5ad2356}
+\begin{itemize}
+\item \texttt{vim} estándar: \texttt{h j k l}, \texttt{w b e}, \texttt{f t}, \texttt{/ ?}, \texttt{n N}, \texttt{dd yy p}, \texttt{u C-r}, \texttt{ciw diw yiw}, etc.
+\item[{\texttt{g c c}}] Comentar/descomentar línea (\texttt{evil-commentary})
+\item[{\texttt{g c} + movimiento}] Comentar región
+\item[{\texttt{c s} + delimitador antiguo + delimitador nuevo}] Cambiar delimitador surround (\texttt{evil-surround})
+\item[{\texttt{d s} + delimitador}] Eliminar delimitador surround
+\item[{\texttt{y s} + movimiento + delimitador}] Agregar delimitador surround
+\item[{\texttt{g r}}] Buscar y reemplazar interactivo (\texttt{evil-mc}, multicursor)
+\item[{\texttt{C-n} / \texttt{C-p}}] Crear cursor siguiente/anterior (\texttt{evil-mc})
+\end{itemize}
+\subsection{Atajos globales}
+\label{sec:org201c10e}
+\begin{center}
+\begin{tabular}{lll}
+Tecla & Función & Descripción\\
+\hline
+\texttt{C-;} & \texttt{embark-dwim} & Embark (acción por defecto)\\
+\texttt{C-.} & \texttt{embark-act} & Embark (menú de acciones)\\
+\texttt{C-} & \texttt{er/expand-region} & Expandir selección\\
+\texttt{M-y} & \texttt{consult-yank-pop} & Historial del kill ring\\
+\texttt{M-'} & \texttt{jinx-correct} & Corregir ortografía\\
+\texttt{C-M-'} & \texttt{jinx-languages} & Cambiar idioma ortografía\\
+\texttt{C-c h} & \texttt{my/select-all-buffer} & Seleccionar todo\\
+\texttt{M-g l} & \texttt{consult-line} & Buscar línea en el buffer\\
+\texttt{M-g g} & \texttt{goto-line} & Ir a línea\\
+\texttt{C-x C-j} & \texttt{dired-jump} & Abrir dired en directorio actual\\
+\end{tabular}
+\end{center}
+\section{Layouts de Tesis}
+\label{sec:org4d08e11}
+
+\subsection{Modo Tesis Completo — \texttt{M-x tesis-layout-activate}}
+\label{sec:orgecec7d4}
+\begin{itemize}
+\item Ventana izquierda: código \LaTeX{}
+\item Ventana derecha superior: PDF compilado
+\item Ventana derecha inferior: PDF de referencia (elegido interactivamente)
+\item Guarda la configuración anterior en el registro \texttt{t} (\texttt{C-x r j t} para restaurar)
+\end{itemize}
+\subsection{Modo Escritor — \texttt{M-x my/layout-writer}}
+\label{sec:org451ed0d}
+\begin{itemize}
+\item Ventana izquierda: código \LaTeX{}
+\item Ventana derecha: PDF compilado
+\item Ideal para redacción continua con vista previa
+\end{itemize}
+\subsection{Modo Investigación — \texttt{M-x my/layout-research}}
+\label{sec:org0c63111}
+\begin{itemize}
+\item Ventana izquierda: código \LaTeX{}
+\item Ventana derecha: buffer de notas/organización
+\item Ideal para consultar apuntes mientras escribes
+\end{itemize}
+\section{Herramientas de Tesis (\texttt{tesis-tools})}
+\label{sec:org6bf2bbe}
+
+\subsection{Notas y progreso}
+\label{sec:org27d65d1}
+\begin{description}
+\item[{\texttt{M-x tesis-tools-insert-note}}] Inserta \texttt{\% NOTE (Autor) [YYYY-MM-DD]:}
+\item[{\texttt{M-x tesis-tools-status}}] Muestra conteo de palabras del buffer actual
+\item[{\texttt{M-x tesis-tools-todo-report}}] Escanea todos los \texttt{.tex} del proyecto en busca de \texttt{\% TODO}, \texttt{\% NOTE}, \texttt{\% FIXME}, \texttt{\% HACK}, \texttt{\% XXX} y genera un buffer de reporte organizado por archivo
+\end{description}
+\subsection{Citas avanzadas}
+\label{sec:orgbd17de1}
+\begin{description}
+\item[{\texttt{M-x tesis-tools-insert-citation-advanced}}] Inserta una cita con Citar preguntando tipo de referencia (Teorema, Proposición, Lema\ldots{}), número y página. Genera \texttt{\textbackslash{}cite[Proposición 3.1, p. 42]\{clave\}} automáticamente.
+\end{description}
+\subsection{Figuras con Inkscape}
+\label{sec:orgd6edc9a}
+\begin{description}
+\item[{\texttt{M-x tesis-tools-insert-inkscape-pdftex}}] Abre Inkscape para dibujar una figura, la guarda en \texttt{figuras/}, e inserta el bloque \texttt{\textbackslash{}begin\{figure\}...\textbackslash{}incfig\{...\}...\textbackslash{}end\{figure\}} automáticamente.
+\item[{\texttt{M-x tesis-tools-edit-inkscape-pdftex}}] Con el cursor sobre un \texttt{\textbackslash{}incfig\{...\}}, reabre la figura en Inkscape para editarla.
+\end{description}
+\subsection{Entornos rápidos}
+\label{sec:orgccbb0a8}
+\begin{description}
+\item[{\texttt{M-x tesis-tools-wrap-in-environment}}] Envuelve la región seleccionada en \texttt{\textbackslash{}begin\{env\}...\textbackslash{}end\{env\}} (pide el nombre del entorno).
+\end{description}
+\subsection{Etiquetas inteligentes}
+\label{sec:org085c376}
+\begin{description}
+\item[{\texttt{M-x my/smart-latex-label}}] Inserta \texttt{\textbackslash{}label\{tipo:etiqueta\}} detectando automáticamente el prefijo según el entorno actual (\texttt{eq:}, \texttt{thm:}, \texttt{fig:}, etc.).
+\end{description}
+\section{Segundo Cerebro + Zotero}
+\label{sec:orgae561cb}
+
+\subsection{Bibliografía por proyecto}
+\label{sec:org21d24fa}
+Al entrar a un proyecto, Emacs detecta automáticamente los archivos \texttt{.bib} en la raíz y los configura como bibliografía local para ese proyecto. Así puedes tener bibliografías separadas para la tesis, cursos, etc.
+\subsection{Insertar y abrir PDF links}
+\label{sec:org562dfac}
+\begin{description}
+\item[{\texttt{M-x my/insert-pdf-link}}] Selecciona una referencia de Zotero e inserta un enlace mágico \texttt{\% PDF: ruta::página} en el buffer actual.
+\item[{\texttt{M-x my/open-pdf-link}}] Con el cursor sobre un enlace \texttt{\% PDF: ruta::página}, abre el PDF en la página indicada.
+\end{description}
+\subsection{Vista previa de citas}
+\label{sec:orgfe4456d}
+\begin{description}
+\item[{\texttt{M-x my/citar-preview-at-point}}] Con el cursor sobre una clave de cita, muestra la referencia completa en el minibuffer.
+\item[{\texttt{M-x my/citar-open-attachment}}] Abre el PDF adjunto de la referencia bajo el cursor.
+\end{description}
+\subsection{Navegación de notas}
+\label{sec:org4eea129}
+\begin{description}
+\item[{\texttt{M-x my/second-brain-find-note}}] Busca y abre notas del segundo cerebro (usa \texttt{consult} con \texttt{orderless}).
+\item[{\texttt{M-x my/second-brain-new-note}}] Crea una nueva nota con plantilla de fecha y metadatos.
+\end{description}
+\section{Visuales \LaTeX{}}
+\label{sec:org0693717}
+
+\subsection{Colores semánticos de entornos plegados}
+\label{sec:org9bc3e84}
+Al plegar entornos con \texttt{TeX-fold-mode} (\texttt{C-c C-o C-b} para plegar buffer completo), cada tipo de entorno se muestra con un color distintivo:
+\begin{itemize}
+\item \textbf{Teoremas/Resultados}: azul
+\item \textbf{Definiciones}: dorado
+\item \textbf{Advertencias/Errores}: rojo
+\item \textbf{Demostraciones}: gris itálico
+\item \textbf{Ecuaciones}: cian itálico
+\item \textbf{Listas}: verde
+\item \textbf{Código}: verde azulado
+\end{itemize}
+\subsection{Prettify Symbols}
+\label{sec:org59eb6b1}
+En buffers \LaTeX{}, ciertos comandos se muestran como símbolos Unicode:
+\begin{itemize}
+\item \texttt{\textbackslash{}alpha} → α, \texttt{\textbackslash{}beta} → β, \texttt{\textbackslash{}gamma} → γ, etc. (letras griegas)
+\item \texttt{\textbackslash{}to} → →, \texttt{\textbackslash{}implies} → ⇒, \texttt{\textbackslash{}iff} → ⇔
+\item \texttt{\textbackslash{}leq} → ≤, \texttt{\textbackslash{}geq} → ≥, \texttt{\textbackslash{}neq} → ≠
+\item \texttt{\textbackslash{}forall} → ∀, \texttt{\textbackslash{}exists} → ∃, \texttt{\textbackslash{}in} → ∈, \texttt{\textbackslash{}notin} → ∉
+\item \texttt{\textbackslash{}subset} → ⊂, \texttt{\textbackslash{}subseteq} → ⊆, \texttt{\textbackslash{}cup} → ∪, \texttt{\textbackslash{}cap} → ∩
+\item \texttt{\textbackslash{}mathbb\{N\}} → ℕ, \texttt{\textbackslash{}mathbb\{R\}} → ℝ, \texttt{\textbackslash{}mathbb\{C\}} → ℂ, etc.
+\end{itemize}
+\subsection{Resaltado de comandos}
+\label{sec:org4ae1172}
+\begin{itemize}
+\item Comandos \texttt{\textbackslash{}label\{...\}} y \texttt{\textbackslash{}ref\{...\}} se muestran con color distintivo.
+\item Comandos \texttt{\textbackslash{}cite\{...\}} y \texttt{\textbackslash{}cref\{...\}} resaltados para fácil identificación.
+\item Palabras clave como \texttt{\textbackslash{}begin}, \texttt{\textbackslash{}end}, \texttt{\textbackslash{}usepackage} en negrita coloreada.
+\end{itemize}
+\section{Hydra de Snippets}
+\label{sec:orgb00261e}
+
+La Hydra es un menú visual flotante que muestra una paleta de \textasciitilde{}50 snippets organizados por categoría. Al presionar una tecla, el snippet se inserta automáticamente en el buffer.
+\subsection{Invocación}
+\label{sec:org24a5c9f}
+
+\begin{description}
+\item[{\texttt{SPC l h} (atajo del líder)}] Abre la Hydra.
+\item[{\texttt{M-x my-latex-snippet-hydra/body}}] Lo mismo por M-x.
+\end{description}
+\subsection{Comportamiento}
+\label{sec:orge914bd3}
+
+La Hydra usa el modo \texttt{:color blue}, lo que significa que \textbf{permanece abierta} hasta que presiones un trigger (que inserta el snippet y cierra la Hydra) o \texttt{q} para salir sin insertar nada. Mientras está abierta, puedes mover el cursor con las teclas de flecha o \texttt{C-n} / \texttt{C-p} para navegar.
+\subsection{Columnas del menú}
+\label{sec:org9ca0929}
+
+\begin{center}
+\begin{tabular}{ll}
+Columna & Triggers disponibles\\
+\hline
+Envoltura & \texttt{dpp}, \texttt{pcc}, \texttt{dll}, \texttt{dbb}, \texttt{mk}, \texttt{dm}\\
+Entornos & \texttt{enu}, \texttt{itm}, \texttt{thm}, \texttt{pro}, \texttt{lem}, \texttt{cor}, \texttt{def}, \texttt{ejm}, \texttt{prf}, \texttt{obs}, \texttt{clm}, \texttt{fig}, \texttt{tab}, \texttt{tikz}, \texttt{subf}, \texttt{env}, \texttt{cases}, \texttt{align}, \texttt{eqr}\\
+Matemáticas & \texttt{fr}, \texttt{part}, \texttt{sum}, \texttt{lim}, \texttt{int}, \texttt{pdt} (\texttt{prod})\\
+Geom. Compleja & \texttt{dox}, \texttt{delb}, \texttt{om}, \texttt{hodge}, \texttt{drc}\\
+Optimización & \texttt{kkt}, \texttt{lagr}, \texttt{hess}, \texttt{grad}\\
+Fuentes & \texttt{mbb}, \texttt{mcal}, \texttt{mfr}, \texttt{mbf}, \texttt{mrm}, \texttt{mit}, \texttt{msf}\\
+Álgebra Conmut. & \texttt{loc}, \texttt{comp}, \texttt{mad}, \texttt{anill}\\
+Texto/Decoración & \texttt{tx}, \texttt{ol}, \texttt{ts}, \texttt{ht}, \texttt{na}, \texttt{dst}, \texttt{pmod}, \texttt{dfr}, \texttt{tfr}, \texttt{bm}, \texttt{pm}, \texttt{pcs}, \texttt{cpf}, \texttt{cmt}\\
+\end{tabular}
+\end{center}
+\subsection{Notas sobre conflictos de teclas}
+\label{sec:org2d75e00}
+
+La Hydra no permite que un trigger sea prefijo de otro. Por ejemplo, si existe \texttt{pro}, no puede existir \texttt{prod} porque \texttt{p r o} ya ejecuta \texttt{pro} y no espera una \texttt{d} adicional. Por eso algunos triggers de la Hydra difieren de los triggers de Tempel:
+
+\begin{center}
+\begin{tabular}{lll}
+Trigger Hydra & Trigger Tempel & Razón\\
+\hline
+\texttt{pdt} & \texttt{prod} & \texttt{pro} es prefijo de \texttt{prod}\\
+\texttt{eqr} & \texttt{eqref} & \texttt{eq} es prefijo de \texttt{eqref}\\
+\texttt{(no está)} & \texttt{del} & \texttt{del} era prefijo de \texttt{delb}\\
+\texttt{(no está)} & \texttt{eq} & \texttt{eq} era prefijo de \texttt{eqref}\\
+\end{tabular}
+\end{center}
+
+Los triggers que no están en la Hydra siguen funcionando con la expansión directa por \texttt{TAB} o \texttt{; i s}.
+\subsection{Lista completa de teclas de la Hydra}
+\label{sec:orgb672f6d}
+
+\begin{center}
+\begin{tabular}{llll}
+Tecla & Trigger que inserta & Tecla & Trigger que inserta\\
+\hline
+\texttt{dpp} & \texttt{dpp} & \texttt{mbb} & \texttt{mbb}\\
+\texttt{pcc} & \texttt{pcc} & \texttt{mcal} & \texttt{mcal}\\
+\texttt{dll} & \texttt{dll} & \texttt{mfr} & \texttt{mfr}\\
+\texttt{dbb} & \texttt{dbb} & \texttt{mbf} & \texttt{mbf}\\
+\texttt{mk} & \texttt{mk} & \texttt{mrm} & \texttt{mrm}\\
+\texttt{dm} & \texttt{dm} & \texttt{mit} & \texttt{mit}\\
+\texttt{enu} & \texttt{enu} & \texttt{msf} & \texttt{msf}\\
+\texttt{itm} & \texttt{itm} & \texttt{ot} & \texttt{ot}\\
+\texttt{thm} & \texttt{thm} & \texttt{tx} & \texttt{tx}\\
+\texttt{pro} & \texttt{pro} & \texttt{ol} & \texttt{ol}\\
+\texttt{lem} & \texttt{lem} & \texttt{ts} & \texttt{ts}\\
+\texttt{cor} & \texttt{cor} & \texttt{ht} & \texttt{ht}\\
+\texttt{def} & \texttt{def} & \texttt{na} & \texttt{na}\\
+\texttt{ejm} & \texttt{ejm} & \texttt{dst} & \texttt{dst}\\
+\texttt{prf} & \texttt{prf} & \texttt{pmod} & \texttt{pmod}\\
+\texttt{obs} & \texttt{obs} & \texttt{dfr} & \texttt{dfr}\\
+\texttt{clm} & \texttt{clm} & \texttt{tfr} & \texttt{tfr}\\
+\texttt{fig} & \texttt{fig} & \texttt{bm} & \texttt{bm}\\
+\texttt{tab} & \texttt{tab} & \texttt{pm} & \texttt{pm}\\
+\texttt{tikz} & \texttt{tikz} & \texttt{pcs} & \texttt{pcs}\\
+\texttt{subf} & \texttt{subf} & \texttt{cpf} & \texttt{cpf}\\
+\texttt{env} & \texttt{env} & \texttt{cmt} & \texttt{cmt}\\
+\texttt{fr} & \texttt{fr} & \texttt{loc} & \texttt{loc}\\
+\texttt{part} & \texttt{part} & \texttt{comp} & \texttt{comp}\\
+\texttt{sum} & \texttt{sum} & \texttt{mad} & \texttt{mad}\\
+\texttt{lim} & \texttt{lim} & \texttt{anill} & \texttt{anill}\\
+\texttt{int} & \texttt{int} &  & \\
+\texttt{pdt} & \texttt{prod} &  & \\
+\texttt{cases} & \texttt{cases} &  & \\
+\texttt{align} & \texttt{align} &  & \\
+\texttt{eqr} & \texttt{eqref} & \texttt{q} & \textbf{salir}\\
+\texttt{dox} & \texttt{dox} &  & \\
+\texttt{delb} & \texttt{delb} &  & \\
+\texttt{om} & \texttt{om} &  & \\
+\texttt{hodge} & \texttt{hodge} &  & \\
+\texttt{drc} & \texttt{drc} &  & \\
+\texttt{kkt} & \texttt{kkt} &  & \\
+\texttt{lagr} & \texttt{lagr} &  & \\
+\texttt{hess} & \texttt{hess} &  & \\
+\texttt{grad} & \texttt{grad} &  & \\
+\end{tabular}
+\end{center}
+\section{Guía Rápida (Cheat Sheet)}
+\label{sec:org6df1dd5}
+
+\subsection{Lo indispensable para empezar a escribir}
+\label{sec:orge0e43fc}
+\begin{center}
+\begin{tabular}{ll}
+Acción & Atajo / Comando\\
+\hline
+Abrir archivo & \texttt{SPC f f}\\
+Buscar archivo en el proyecto & \texttt{SPC .}\\
+Guardar & \texttt{SPC f s}\\
+Cambiar buffer & \texttt{SPC b .}\\
+Cerrar buffer & \texttt{SPC b k}\\
+Compilar \LaTeX{} & \texttt{C-c C-c} o \texttt{SPC l c}\\
+Ver PDF & \texttt{C-c C-v} o \texttt{SPC l v}\\
+Insertar entorno & \texttt{C-c C-e} o \texttt{SPC l e}\\
+Insertar sección & \texttt{C-c C-s} o \texttt{SPC l s}\\
+Insertar etiqueta inteligente & \texttt{SPC l r}\\
+Insertar cita & \texttt{SPC l z}\\
+Expandir snippet & Escribe trigger + \texttt{TAB}\\
+Siguiente placeholder & \texttt{TAB}\\
+Placeholder anterior & \texttt{S-TAB}\\
+Ver todos los snippets & \texttt{M-x my-latex-snippet-hydra/body} (\texttt{SPC l h})\\
+Abrir terminal & \texttt{SPC t t}\\
+Buscar texto en proyecto & \texttt{SPC p g}\\
+Estado de Git & \texttt{SPC g s}\\
+Modo Tesis Completo & \texttt{M-x tesis-layout-activate}\\
+Modo Escritor & \texttt{M-x my/layout-writer}\\
+Nota con fecha & \texttt{SPC l n}\\
+Reporte de TODOs & \texttt{SPC l w}\\
+Conteo de palabras & \texttt{SPC l k}\\
+Salir de Emacs & \texttt{SPC q q}\\
+\end{tabular}
+\end{center}
+\subsection{Referencia rápida de snippets más usados}
+\label{sec:org74bc5b1}
+\begin{center}
+\begin{tabular}{llll}
+Trigger & Resultado & Trigger & Resultado\\
+\hline
+\texttt{dpp} & \texttt{\textbackslash{}left( ... \textbackslash{}right)} & \texttt{thm} & Theorem\\
+\texttt{mk} & \texttt{\textbackslash{}( ... \textbackslash{})} & \texttt{prf} & Proof\\
+\texttt{dm} & \texttt{\textbackslash{}[ ... \textbackslash{}]} & \texttt{lem} & Lemma\\
+\texttt{fr} & \texttt{\textbackslash{}frac\{\}\{\}} & \texttt{eq} & Equation\\
+\texttt{enu} & enumerate & \texttt{fig} & Figure\\
+\texttt{itm} & itemize & \texttt{tab} & Table\\
+\texttt{mbb} & \texttt{\textbackslash{}symbb\{\}} & \texttt{cases} & Cases\\
+\texttt{mcal} & \texttt{\textbackslash{}symcal\{\}} & \texttt{align} & Align*\\
+\texttt{tx} & \texttt{\textbackslash{}text\{\}} & \texttt{ol} & \texttt{\textbackslash{}overline\{\}}\\
+\texttt{na} & \texttt{\textbackslash{}nabla} & \texttt{bm} & \texttt{bmatrix}\\
+\end{tabular}
+\end{center}
+\section{Notas Técnicas y Auditoría}
+\label{sec:org7263afb}
+
+Esta sección documenta hallazgos técnicos de la auditoría de la configuración y su estado actual.
+\subsection{Hallazgos resueltos}
+\label{sec:org823deb3}
+
+\begin{center}
+\begin{tabular}{lll}
+Hallazgo & Archivo & Solución aplicada\\
+\hline
+\texttt{file-name-extension} nil & \texttt{my-latex-expansions.el} & Guard \texttt{(when ext)} ya presente\\
+Shell escaping en rclone & \texttt{gdrive-sync.el} & \texttt{shell-quote-argument} envuelve \texttt{format} correctamente\\
+API Keys en texto plano & (externo) & Movido a \texttt{\textasciitilde{}/.authinfo.gpg}\\
+Conflicto EAF/Qt & (externo) & Archivo \texttt{my-eaf.el} no presente\\
+Duplicación de \texttt{require} & \texttt{my-keys.el} & Centralizado en \texttt{init.el}\\
+\end{tabular}
+\end{center}
+\subsection{Hallazgos corregidos en esta sesión}
+\label{sec:orga828732}
+
+\begin{center}
+\begin{tabular}{lll}
+Hallazgo & Archivo & Corrección\\
+\hline
+Timer excesivo (2.2) & \texttt{my-latex-visuals.el} & \texttt{unless (timerp ...)} evita crear timer en cada tecla\\
+Ruta \TeX{} hardcodeada (3.2) & \texttt{my-latex-core.el} & \texttt{executable-find "lualatex"} como fallback\\
+Hydra sin \texttt{(require 'hydra)} & \texttt{my-latex-snippets.el} & Agregado \texttt{(require 'hydra)}\\
+Conflictos de teclas Hydra & \texttt{my-latex-snippets.el} & \texttt{prod=→=pdt}, \texttt{eqref=→=eqr}, \texttt{del} eliminado\\
+Snippets no cargados & \texttt{init.el} & Agregado \texttt{(require 'my-latex-snippets)}\\
+Atajo Hydra sin binding & \texttt{my-keys.el} & Agregado \texttt{"th"} → \texttt{my-latex-snippet-hydra/body}\\
+\end{tabular}
+\end{center}
+\subsection{Hallazgos pendientes (prioridad baja)}
+\label{sec:org2bdc6f3}
+
+\begin{center}
+\begin{tabular}{llll}
+Hallazgo & Archivo & Impacto & Recomendación\\
+\hline
+O(N²) regex en tree-sitter (2.1) & \texttt{my-latex-tree-sitter.el} & Micro-congelamientos en docs >1000 líneas & Agrupar patrones en un solo pase disyuntivo\\
+Escaneo síncrono brain (2.4) & \texttt{my-second-brain.el} & Congela UI con 200+ notas & Migrar a proceso asíncrono\\
+Conflicto tecla \texttt{,} (3.1) & \texttt{my-keys.el} vs \texttt{laas.el} & Fricción al alternar modos Evil/LAAS & Design choice, documentar\\
+GC desincronizado (2.3) & \texttt{early-init.el} vs \texttt{init.el} & Picos de RAM al compilar paquetes & Activar \texttt{gcmh-mode} antes de \texttt{my-packages}\\
+\end{tabular}
+\end{center}
+\end{document}

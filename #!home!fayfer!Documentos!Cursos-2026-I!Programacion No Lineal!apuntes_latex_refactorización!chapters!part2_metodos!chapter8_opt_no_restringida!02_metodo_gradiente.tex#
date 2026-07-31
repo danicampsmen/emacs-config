@@ -1,0 +1,479 @@
+% --- Archivo: 02_metodo_gradiente.tex ---
+
+\subsection{El método del gradiente}\label{v2:sec:3.1.2}
+
+Supongamos que la función $f$ sea diferenciable en $\R^n$. En el caso de métodos de descenso \eqref{v2:eq:3.2}, hablamos del método del gradiente cuando la dirección de descenso $d^k$ se elige como el anti-gradiente de la función $f$ en el punto $x^k$, i.e., $d^k = -f'(x^k)$. Si $f'(x^k) = 0$ para algún $k$, $x^k$ es un punto estacionario del problema \eqref{v2:eq:3.1} y el método para (sin embargo, para fines de análisis de convergencia puede ser conveniente considerar que $x^j = \dots = x^{k+1} = x^k$ para todo $j \ge k$, lo que es válido, ya que $x^{k+1} = x^k - \alpha_k f'(x^k)$). En particular, el esquema \eqref{v2:eq:3.2} se reduce al siguiente:
+\begin{equation}
+    x^{k+1} = x^k - \alpha_k f'(x^k), \quad k = 0, 1, \dots
+    \label{v2:eq:3.18}
+\end{equation}
+
+El método del gradiente es de primer orden y, en general, es poco eficiente para resolver problemas prácticos. Aun así, el estudio de este método es un paso importante para entender los fundamentos de la optimización computacional.
+
+\begin{algorithm}[Método del gradiente]
+    Elegir $x^0 \in \R^n$ y tomar $k := 0$. Elegir una entre las tres primeras reglas de búsqueda lineal en \S 3.1.1 y los parámetros asociados: $\hat{\alpha} > 0$ (o $\hat{\alpha} = +\infty$) en el caso de la minimización unidimensional, $\hat{\alpha} > 0$, $\sigma, \theta \in (0,1)$ en el caso de la regla de Armijo, y $\bar{\alpha} > 0$ en el caso de longitud de paso fijo.
+\begin{enumerate}
+    \item Calcular la longitud de paso $\alpha_k$ en la dirección del anti-gradiente $d^k = -f'(x^k)$ de acuerdo con la regla elegida (si $f'(x^k) = 0$, en la práctica el método para; para fines teóricos, podemos tomar $\alpha_k$ arbitrario).
+    \item Calcular $x^{k+1}$ por la fórmula \eqref{v2:eq:3.18}.
+    \item Tomar $k := k + 1$ y retornar al Paso 1.
+\end{enumerate}
+\end{algorithm}
+
+El método del gradiente con minimización unidimensional se llama \textit{método de máxima caída} (cabe destacar que este nombre no debe ser entendido como caracterización de las cualidades de este método en la práctica). Una propiedad importante del método de máxima caída (por lo menos en el caso $\hat{\alpha} = +\infty$) es la igualdad
+\[
+    \langle f'(x^{k+1}), f'(x^k) \rangle = 0,
+\]
+que sigue de \eqref{v2:eq:3.5}. O sea, las direcciones utilizadas en las iteraciones subsecuentes, i.e., $d^k = -f'(x^k)$ y $d^{k+1} = -f'(x^{k+1})$, son ortogonales. Es por eso que la trayectoria del método es del tipo ``zig-zag'' (vea la Figura 3.1.1).
+
+La desigualdad de Armijo \eqref{v2:eq:3.6} en este caso tiene la forma siguiente:
+\[
+    f(x^k - \alpha f'(x^k)) \le f(x^k) - \sigma \alpha \|f'(x^k)\|^2.
+\]
+Observamos que cuando $f'(x^k) \neq 0$, la condición \eqref{v2:eq:3.9} es satisfecha automáticamente (con $\delta = -1$), y la estimativa \eqref{v2:eq:3.8} de paso más largo viene dada por
+\begin{equation}
+    \bar{\alpha}_k = 2(1 - \sigma)/L.
+    \label{v2:eq:3.19}
+\end{equation}
+Como esta estimativa no depende de $k$, cuando el gradiente de la función $f$ es Lipschitz-continuo en $\R^n$ y está siendo utilizada la regla de Armijo, por el Lema 3.1.3 y los comentarios subsecuentes,
+\begin{equation}
+    \alpha_k \ge \check{\alpha} > 0,
+    \label{v2:eq:3.20}
+\end{equation}
+donde $\check{\alpha}$ no depende de $k$.
+
+Propiedades de convergencia global del método del gradiente son las siguientes.
+
+\begin{theorem}[Convergencia global del método del gradiente I]\label{v2:thm:3.1.1}
+    Sea $f \colon \R^n \to \R$ una función diferenciable en $\R^n$ con derivada Lipschitz-continua en $\R^n$ con módulo $L > 0$. En el caso en que el Algoritmo 3.1.1 utiliza longitud de paso fijo, supongamos que $\bar{\alpha} > 0$ satisfaga
+    \begin{equation}
+        \bar{\alpha} < 2/L.
+        \label{v2:eq:3.21}
+    \end{equation}
+    Entonces cada punto de acumulación de cualquier sucesión $\{x^k\}$ generada por el Algoritmo 3.1.1 es un punto estacionario del problema \eqref{v2:eq:3.1}. Si un punto de acumulación existe, o si la función $f$ es acotada inferiormente en $\R^n$, entonces
+    \begin{equation}
+        \{f'(x^k)\} \to 0 \quad (k \to \infty).
+        \label{v2:eq:3.22}
+    \end{equation}
+\end{theorem}
+\begin{proof}
+    Consideramos primero el caso de la regla de Armijo. Si $f'(x^k) \neq 0$ para todo $k$, la sucesión $\{f(x^k)\}$ es decreciente. Supongamos que la sucesión $\{x^k\}$ tenga un punto de acumulación. En este caso, por la continuidad de $f$, la sucesión $\{f(x^k)\}$ también tiene un punto de acumulación. Como $\{f(x^k)\}$ es monótona, se sigue que en este caso ella está acotada inferiormente y, por lo tanto, converge (si la función $f$ está acotada inferiormente en $\R^n$, la conclusión vale mismo cuando $\{x^k\}$ no tiene puntos de acumulación). Por la desigualdad de Armijo y \eqref{v2:eq:3.20}, para todo $k$ tenemos que
+    \[
+        f(x^k) - f(x^{k+1}) \ge \sigma \alpha_k \|f'(x^k)\|^2 \ge \sigma \check{\alpha} \|f'(x^k)\|^2.
+    \]
+    Como
+    \[
+        f(x^k) - f(x^{k+1}) \to 0 \quad (k \to \infty),
+    \]
+    obtenemos \eqref{v2:eq:3.22} de la desigualdad anterior.
+
+    Consideramos ahora el caso de minimización unidimensional. Para todo $k$, denotamos por $\tilde{x}^{k+1}$ el punto que sería obtenido si la regla de Armijo fuese utilizada para computar el paso (a partir de $x^k$ en la dirección $d^k = -f'(x^k)$), con $\tilde{\alpha}_k$ siendo la longitud de paso asociado.
+    Por la propia definición de $x^{k+1}$, tenemos que
+    \[
+        f(x^k) - f(x^{k+1}) \ge f(x^k) - f(\tilde{x}^{k+1}) \ge \sigma \tilde{\alpha}_k \|f'(x^k)\|^2.
+    \]
+    El resultado sigue del análisis anterior, con la sustitución de $\alpha_k$ por $\tilde{\alpha}_k$.
+
+    Finalmente, consideramos el caso de longitud de paso fijo. Por el Lema 3.1.3, por \eqref{v2:eq:3.19} y \eqref{v2:eq:3.21} esto es equivalente a la utilización de la regla de Armijo con $\hat{\alpha} = \bar{\alpha}$ y un $\sigma > 0$ suficientemente pequeño.
+\end{proof}
+
+En los casos de minimización unidimensional y de la regla de Armijo, un análisis más fino permite sustituir la hipótesis de que la derivada de $f$ sea Lipschitz-continua por la hipótesis más débil de que ella sea continua. La dificultad en este caso tiene que ver con la posible inexistencia de $\check{\alpha} > 0$ que satisfaga \eqref{v2:eq:3.20}, i.e., con la posibilidad de $\alpha_k$ aproximarse a cero (tal vez a lo largo de una subsucesión).
+
+\begin{theorem}[Convergencia global del método del gradiente II]\label{v2:thm:3.1.2}
+    Sea $f \colon \R^n \to \R$ una función diferenciable en $\R^n$, con derivada continua. Supongamos que el Algoritmo 3.1.1 utiliza la minimización unidimensional o la regla de Armijo.
+    Entonces cada punto de acumulación de cualquier sucesión $\{x^k\}$ generada por el Algoritmo 3.1.1 es un punto estacionario del problema \eqref{v2:eq:3.1}. Si la sucesión $\{x^k\}$ es acotada, entonces vale \eqref{v2:eq:3.22}.
+\end{theorem}
+\begin{proof}
+    El caso de minimización unidimensional se reduce al caso de la regla de Armijo de la misma manera que en la demostración del Teorema 3.1.1. Por lo tanto, consideremos solamente la regla de Armijo.
+
+    Supongamos que la sucesión $\{x^k\}$ tenga un punto de acumulación $\bar{x} \in \R^n$, y que $f'(x^k) \neq 0$ para todo $k$. Supongamos que $\{x^{k_j}\} \to \bar{x} \; (j \to \infty)$. El caso en que existe $\check{\alpha} > 0$ tal que $\alpha_{k_j} \ge \check{\alpha}$ para todo $j$, puede ser analizado de manera completamente análoga al Teorema 3.1.1 (sustituyendo $\{x^{k_j}\}$ por $\{x^k\}$).
+
+    Por lo tanto, tomando una subsucesión si fuera necesario, consideremos el caso
+    \[
+        \{\alpha_{k_j}\} \to 0 \quad (j \to \infty).
+    \]
+    En este caso, para todo $j$ suficientemente grande, el valor inicial de longitud de paso $\hat{\alpha}$ fue reducido por lo menos una vez, i.e., el valor $\alpha = \theta^{-1}\alpha_{k_j} > \alpha_{k_j}$ no satisface la desigualdad de Armijo \eqref{v2:eq:3.6}. O sea,
+    \[
+        f(x^{k_j} - \theta^{-1}\alpha_{k_j} f'(x^{k_j})) > f(x^{k_j}) - \sigma \theta^{-1}\alpha_{k_j} \|f'(x^{k_j})\|^2.
+    \]
+    Denotando $\tilde{\alpha}_{k_j} = \theta^{-1}\alpha_{k_j}\|f'(x^{k_j})\|$ y dividiendo la última desigualdad por $\tilde{\alpha}_{k_j}$, obtenemos
+    \[
+        \frac{f(x^{k_j} - \tilde{\alpha}_{k_j} f'(x^{k_j})/\|f'(x^{k_j})\|) - f(x^{k_j})}{\tilde{\alpha}_{k_j}} > -\sigma \|f'(x^{k_j})\|.
+    \]
+    Observamos que $\{\tilde{\alpha}_{k_j}\} \to 0 \; (j \to \infty)$, porque $\{\|f'(x^{k_j})\|\}$ es acotada y $\{\alpha_{k_j}\} \to 0$. Pasando al límite cuando $j \to \infty$ y utilizando el Teorema del Valor Medio, obtenemos que
+    \[
+        -\|f'(\bar{x})\| = f'(\bar{x}; -f'(\bar{x})/\|f'(\bar{x})\|) \ge -\sigma \|f'(\bar{x})\|.
+    \]
+    Como $\sigma \in (0, 1)$, esto solo es posible cuando $f'(\bar{x}) = 0$.
+    La última afirmación del teorema es una consecuencia obvia de la primera.
+\end{proof}
+
+% [Ejercicios 3.1.4, 3.1.5 y 3.1.6 movidos a exercises.tex]
+
+En el caso de una función convexa, las propiedades de convergencia global del método del gradiente son bastante más fuertes. Mostraremos a seguir que en este caso, si el conjunto de minimizadores es no-vacío, entonces toda la sucesión converge a una solución del problema, i.e., la sucesión es acotada y posee un único punto de acumulación. Resaltamos que la afirmación es válida mismo si el conjunto de minimizadores fuera ilimitado.
+
+\begin{theorem}[Convergencia global del método del gradiente en el caso convexo]\label{v2:thm:3.1.3}
+    Sea $f \colon \R^n \to \R$ una función convexa, diferenciable en $\R^n$, con derivada continua. Supongamos que el Algoritmo 3.1.1 utiliza la regla de Armijo con $\hat{\alpha} \le 1$.
+    Si el conjunto de minimizadores irrestrictos de $f$ es no-vacío, entonces cualquier sucesión $\{x^k\}$ generada por el Algoritmo 3.1.1 converge a una solución del problema \eqref{v2:eq:3.1}.
+\end{theorem}
+\begin{proof}
+    Sea $\bar{x} \in \R^n$ una solución del problema. Como para todo $k$
+    \[
+        f(x^k) - f(x^{k+1}) \ge \sigma \alpha_k \|f'(x^k)\|^2,
+    \]
+    tenemos que
+    \[
+        f(x^0) - f(\bar{x}) \ge f(x^0) - f(x^k) = \sum_{i=0}^{k-1} (f(x^i) - f(x^{i+1})) \ge \sigma \sum_{i=0}^{k-1} \alpha_i \|f'(x^i)\|^2.
+    \]
+    Pasando al límite cuando $k \to \infty$, obtenemos que
+    \begin{equation}
+        \sum_{i=0}^{\infty} \alpha_i \|f'(x^i)\|^2 \le \frac{f(x^0) - f(\bar{x})}{\sigma} < +\infty.
+        \label{v2:eq:3.23}
+    \end{equation}
+    Por la convexidad de $f$ y por la otimalidad de $\bar{x}$,
+    \[
+        \langle f'(x^k), \bar{x} - x^k \rangle \le f(\bar{x}) - f(x^k) \le 0.
+    \]
+    De donde, usando también \eqref{v2:eq:3.18} y el hecho de que $\alpha_k^2 \le \alpha_k$ (porque $\alpha_k \le \hat{\alpha} \le 1$, por la elección del parámetro $\hat{\alpha}$), obtenemos
+    \begin{align*}
+        \|x^{k+1} - \bar{x}\|^2 &= \|x^k - \bar{x}\|^2 + 2\langle x^{k+1} - x^k, x^k - \bar{x} \rangle + \|x^{k+1} - x^k\|^2 \\
+        &= \|x^k - \bar{x}\|^2 - 2\alpha_k \langle f'(x^k), x^k - \bar{x} \rangle + \alpha_k^2 \|f'(x^k)\|^2 \\
+        &\le \|x^k - \bar{x}\|^2 + \alpha_k \|f'(x^k)\|^2.
+    \end{align*}
+    Sea $k$ arbitrario pero fijo. Utilizando la última desigualdad en secuencia, para cualquier $j \ge k+1$, obtenemos
+    \begin{equation}
+        \|x^j - \bar{x}\|^2 \le \|x^k - \bar{x}\|^2 + \sum_{i=k}^{j-1} \alpha_i \|f'(x^i)\|^2 \le \|x^k - \bar{x}\|^2 + \sum_{i=0}^\infty \alpha_i \|f'(x^i)\|^2 < +\infty,
+        \label{v2:eq:3.24}
+    \end{equation}
+    por \eqref{v2:eq:3.23}. Concluimos que la sucesión $\{x^k\}$ está acotada. Por lo tanto, $\{x^k\}$ tiene un punto de acumulación $\hat{x}$. Por el Teorema 3.1.2, $f'(\hat{x}) = 0$ lo que, en el caso convexo, significa que $\hat{x}$ es una solución del problema (vea, por ejemplo, el Teorema 1.3.7). Podemos entonces tomar $\bar{x} = \hat{x}$ en el análisis anterior, para concluir de \eqref{v2:eq:3.24}, que para todo $j \ge k+1$
+    \begin{equation}
+        \|x^j - \hat{x}\|^2 \le \|x^k - \hat{x}\|^2 + \sum_{i=k}^\infty \alpha_i \|f'(x^i)\|^2,
+        \label{v2:eq:3.25}
+    \end{equation}
+    donde, de \eqref{v2:eq:3.23},
+    \[
+        \lim_{k \to \infty} \left( \sum_{i=k}^\infty \alpha_i \|f'(x^i)\|^2 \right) = 0.
+    \]
+    En particular, para todo $\delta > 0$ arbitrariamente pequeño, podemos elegir $k$ suficientemente grande, tal que
+    \[
+        \delta/2 > \sum_{i=k}^\infty \alpha_i \|f'(x^i)\|^2.
+    \]
+    Como $\hat{x}$ es un punto de acumulación de la sucesión $\{x^k\}$, podemos también elegir un $k$ tal que
+    \[
+        \delta/2 > \|x^k - \hat{x}\|^2.
+    \]
+    De \eqref{v2:eq:3.25}, concluimos que para todo $\delta > 0$, existe $k$ tal que
+    \[
+        \delta > \|x^j - \hat{x}\|^2 \quad \forall j \ge k+1.
+    \]
+    Esto significa que $\{x^k\}$ converge a $\hat{x}$.
+\end{proof}
+
+A continuación, analizaremos el comportamiento local del método del gradiente, i.e., el comportamiento en una vecindad de un punto estacionario $\bar{x} \in \R^n$ del problema \eqref{v2:eq:3.1}. Supongamos que la función $f$ sea dos veces diferenciable en $\bar{x}$, y que $\bar{x}$ satisfaga la condición suficiente de segunda orden (vea el Teorema 1.2.1).
+En particular, $\bar{x}$ es un minimizador local estricto. Más aún, en este caso $f$ crece con orden por lo menos cuadrática en una vecindad de $\bar{x}$. En efecto, existen una vecindad $U$ de $\bar{x}$ y un número $\beta > 0$ tales que
+\begin{align}
+    f(x) - f(\bar{x}) &= \langle f'(\bar{x}), x - \bar{x} \rangle + \frac{1}{2} \langle f''(\bar{x})(x - \bar{x}), x - \bar{x} \rangle + o(\|x - \bar{x}\|^2) \nonumber \\
+    &= \frac{1}{2} \langle f''(\bar{x})(x - \bar{x}), x - \bar{x} \rangle + o(\|x - \bar{x}\|^2) \nonumber \\
+    &\ge \beta \|x - \bar{x}\|^2 \quad \forall x \in U,
+    \label{v2:eq:3.26}
+\end{align}
+donde utilizamos el Teorema 1.2.1, en particular \eqref{v1:eq:1.5} y \eqref{v1:eq:1.7}. Esta propiedad \eqref{v2:eq:3.26} tendrá un papel importante en nuestro análisis local.
+
+\begin{lemma}\label{v2:lem:3.1.5}
+    Sea $f \colon \R^n \to \R$ una función diferenciable en una vecindad del punto $\bar{x} \in \R^n$ y dos veces diferenciable en $\bar{x}$. Supongamos que $\bar{x}$ es un punto estacionario del problema \eqref{v2:eq:3.1} que satisface la condición suficiente de segunda orden dada en el Teorema 1.2.1 (i.e., $\bar{x}$ satisface \eqref{v1:eq:1.5} y \eqref{v1:eq:1.7}).
+    Entonces para cualquier número $\nu \in (0, 4)$ existe una vecindad $U$ de $\bar{x}$ tal que, además de \eqref{v2:eq:3.26}, vale
+    \begin{equation}
+        \|f'(x)\|^2 \ge \nu \beta (f(x) - f(\bar{x})) \quad \forall x \in U.
+        \label{v2:eq:3.27}
+    \end{equation}
+\end{lemma}
+\begin{proof}
+    Para $x \in \R^n$ suficientemente próximo a $\bar{x}$, tenemos que
+    \[
+        f'(x) = f'(x) - f'(\bar{x}) = f''(\bar{x})(x - \bar{x}) + o(\|x - \bar{x}\|),
+    \]
+    donde usamos que $f'(\bar{x}) = 0$. Por lo tanto,
+    \begin{align*}
+        f(x) - f(\bar{x}) &= \frac{1}{2} \langle f''(\bar{x})(x - \bar{x}), x - \bar{x} \rangle + o(\|x - \bar{x}\|^2) \\
+        &= \frac{1}{2} \langle f'(x), x - \bar{x} \rangle + o(\|x - \bar{x}\|^2),
+    \end{align*}
+    i.e.,
+    \[
+        \langle f'(x), x - \bar{x} \rangle = 2(f(x) - f(\bar{x})) + o(\|x - \bar{x}\|^2).
+    \]
+    Usando \eqref{v2:eq:3.26}, obtenemos
+    \begin{align*}
+        \langle f'(x), x - \bar{x} \rangle - \sqrt{\nu}(f(x) - f(\bar{x})) &= (2 - \sqrt{\nu})(f(x) - f(\bar{x})) + o(\|x - \bar{x}\|^2) \\
+        &\ge (2 - \sqrt{\nu})\beta\|x - \bar{x}\|^2 + o(\|x - \bar{x}\|^2) > 0,
+    \end{align*}
+    donde la desigualdad vale para todo $x$ suficientemente próximo a $\bar{x}$. Por lo tanto,
+    \begin{equation}
+        \langle f'(x), x - \bar{x} \rangle \ge \sqrt{\nu}(f(x) - f(\bar{x})).
+        \label{v2:eq:3.28}
+    \end{equation}
+    De donde, usando también \eqref{v2:eq:3.26}, se sigue que
+    \begin{align*}
+        \|f'(x)\|\|x - \bar{x}\| &\ge \langle f'(x), x - \bar{x} \rangle \\
+        &\ge \sqrt{\nu}(f(x) - f(\bar{x})) \\
+        &\ge \sqrt{\nu\beta}\|x - \bar{x}\|^2,
+    \end{align*}
+    i.e.,
+    \[
+        \|f'(x)\| \ge \sqrt{\nu\beta}\|x - \bar{x}\|.
+    \]
+    Por lo tanto, usando \eqref{v2:eq:3.28},
+    \begin{align*}
+        \|f'(x)\|^2 &\ge \sqrt{\nu\beta}\|x - \bar{x}\| \|f'(x)\| \\
+        &\ge \sqrt{\nu\beta}\langle f'(x), x - \bar{x} \rangle \\
+        &\ge \nu\beta(f(x) - f(\bar{x})),
+    \end{align*}
+    lo que es el resultado deseado.
+\end{proof}
+
+Presentamos ahora el resultado principal sobre la convergencia local del método del gradiente.
+
+\begin{theorem}[Convergencia local del método del gradiente I]\label{v2:thm:3.1.4}
+    Además de las hipótesis del Teorema 3.1.1, supongamos que la función $f$ sea dos veces diferenciable en el punto $\bar{x} \in \R^n$. Supongamos que $\bar{x}$ es un punto estacionario del problema \eqref{v2:eq:3.1} que satisface la condición suficiente de segunda orden dada en el Teorema 1.2.1 (i.e., $\bar{x}$ satisface \eqref{v1:eq:1.5} y \eqref{v1:eq:1.7}). Finalmente, en el caso de utilización de minimización unidimensional en el Algoritmo 3.1.1, sea $\hat{\alpha}$ un valor finito.
+    
+    Entonces:
+    \begin{enumerate}[(a)]
+        \item Para cualquier $x^0 \in \R^n$ suficientemente próximo a $\bar{x}$, la sucesión generada por el Algoritmo 3.1.1 converge a $\bar{x}$; la tasa de convergencia en relación a la función objetivo es lineal, y en relación a las variables es geométrica: $\forall k=0, 1, \dots,$ se tiene que
+        \begin{equation}
+            f(x^{k+1}) - f(\bar{x}) \le q(f(x^k) - f(\bar{x})),
+            \label{v2:eq:3.29}
+        \end{equation}
+        \begin{align}
+            \|x^k - \bar{x}\| &\le \Gamma \sqrt{f(x^k) - f(\bar{x})} \nonumber \\
+            &\le (\sqrt{q})^k \Gamma \sqrt{f(x^0) - f(\bar{x})},
+            \label{v2:eq:3.30}
+        \end{align}
+        donde los números $q \in [0, 1)$ y $\Gamma > 0$ no dependen ni de $k$, ni de $x^0$.
+        
+        \item En el caso de minimización unidimensional, si $\hat{\alpha}$ satisface
+        \begin{equation}
+            \hat{\alpha} \ge 1/L,
+            \label{v2:eq:3.31}
+        \end{equation}
+        se tiene que
+        \begin{equation}
+            \limsup_{k \to \infty} \frac{f(x^{k+1}) - f(\bar{x})}{f(x^k) - f(\bar{x})} \le 1 - \rho_1/\rho_n,
+            \label{v2:eq:3.32}
+        \end{equation}
+        donde $\rho_1 > 0$ y $\rho_n > 0$ son el menor y el mayor autovalor de la matriz $f''(\bar{x})$, respectivamente.
+        
+        \item En el caso de la regla de Armijo, si $\hat{\alpha}$ satisface \eqref{v2:eq:3.31} y $\theta$ satisface la condición
+        \begin{equation}
+            \theta \le 1/2,
+            \label{v2:eq:3.33}
+        \end{equation}
+        se tiene que
+        \begin{equation}
+            \limsup_{k \to \infty} \frac{f(x^{k+1}) - f(\bar{x})}{f(x^k) - f(\bar{x})} \le 1 - 2\sigma(1 - \sigma)\rho_1/\rho_n.
+            \label{v2:eq:3.34}
+        \end{equation}
+        Si en lugar de la condición \eqref{v2:eq:3.33} sobre $\theta$, se supone que vale $\sigma \ge 1/2$, se tiene que
+        \begin{equation}
+            \limsup_{k \to \infty} \frac{f(x^{k+1}) - f(\bar{x})}{f(x^k) - f(\bar{x})} \le 1 - \theta\rho_1/\rho_n.
+            \label{v2:eq:3.35}
+        \end{equation}
+        
+        \item En el caso de longitud de paso fijo, se tiene que
+        \begin{equation}
+            \limsup_{k \to \infty} \frac{f(x^{k+1}) - f(\bar{x})}{f(x^k) - f(\bar{x})} \le 1 - 2\rho_1\bar{\alpha} + \rho_1\rho_n\bar{\alpha}^2.
+            \label{v2:eq:3.36}
+        \end{equation}
+    \end{enumerate}
+\end{theorem}
+\begin{proof}
+    Fijemos una vecindad $U$ de $\bar{x}$ tal que las propiedades \eqref{v2:eq:3.26} y \eqref{v2:eq:3.27} valgan con algunas constantes $\beta > 0$ y $\nu \in (0, 4)$ (la condición suficiente de segunda orden y el Lema 3.1.5 garantizan la existencia de esta vecindad).
+    Sea $x^k \in U$. En el caso de la optimización unidimensional, para todo $\alpha \in [0, \hat{\alpha}]$, tenemos que
+    \begin{align*}
+        f(x^{k+1}) - f(\bar{x}) &\le f(x^k - \alpha f'(x^k)) - f(\bar{x}) \\
+        &\le f(x^k) - f(\bar{x}) - \alpha\|f'(x^k)\|^2 + \frac{L\alpha^2}{2}\|f'(x^k)\|^2,
+    \end{align*}
+    donde la última desigualdad sigue del Lema 1.5.4. Analizando el término cuadrático (en relación a $\alpha$) del lado derecho de esta desigualdad, puede verse que él alcanza su mínimo sobre el intervalo $[0, \hat{\alpha}]$ en el punto $\alpha = \min\{\hat{\alpha}, 1/L\}$. Por lo tanto, teniendo en cuenta \eqref{v2:eq:3.27},
+    \begin{align}
+        f(x^{k+1}) - f(\bar{x}) &\le f(x^k) - f(\bar{x}) - \alpha(1 - \alpha L/2)\|f'(x^k)\|^2 \nonumber \\
+        &\le (1 - \min\{\hat{\alpha}, 1/L\}\max\{1 - \hat{\alpha} L/2, 1/2\}\nu\beta)(f(x^k) - f(\bar{x})).
+        \label{v2:eq:3.37}
+    \end{align}
+
+    En el caso de la regla de Armijo, por \eqref{v2:eq:3.20} y \eqref{v2:eq:3.27}, tenemos que
+    \begin{align}
+        f(x^{k+1}) - f(\bar{x}) &\le f(x^k) - f(\bar{x}) - \sigma\check{\alpha}\|f'(x^k)\|^2 \nonumber \\
+        &\le (1 - \sigma\check{\alpha}\nu\beta)(f(x^k) - f(\bar{x})).
+        \label{v2:eq:3.38}
+    \end{align}
+
+    El caso de longitud de paso fijo se reduce al caso de la regla de Armijo (vea la demostración del Teorema 3.1.1, con $\check{\alpha} = \hat{\alpha} = \bar{\alpha}$).
+    Concluimos que en todos los casos vale la desigualdad \eqref{v2:eq:3.29}, con algún $q < 1$.
+
+    La tarea siguiente consiste en probar que si $x^0$ está suficientemente próximo a $\bar{x}$, entonces la sucesión $\{x^k\}$ no sale de la vecindad $U$. Para eso, precisaremos de la siguiente desigualdad, que sigue de \eqref{v2:eq:3.26}:
+    \begin{equation}
+        \|f'(x)\| \le L\|x - \bar{x}\| \le L\sqrt{\frac{f(x) - f(\bar{x})}{\beta}} \quad \forall x \in U.
+        \label{v2:eq:3.39}
+    \end{equation}
+
+    Fijemos $r > 0$ tal que $B(\bar{x}, r) \subset U$, y definamos $\delta > 0$ satisfaciendo la condición
+    \begin{equation}
+        \delta + \frac{\hat{\alpha} L \sqrt{(f(x) - f(\bar{x}))/\beta}}{1 - \sqrt{q}} \le r \quad \forall x \in B(\bar{x}, \delta)
+        \label{v2:eq:3.40}
+    \end{equation}
+    (notamos que $\delta \le r$). Sea $x^0 \in B(\bar{x}, \delta)$. En este caso, por \eqref{v2:eq:3.39} y \eqref{v2:eq:3.40},
+    \begin{align*}
+        \|x^1 - \bar{x}\| &\le \|x^0 - \bar{x}\| + \|x^1 - x^0\| \\
+        &\le \delta + \hat{\alpha}\|f'(x^0)\| \\
+        &\le \delta + \hat{\alpha} L \sqrt{(f(x^0) - f(\bar{x}))/\beta} \le r,
+    \end{align*}
+    i.e., $x^1 \in B(\bar{x}, r)$. De donde, y por \eqref{v2:eq:3.26}, se sigue que $q \ge 0$, pues caso contrario \eqref{v2:eq:3.29} sería válida para $k = 0$.
+    Supongamos que $x^k \in B(\bar{x}, r)$ $\forall k = 1, \dots, s$. En este caso, por \eqref{v2:eq:3.29}, obtenemos
+    \[
+        f(x^k) - f(\bar{x}) \le q(f(x^{k-1}) - f(\bar{x})) \le \dots \le q^k(f(x^0) - f(\bar{x})) \quad \forall k = 0, \dots, s.
+    \]
+    Por lo tanto, usando también \eqref{v2:eq:3.39},
+    \begin{align*}
+        \|x^{k+1} - x^k\| &\le \hat{\alpha}\|f'(x^k)\| \\
+        &\le \hat{\alpha} L \sqrt{(f(x^k) - f(\bar{x}))/\beta} \\
+        &\le (\sqrt{q})^k \hat{\alpha} L \sqrt{(f(x^0) - f(\bar{x}))/\beta} \quad \forall k = 0, \dots, s.
+    \end{align*}
+    De donde, y por \eqref{v2:eq:3.40}, se sigue que
+    \begin{align*}
+        \|x^{s+1} - \bar{x}\| &\le \|x^s - \bar{x}\| + \|x^{s+1} - x^s\| \le \dots \\
+        &\le \|x^0 - \bar{x}\| + \sum_{k=0}^s \|x^{k+1} - x^k\| \\
+        &\le \delta + \hat{\alpha} L \sqrt{\frac{f(x^0) - f(\bar{x})}{\beta}} \sum_{k=0}^s (\sqrt{q})^k \\
+        &\le \delta + \frac{\hat{\alpha} L \sqrt{(f(x^0) - f(\bar{x}))/\beta}}{1 - \sqrt{q}} \le r,
+    \end{align*}
+    i.e., $x^{s+1} \in B(\bar{x}, r)$.
+    Acabamos de mostrar que $\{x^k\} \subset U$. En particular, para todo $k$ vale la estimativa \eqref{v2:eq:3.29}. De donde, usando también \eqref{v2:eq:3.26}, obtenemos \eqref{v2:eq:3.30} con $\Gamma = 1/\sqrt{\beta}$. La convergencia de $\{x^k\}$ a $\bar{x}$ ahora es obvia, lo que concluye la prueba del ítem (a).
+
+    Dejamos como ejercicio para el lector las afirmaciones (b)-(d). Ellas pueden ser verificadas sin dificultades mayores, utilizando el ítem (a) y las propiedades \eqref{v2:eq:3.37} y \eqref{v2:eq:3.38}, estimativas asintóticas del número $\beta$ y de la constante de Lipschitz de la derivada de $f$ en $U$ en términos de $\rho_1$ y $\rho_n$, respectivamente, reduciendo la vecindad $U$ de $\bar{x}$. Además de eso, debe ser utilizado el hecho de que en el Lema 3.1.5 el número $\nu$ puede ser elegido arbitrariamente próximo a 4. En la demostración del ítem (c), será necesario elegir el mayor número $\check{\alpha}$, que garantiza que \eqref{v2:eq:3.20} se satisfaga. En la demostración del ítem (d), como $\sigma$ debe ser elegido un número para el cual vale \eqref{v2:eq:3.19} con $\bar{\alpha}_k = \bar{\alpha}$, i.e., $\sigma = 1 - \bar{\alpha} L/2$.
+\end{proof}
+
+% [Ejercicios 3.1.7 y 3.1.8 movidos a exercises.tex]
+
+Por la estimativa \eqref{v2:eq:3.34}, en la regla de Armijo es preferible elegir el parámetro $\sigma$ próximo a 1/2. Mas incluso para $\sigma = 1/2$, la estimativa \eqref{v2:eq:3.34} es un poco peor de lo que \eqref{v2:eq:3.32} en el caso del método de máxima caída, así como la estimativa \eqref{v2:eq:3.35}. En relación a esta última, es preferible elegir $\theta$ próximo a 1 (sin embargo, cuanto más próximo está $\theta$ a 1, más cara es la implementación computacional de la regla de Armijo, por lo menos en principio). Finalmente, la elección óptima de la longitud de paso fijo, por la estimativa \eqref{v2:eq:3.36}, viene dada por $\bar{\alpha} = 1/L$ (en este caso, la estimativa \eqref{v2:eq:3.36} coincide con \eqref{v2:eq:3.32}).
+
+Otros resultados sobre convergencia local del método del gradiente están basados en la sustitución de la condición suficiente de segunda orden por una condición de crecimiento cuadrático de la función objetivo, en el sentido más débil que \eqref{v2:eq:3.26} (recordamos que \eqref{v2:eq:3.26} es una consecuencia de la condición suficiente de segunda orden). Esto tiene sentido, porque la condición de segunda orden es violada cuando $\bar{x}$ es una solución del problema \eqref{v2:eq:3.1}, que no es aislada (i.e., en toda vecindad de $\bar{x}$ existen otros puntos del conjunto $S$ de minimizadores globales de $f$). Este es un caso perfectamente posible, por ejemplo, en el problema de minimizar la violación de viabilidad en un sistema de ecuaciones donde el número de ecuaciones es menor que el número de variables, i.e.,
+\begin{equation}
+    f(x) = \|F(x)\|^2/2, \quad x \in \R^n,
+    \label{v2:eq:3.41}
+\end{equation}
+donde $F \colon \R^n \to \R^l$ es diferenciable y $n > l$. Esta es una de las situaciones en que es natural sustituir la condición de crecimiento cuadrático \eqref{v2:eq:3.26} por la siguiente estimativa de distancia al conjunto $S$:
+\begin{equation}
+    f(x) - \bar{v} \ge \gamma (\dist(x, S))^2 \quad \forall x \in U,
+    \label{v2:eq:3.42}
+\end{equation}
+donde $U$ es una vecindad del punto $\bar{x}$, $\gamma > 0$ es una constante, y $\bar{v} = f(\bar{x})$ es el valor óptimo del problema \eqref{v2:eq:3.1}. Por ejemplo, si $F$ satisface en el punto $\bar{x}$ las hipótesis del Teorema 1.5.5 (en particular, $\rank F'(\bar{x}) = l$), entonces para la función $f$ definida por \eqref{v2:eq:3.41} tenemos la estimativa \eqref{v2:eq:3.42}. Observamos que, a diferencia del caso de \eqref{v2:eq:3.26}, el caso de \eqref{v2:eq:3.42} no presupone la convexidad de $f$ mismo localmente, en torno a $\bar{x}$.
+
+En un análisis de este tipo, es común pasar de consideraciones puramente locales (en torno a un punto dado) a consideraciones en una vecindad de todo el conjunto $S$. En otras palabras, vamos a suponer que $U$ en \eqref{v2:eq:3.42} es una vecindad de $S$ (i.e., $S \subset U$) y no apenas de $\bar{x}$. La propiedad \eqref{v2:eq:3.42} también se llama de crecimiento cuadrático local (de la función $f$ en torno al conjunto de soluciones $S$). Con frecuencia, se considera una vecindad $U$ específica, por ejemplo: $U = U(S, \delta) = \{x \in \R^n \mid \dist(x, S) \le \delta\}$, o $U = L_{f, \R^n}(\bar{v} + \delta)$, o $U = L_{\|f'(\cdot)\|, \R^n}(\delta)$, para algún $\delta > 0$.
+Las principales afirmaciones de resultados asociados consisten en convergencia al conjunto $S$, con alguna tasa de convergencia. Por ejemplo, bajo ciertas condiciones de diferenciabilidad, la propiedad \eqref{v2:eq:3.42} con $U = U(S, \delta)$ y algunos $\delta > 0$ y $\gamma > 0$, garantiza lo siguiente: si el punto inicial $x^0$ está suficientemente próximo de $S$, entonces la sucesión del método del gradiente con regla de Armijo converge a un punto de $S$, con tasa lineal en relación a la función y con tasa geométrica en relación a las variables. Un resultado parecido mas, de cierto modo más general, será probado a seguir.
+
+A veces, puede ser considerada una propiedad más débil de lo que la de \eqref{v2:eq:3.42}, que consiste en
+\[
+    f(x) - \bar{v} \ge \gamma (\dist(x, S))^p \quad \forall x \in U,
+\]
+donde $p > 2$. Para este caso, puede ser probada convergencia del método del gradiente con tasa aritmética.
+
+En el análisis de convergencia y de tasa de convergencia de métodos del gradiente al conjunto $S_0$ de puntos estacionarios del problema \eqref{v2:eq:3.1}, es natural que la condición de crecimiento cuadrático sea sustituida por una estimativa de distancia al conjunto $S_0$ de la siguiente forma:
+\begin{equation}
+    \|f'(x)\| \ge \gamma \dist(x, S_0) \quad \forall x \in U,
+    \label{v2:eq:3.43}
+\end{equation}
+donde $U$ es una vecindad de $S_0$, y $\gamma > 0$ es una constante.
+
+% [Ejercicio 3.1.9 movido a exercises.tex]
+
+Supongamos que existan números $\delta > 0$ y $\gamma > 0$ tales que la función $f \colon \R^n \to \R$ sea tres veces diferenciable en $U = U(S, \delta)$, con la derivada tercera acotada en $U$. Supongamos que \eqref{v2:eq:3.42} sea satisfecha. Entonces para todo $\nu \in (0, 4)$, existe $r > 0$ tal que
+\[
+    \|f'(x)\|^2 \ge \nu\gamma(f(x) - \bar{v}) \quad \forall x \in U(S, r).
+\]
+
+Cabe mencionar que la condición de crecimiento cuadrático implica, en un cierto sentido, la estimativa \eqref{v2:eq:3.43}. Más precisamente, el resultado del Ejercicio 3.1.9 implica en lo siguiente: si $S = S_0$, la función $f$ es suficientemente suave y vale \eqref{v2:eq:3.42} con $U = U(S, \delta)$ y algunos $\delta > 0$ y $\gamma > 0$, entonces vale también \eqref{v2:eq:3.43} con cierta (tal vez diferente) vecindad $U$ del conjunto $S_0$ y número $\gamma > 0$.
+
+A seguir, suponemos que la vecindad $U$ en \eqref{v2:eq:3.43} sea dada por $U = L_{\|f'(\cdot)\|, \R^n}(\delta)$ con algún $\delta > 0$ (notamos que la propiedad \eqref{v2:eq:3.43} con $U = U(S_0, \delta)$ y algún $\delta > 0$, implica la misma propiedad con $U = L_{\|f'(\cdot)\|, \R^n}(\delta)$, tal vez con otro $\delta > 0$). Además de esto, supongamos que se satisfacen las hipótesis del Teorema 3.1.1 y que $\bar{v} > -\infty$, lo que garantiza que vale \eqref{v2:eq:3.22} para toda sucesión $\{x^k\}$ del Algoritmo 3.1.1. Luego, tenemos que $x^k \in U$ para todo $k$ suficientemente grande. Es exactamente esto que hace con que el resultado de convergencia a ser presentado tenga carácter verdaderamente global.
+
+Una condición más que será necesaria se llama condición de \textit{separación de superficies de nivel críticas}. Esta condición consiste en lo siguiente: existe un número $\varepsilon > 0$ tal que para cualesquier $\bar{x}^1, \bar{x}^2 \in S_0$ satisfaciendo $f(\bar{x}^1) \neq f(\bar{x}^2)$, se tiene que $\|\bar{x}^1 - \bar{x}^2\| \ge \varepsilon$.
+Es fácil verificar que, si el conjunto $S_0$ es suavemente conexo (i.e., cualesquier dos puntos de $S_0$ pueden ser conectados por una curva diferenciable), entonces $f$ asume el mismo valor en todos los puntos de $S_0$ y, por lo tanto, la condición de separación de superficies de nivel críticas es satisfecha trivialmente.
+
+% [Ejercicios 3.1.10 y 3.1.11 movidos a exercises.tex]
+
+\begin{theorem}[Convergencia local del método del gradiente II]\label{v2:thm:3.1.5}
+    Además de las hipótesis del Teorema 3.1.1, supongamos que el valor óptimo del problema \eqref{v2:eq:3.1} sea finito, y que \eqref{v2:eq:3.43} sea satisfecha para $U = L_{\|f'(\cdot)\|, \R^n}(\delta)$ y algunos $\delta > 0$ y $\gamma > 0$. Sea satisfecha también la condición de separación de superficies de nivel críticas de $f$. Supongamos que el Algoritmo 3.1.1 usa o la regla de Armijo, o la regla de longitud de paso fijo.
+    Entonces cualquier sucesión $\{x^k\}$ del Algoritmo 3.1.1 converge a un punto estacionario del problema \eqref{v2:eq:3.1}. La tasa de convergencia es lineal en relación a la función y es geométrica en relación a las variables.
+\end{theorem}
+\begin{proof}
+    De nuevo, consideremos solamente la regla de Armijo, porque el caso de uso de longitud de paso fijo puede ser reducido al caso de la regla de Armijo, como ya fue mostrado arriba.
+    Para todo $k$, se tiene que
+    \begin{equation}
+        f(x^k) - f(x^{k+1}) \ge \sigma \|x^{k+1} - x^k\|^2/\hat{\alpha}.
+        \label{v2:eq:3.44}
+    \end{equation}
+    Luego, si $f'(x^k) \neq 0$ para todo $k$, la sucesión $\{f(x^k)\}$ es decreciente. Como el valor óptimo del problema \eqref{v2:eq:3.1} es finito, se sigue que $\{f(x^k)\}$ también es acotada inferiormente y, por lo tanto, ella converge. De \eqref{v2:eq:3.44} obtenemos entonces que $\|x^{k+1} - x^k\| \to 0$ $(k \to \infty)$. De donde, usando también \eqref{v2:eq:3.18} y \eqref{v2:eq:3.20}, concluimos que
+    \[
+        \check{\alpha}\|f'(x^k)\| \le \alpha_k\|f'(x^k)\| = \|x^{k+1} - x^k\| \to 0 \quad (k \to \infty).
+    \]
+    Por lo tanto, $x^k \in U$ para todo $k$ suficientemente grande. Sin pérdida de generalidad, podemos admitir que $\{x^k\} \subset U$. La última propiedad y \eqref{v2:eq:3.43} resultan en
+    \begin{equation}
+        \|x^k - \bar{x}^k\| \le \frac{1}{\gamma}\|f'(x^k)\| \le \frac{1}{\check{\alpha}\gamma}\|x^{k+1} - x^k\| \to 0 \quad (k \to \infty),
+        \label{v2:eq:3.45}
+    \end{equation}
+    donde $\bar{x}^k$ es una proyección del punto $x^k$ en el conjunto $S_0$ de puntos estacionarios del problema \eqref{v2:eq:3.1} (como $S_0$ es cerrado, la proyección existe, aunque ella puede no ser única en caso de que $S_0$ no sea convexo; vea el Teorema 1.3.1).
+    De \eqref{v2:eq:3.45} obtenemos que
+    \[
+        \|\bar{x}^{k+1} - \bar{x}^k\| \le \|\bar{x}^{k+1} - x^{k+1}\| + \|x^{k+1} - x^k\| + \|x^k - \bar{x}^k\| \to 0 \quad (k \to \infty).
+    \]
+    Ahora, por la condición de separación de superficies de nivel críticas de $f$, existe un número $v \in \{s \in \R \mid s = f(\bar{x}), \bar{x} \in S_0\}$ tal que, para todo $k$ suficientemente grande,
+    \begin{equation}
+        f(\bar{x}^k) = v.
+        \label{v2:eq:3.46}
+    \end{equation}
+    En consecuencia, por el hecho de que $f'(\bar{x}^{k+1}) = 0$ (porque $\bar{x}^{k+1} \in S_0$), por el Lema 1.5.4, por la definición de proyección y por \eqref{v2:eq:3.45}, obtenemos que
+    \begin{align*}
+        |f(x^{k+1}) - v| &= |f(x^{k+1}) - f(\bar{x}^{k+1}) - \langle f'(\bar{x}^{k+1}), x^{k+1} - \bar{x}^{k+1} \rangle| \\
+        &\le L\|x^{k+1} - \bar{x}^{k+1}\|^2/2 \\
+        &\le L\|x^{k+1} - \bar{x}^k\|^2/2 \\
+        &\le L(\|x^{k+1} - x^k\| + \|x^k - \bar{x}^k\|)^2/2 \\
+        &\le \frac{L}{2} \left(1 + \frac{1}{\check{\alpha}\gamma}\right)^2 \|x^{k+1} - x^k\|^2 \to 0 \quad (k \to \infty).
+    \end{align*}
+    Llevando en cuenta que $\{f(x^k)\}$ es decreciente y \eqref{v2:eq:3.44}, obtenemos de la última relación que
+    \begin{equation}
+        0 \le f(x^{k+1}) - v \le M(f(x^k) - f(x^{k+1})),
+        \label{v2:eq:3.47}
+    \end{equation}
+    donde
+    \[
+        M = \frac{L\hat{\alpha}}{2\sigma} \left(1 + \frac{1}{\check{\alpha}\gamma}\right)^2 > 0.
+    \]
+    Redistribuyendo los términos en \eqref{v2:eq:3.47}, obtenemos
+    \begin{equation}
+        0 \le f(x^{k+1}) - v \le q(f(x^k) - v),
+        \label{v2:eq:3.48}
+    \end{equation}
+    donde $q = M/(1+M) \in (0, 1)$. Esto significa que $\{f(x^k)\}$ converge a $v$ con tasa lineal.
+    Ahora, usando \eqref{v2:eq:3.44} y \eqref{v2:eq:3.48}, para todo $k$ suficientemente grande obtenemos
+    \begin{align*}
+        \|x^{k+1} - x^k\| &\le \sqrt{\hat{\alpha}(f(x^k) - f(x^{k+1}))/\sigma} \\
+        &\le \sqrt{\hat{\alpha}(f(x^k) - v)/\sigma} \\
+        &\le \sqrt{\hat{\alpha} q(f(x^{k-1}) - v)/\sigma} \\
+        &\le \dots \le \\
+        &\le (\sqrt{q})^k \sqrt{\hat{\alpha}(f(x^0) - v)/\sigma}.
+    \end{align*}
+    Definiendo $\Gamma = \sqrt{\hat{\alpha}(f(x^0) - v)/\sigma}$, tenemos
+    \begin{align*}
+        \|x^{k+i} - x^k\| &\le \sum_{j=0}^{i-1} \|x^{k+j+1} - x^{k+j}\| \\
+        &\le \sum_{j=0}^{i-1} (\sqrt{q})^{k+j}\Gamma \\
+        &\le (\sqrt{q})^k \Gamma / (1 - \sqrt{q}).
+    \end{align*}
+    Esto muestra la propiedad de Cauchy de la sucesión $\{x^k\}$ y, por tanto, la convergencia de esta sucesión a un punto $\bar{x} \in \R^n$. Pasando al límite cuando $i \to \infty$ en la última desigualdad, obtenemos que
+    \[
+        \|x^k - \bar{x}\| \le (\sqrt{q})^k \Gamma / (1 - \sqrt{q}),
+    \]
+    lo que significa que la tasa de convergencia de la sucesión $\{x^k\}$ es geométrica. Finalmente, de \eqref{v2:eq:3.45} obtenemos $\dist(x^k, S_0) \to 0$ $(k \to \infty)$. Por lo tanto, $\bar{x} \in S_0$.
+\end{proof}
+
+Para finalizar, resaltamos (de nuevo) que los métodos del gradiente son, para la gran mayoría de aplicaciones prácticas, poco eficientes. Ellos son particularmente lentos en el caso cuando superficies de nivel de la función en consideración son ``alargadas'' (vea la Figura 3.1.1). Podemos describir tal situación con un poco más de precisión de la manera siguiente. Si el método converge a una solución local estricta $\bar{x}$ donde el auto-valor máximo $\rho_n$ de la matriz $f''(\bar{x})$ es bien mayor que el auto-valor mínimo $\rho_1$, se tiene que el número $\rho_1/\rho_n$ es próximo a cero. En este caso, las constantes en el lado derecho de las estimativas \eqref{v2:eq:3.32} y \eqref{v2:eq:3.34}-\eqref{v2:eq:3.36} son próximas a 1. Esto muestra convergencia bastante lenta, mismo que formalmente lineal. Cabe frisar que esto no significa que el análisis realizado arriba fue inadecuado. La convergencia es lenta de hecho, lo que puede ser fácilmente confirmado haciendo experimentos numéricos. También es importante mencionar que, mismo cuando el método del gradiente no es tan malo (por ejemplo, cuando $\rho_1/\rho_n$ es próximo a 1), varios métodos alternativos serán mejores aún. O sea, en cualquier caso, el método del gradiente no es competitivo en el sentido computacional. La importancia de él es sobre todo histórica, teórica y didáctica.
+
+% [Ejercicios 3.1.12, 3.1.13, 3.1.14, 3.1.15, 3.1.16 y 3.1.17 movidos a exercises.tex]
+%%% Local Variables:
+%%% mode: LaTeX
+%%% TeX-master: "../../../Apuntes-Programacion-No-Lineal"
+%%% End:
