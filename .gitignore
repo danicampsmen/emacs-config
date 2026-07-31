@@ -37,3 +37,4 @@ custom.el
 my-secrets.el
 lisp/my-secrets.el
 txt-export/.aider*
+.aider*
