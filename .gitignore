@@ -3,39 +3,37 @@
 /.#*
 *~
 *.elc
+#!*
 
-# Caché de paquetes y compilados
+# Archivos de estado e historial personal
+history
+places
+recentf
+tramp
+projectile-bookmarks.eld
+custom.el
+
+# Caché compilada y paquetes instalados
+/eln-cache/
 /elpa/
 /tree-sitter/
 /transient/
-/auto-saves/
-/backups/
 /.local/
 
-# Caché de Aider y herramientas de IA
+# Cachés de herramientas IA
 .aider*
 .agent/
 
-# PDFs compilados e intermedios de LaTeX
+# Archivos compilados de LaTeX / Documentos
+*.pdf
+*.odt
 *.aux
 *.log
-*.toc
 *.fls
 *.fdb_latexmk
 *.synctex.gz
-*.bbl
-*.bcf
-*.blg
-*.run.xml
-txt-export/
-my-secrets.el
-lisp/my-secrets.el
-txt-export/
-my-secrets.el
-lisp/my-secrets.el
-txt-export/
-my-secrets.el
-lisp/my-secrets.el
+
+# Secretos
 my-secrets.el
 lisp/my-secrets.el
 txt-export/
