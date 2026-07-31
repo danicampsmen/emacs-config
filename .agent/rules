@@ -1,0 +1,177 @@
+# Instrucciones del Agente para la Configuración de Emacs
+# Objetivo: Fast-typing LaTeX + Asistente de Investigación Matemática
+# Estabilidad ante actualizaciones - NO romper la config por cambios en MELPA
+
+## 1. Documentación Oficial y Verificación (Antialucinaciones)
+- NO asumas la existencia de funciones, variables, macros o paquetes de Elisp.
+- Antes de proponer o modificar código, verifica contra una de estas fuentes — **siempre la versión más reciente y compatible con Emacs instalado**:
+  - El manual de GNU Emacs (versión instalada): https://www.gnu.org/software/emacs/manual/
+  - El manual de Emacs Lisp (versión instalada): https://www.gnu.org/software/emacs/manual/elisp.html
+  - El docstring de la función con `C-h f` — esto SIEMPRE refleja la versión instalada
+  - El código fuente instalado en `~/.emacs.d/elpa/<paquete>/` — es la verdad definitiva
+  - El repositorio oficial del paquete en GitHub/GitLab (rama principal, no ramas experimentales)
+- **ANTE CUALQUIER ERROR, ADVERTENCIA O COMPORTAMIENTO INESPERADO:**
+  - **PRIMERO:** consulta el código fuente (`elpa/<paquete>/`) y el docstring (`C-h f`). Son la autoridad máxima.
+  - **SEGUNDO:** busca en el manual oficial de Emacs o del paquete.
+  - **NUNCA** intentes arreglar un error basándote en suposiciones, blogs, o el conjunto de entrenamiento del modelo.
+- **Verifica la versión de Emacs antes de recomendar funciones:**
+  ```
+  emacs --version
+  ```
+  No sugieras funciones, variables o APIs introducidas en versiones posteriores a la instalada.
+- PROHIBIDO recomendar paquetes, funciones o prácticas basadas en blogs, Reddit, o datos de entrenamiento sin verificar contra las fuentes anteriores.
+- Antes de afirmar que algo "no existe" o "está mal", búscalo con `grep -rn` en `lisp/` y `elpa/`.
+
+### Fuentes Oficiales por Paquete
+
+| Paquete | Documentación / Repositorio |
+|---------|----------------------------|
+| **Emacs Lisp** | https://www.gnu.org/software/emacs/manual/elisp.html |
+| **Emacs Manual** | https://www.gnu.org/software/emacs/manual/emacs.html |
+| **AUCTeX** | https://www.gnu.org/software/auctex/manual/auctex.html |
+| **RefTeX** | https://www.gnu.org/software/emacs/manual/reftex.html |
+| **Org Mode** | https://orgmode.org/manual/ |
+| **Evil** | https://github.com/emacs-evil/evil |
+| **Vertico / Corfu / Cape / Marginalia / Consult / Embark / Orderless / Tempel** | https://github.com/minad/ (repositorios individuales de Daniel Mendler) |
+| **Magit** | https://magit.vc/manual/magit.html |
+| **Eglot** | https://www.gnu.org/software/emacs/manual/eglot.html |
+| **Projectile** | https://docs.projectile.mx/ |
+| **Citar** | https://github.com/emacs-citar/citar |
+| **gptel** | https://github.com/karthink/gptel |
+| **EAF** | https://github.com/emacs-eaf/emacs-application-framework |
+| **pdf-tools** | https://github.com/vedang/pdf-tools |
+| **Tempel** | https://github.com/minad/tempel |
+| **LaTeX (oficial)** | https://www.latex-project.org/help/documentation/ |
+| **KOMA-Script** | https://komascript.de/ (manual en alemán/inglés) |
+| **Biber** | https://biblatex-biber.sourceforge.net/ |
+| **Minted** | https://github.com/gpoore/minted |
+| **TikZ/PGF** | https://ctan.org/pkg/pgf |
+| **Tree-sitter (Emacs)** | https://www.gnu.org/software/emacs/manual/elisp.html#Parsing-Program-Source |
+| **Aidermacs** | https://github.com/MatthewZMD/aidermacs |
+| **Doom Modeline** | https://github.com/seagle0128/doom-modeline |
+| **Jinx** | https://github.com/minad/jinx |
+| **Modus Themes** | https://protesilaos.com/emacs/modus-themes |
+
+### Documentclasses del Proyecto
+- `apuntes-scr.cls` — Basada en KOMA-Script (`scrartcl`/`scrbook`). Usa LuaLaTeX, `fontspec`, `unicode-math`, `minted`, `biblatex`, `cleveref`, `optidef`, `tikz`, `tcolorbox`. Soporta opciones `article`/`book`, `spanish`/`english`, `fast`.
+- `tesis-uni.cls` — Basada en `scrbook`. Usa LuaLaTeX, fuente TeX Gyre Pagella, `biblatex` (alphabetic), `cleveref`, `amsthm`, `tcolorbox`. Formato de tesis UNI con portada institucional, ORCID, y entornos compactos de teoremas.
+
+## 2. Protocolo ante Fallos
+Cuando ocurra un error (byte-compilation, tiempo de ejecución, o carga de Emacs):
+1. **Leer el mensaje de error completo.** No ignores advertencias ni backtraces.
+2. **Identificar el archivo y línea exactos** donde ocurre el error.
+3. **Consultar la función/variable problemática en el código fuente instalado** (`elpa/<paquete>/` o `lisp/`). NO asumir su firma o comportamiento.
+4. **Buscar en el manual oficial del paquete** (ver tabla de fuentes en Sección 1).
+5. **Si el paquete es externo y cambió su API**, buscar el CHANGELOG o NEWS en su repositorio oficial.
+6. **Proponer la solución mínima** que corrija el error sin reescribir módulos completos.
+7. **Verificar con byte-compilation** antes de declarar el problema resuelto.
+
+## 3. Verificación con Byte-Compilation
+- Al modificar o crear un archivo `.el`, ejecuta:
+  ```
+  emacs --batch --eval "(byte-compile-file \"lisp/archivo.el\")" 2>&1
+  ```
+- Si hay errores o advertencias de funciones no definidas, CORRÍGELAS antes de dar la tarea por finalizada.
+- Si el cambio afecta la carga de Emacs, verifica también:
+  ```
+  emacs --batch --eval "(require 'init)" 2>&1
+  ```
+
+## 4. Arquitectura Modular (Obligatorio)
+- `init.el` solo contiene `(require 'modulo)`. NUNCA añadas lógica directamente allí.
+- Un archivo = una responsabilidad. Si tu cambio no encaja en ningún módulo existente, crea uno nuevo con prefijo `my-` y regístralo en `init.el`.
+- Todo archivo `.el` nuevo debe tener `lexical-binding: t` y `(provide 'nombre)` al final.
+- PROHIBIDO modificar archivos en `elpa/`, `site-lisp/`, `tree-sitter/`, `transient/`.
+
+## 5. Cadena de Prioridades TAB (NO ROMPER)
+El sistema de fast-typing en LaTeX depende de esta cadena. Cualquier cambio en el completado debe respetarla:
+```
+Tempel (snippets) → Corfu (autocompletar) → AST Jump (tree-sitter) → Indentación
+```
+- NO desactives ni reemplaces `tempel`, `corfu`, `cape`, `orderless` o `vertico`.
+- NO cambies el binding de TAB sin preservar la lógica de `my/ide-tab-handler`.
+- NO desactives `TeX-fold-mode` ni el sistema de plegado Zen (`my/latex-visuals.el`).
+- NO modifiques los mapas de `TeX-add-symbols` que definen el plegado de `\map`, `\inmap`, `\chart`, `\rest`, `\transmap`, `\morf`, etc.
+
+## 6. Seguridad
+- NUNCA escribas claves API, tokens o contraseñas en archivos del repositorio.
+- Las credenciales van en variables de entorno (`GEMINI_API_KEY`, `DEEPSEEK_API_KEY`) o en `lisp/my-secrets.el` (incluido en `.gitignore`).
+- Todo argumento pasado a `start-process`, `call-process` o `shell-command` debe escaparse con `shell-quote-argument` cuando provenga de entrada del usuario o del buffer.
+
+## 7. Estabilidad y Reproducibilidad
+- **NO agregues dependencias innecesarias.** Antes de instalar un paquete nuevo, verifica si la funcionalidad ya existe en los paquetes instalados.
+- **Toda función que dependa de un paquete externo debe protegerse** con `(when (fboundp 'funcion-externa) ...)` o `featurep`. Si el paquete no está disponible, la funcionalidad debe degradarse con gracia.
+- **Toda llamada a un ejecutable externo** (`latexindent`, `inkscape`, `rclone`, `zathura`, `python`, `wtype`, `xdotool`) debe verificar su existencia con `(executable-find "comando")` antes de invocarlo.
+- **Usa `defcustom`** para rutas, nombres de comando, años de TeX Live y cualquier valor que pueda cambiar entre máquinas o versiones. NUNCA hardcodees rutas absolutas.
+- **No uses `package-refresh-contents` sin condición.** Ya está optimizado en `my-packages.el`.
+- **Los timers y hooks deben limpiarse al desactivar el modo menor** que los creó (usa `cancel-timer` y `remove-hook`).
+- **Ante fallos de byte-compilation en `package-install`, no detengas la carga de Emacs.** Usa `condition-case`.
+
+## 8. Ecosistema LaTeX (Documentclasses del Proyecto)
+Ambos documentclasses comparten estas características. Cualquier cambio en la config de Emacs debe respetarlas:
+
+- **Motor: LuaLaTeX obligatorio.** NO sugerir `pdflatex` ni `xelatex`. El proyecto usa `fontspec` + `unicode-math` + `luamplib`, que solo funcionan con LuaLaTeX.
+- **Compilación con `--shell-escape`.** Requerido por `minted` (pygments). Ya está en `my-latex-core.el`.
+- **Bibliografía: `biber`, NO `bibtex`.** Ambos `.cls` usan `biblatex` con backend `biber`. No romper la cadena `latexmk → lualatex → biber → lualatex`.
+- **Fuentes unicode-math:** Los símbolos en los entornos de plegado Zen deben ser caracteres Unicode reales (STIX Two Math / TeX Gyre Pagella). NO usar combinaciones ASCII como `|x|` cuando existe `‖x‖`.
+- **Entornos bilingües:** `apuntes-scr.cls` define nombres de teoremas en español e inglés. Los macros de plegado (`my/latex-get-env-face`, `my/latex-get-env-title`) deben reconocer AMBOS idiomas.
+- **Estructura multi-archivo:** Ambos usan `scrbook` con `\include`/`\chapter`. El archivo maestro se detecta con `my/brain-is-root-file-p`. NO romper esta detección.
+- **Comandos personalizados mapeados en Zen Mode:** `\map{6}`, `\inmap{3}`, `\chart{2}`, `\rest{2}`, `\transmap{2}`, `\morf{3}`, `\TODO`, `\FIXME`, `\deftech`, `\usual`, `\highlightgreen`. Están registrados en `TeX-add-symbols` dentro de `my/latex-visual-setup`. No eliminar ni modificar sus aridades.
+- **Integración Inkscape:** Las figuras se importan con `\incfig{}` vía `inkscape-figures` (script externo). La detección Wayland/X11 para auto-pegar afecta esta integración.
+
+## 9. Versión de Emacs Requerida
+- **Emacs 29.1 o superior es obligatorio.** La configuración usa:
+  - Tree-sitter integrado (`treesit-*`, `my-latex-tree-sitter.el`)
+  - Eglot built-in
+  - `package-quickstart`
+  - `native-comp-async-report-warnings-errors`
+- Verifica la versión con `emacs --version` antes de proponer cambios.
+- Si una función está marcada como "disponible desde Emacs X.Y" en el manual, y X.Y > 29, NO la uses sin protección `(version<= "X.Y" emacs-version)`.
+
+## 10. Reglas de Byte-Compilation Silenciosa
+- **`declare-function` es obligatorio.** Antes de llamar a cualquier función definida en otro archivo o paquete, declárala al inicio del archivo:
+  ```elisp
+  (declare-function nombre-de-funcion "archivo-o-paquete" (&rest args))
+  ```
+- El objetivo es que `byte-compile-file` produzca **cero advertencias**.
+- Si añades una dependencia nueva (ej. `require 'nuevo-paquete`), asegúrate de declarar todas las funciones que uses de él.
+- Usa `with-eval-after-load` para configurar paquetes, no `eval-after-load` (la versión de string está obsoleta).
+
+## 11. Entorno de Ejecución
+- **Shell por defecto: Zsh** (`/usr/bin/zsh`). Los comandos en `start-process-shell-command` deben ser compatibles con Zsh/Bash (POSIX shell).
+- **Servidor gráfico: Wayland** con XWayland de respaldo. Emacs gráfico reporta `window-system` como `x`.
+- `exec-path-from-shell` está en `early-init.el` y se ejecuta solo si `(memq window-system '(mac ns x))`. Si usas `emacs -nw`, el PATH puede estar incompleto.
+- **Directorio de trabajo:** los comandos externos (`latexindent`, `inkscape`, `rclone`, `zathura`) se invocan desde `~/.emacs.d/`. Usa rutas absolutas o `expand-file-name`.
+
+## 12. Aidermacs e Integración con IA
+- `aidermacs` se gestiona con `use-package` y `:ensure nil`. NO reinstalarlo automáticamente.
+- El caché de Aider está en `.aider.tags.cache.v4/`. NO modificar ni eliminar este directorio.
+- `gptel` se usa para consultas rápidas a LLMs desde Emacs. Sus credenciales están en variables de entorno (`GEMINI_API_KEY`).
+- Cualquier cambio en `my-ai.el` debe preservar la capacidad de enviar regiones/buffers a Aider y recibir respuestas.
+
+## 13. Herramientas No Reemplazables
+- **Harpoon** (`harpoon.el`): navegación rápida entre archivos frecuentes. NO sugerir `burly.el`, `tab-bar-mode` u otras alternativas como reemplazo.
+- **Evil** (`evil.el`): edición modal Vim. Es la base de toda la interacción. NO sugerir desactivarlo ni reemplazarlo por `meow`, `xah-fly-keys`, o similares.
+- **Ace-window** (`ace-window.el`): salto rápido entre ventanas. Vinculado a `M-o`.
+- **consult + embark**: interfaz de narrowing y acciones contextuales. Son el sistema de "menú contextual" de la config.
+
+## 14. Gestión de Recursos Temporales
+- Los archivos temporales de `latexindent` (`indent_in.*.tex`, `indent_out.*.tex`, `indent_err.*`) ya se limpian con `unwind-protect` en `my-editor.el`. PRESERVAR este patrón.
+- Los archivos de caché de `rclone` y `gdrive-sync` se almacenan en ubicaciones del sistema. NO sugerir moverlos a `~/.emacs.d/`.
+- Los buffers de compilación (`*brain-compile*`, `*LaTeX*`, etc.) se redirigen a ventanas inferiores. NO cambiar `display-buffer-alist` sin entender las reglas existentes en `my-ui.el`.
+
+## 15. Integración Bibliográfica (Citar/Zotero)
+- **Citar** (`citar.el`) + **Citar Embark** (`citar-embark.el`): gestión de referencias desde Zotero.
+- `tesis-tools-insert-citation-advanced` es la función principal para insertar citas con formato avanzado (teorema, página, etc.). NO modificar su lógica de selección.
+- La bibliografía usa `biber` como backend, NO `bibtex`.
+- Los archivos `.bib` se gestionan externamente (Better BibTeX en Zotero). NO sugerir editarlos manualmente.
+
+## 16. Documentación Visual con Mermaid
+- Para explicar flujos de trabajo, arquitectura de módulos o cadenas de dependencias, genera diagramas en **sintaxis Mermaid**.
+- Los diagramas deben incluirse como bloques de código ` ```mermaid ` dentro del archivo de auditoría o planificación correspondiente.
+- Útil para documentar visualmente:
+  - La cadena de prioridades TAB: `Tempel → Corfu → AST Jump → Indentación`
+  - La jerarquía de carga de módulos: `init.el → my-packages → my-ui → my-editor → ...`
+  - El flujo de compilación LaTeX: `save → latexmk → lualatex → biber → lualatex → PDF`
+  - La arquitectura de visores PDF: `my/open-pdf → pdf-tools (LaTeX) / zathura (escaneados)`
+- Referencia de sintaxis: https://mermaid.js.org/

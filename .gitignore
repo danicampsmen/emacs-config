@@ -1,0 +1,16 @@
+# Secretos y Claves Privadas
+lisp/my-secrets.el
+
+# Compilación y Caché
+*.elc
+eln-cache/
+auto-save-list/
+backups/
+auto-saves/
+txt-export/
+var/
+tramp
+places
+history
+projectile-bookmarks.eld
+recentf
