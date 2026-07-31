@@ -38,3 +38,6 @@ my-secrets.el
 lisp/my-secrets.el
 txt-export/.aider*
 .aider*
+txt-export/
+my-secrets.el
+lisp/my-secrets.el
