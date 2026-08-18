@@ -4,7 +4,6 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(package-selected-packages nil)
  '(safe-local-variable-values '((TeX-backend . "biber")))
  '(tool-bar-mode nil))
 (custom-set-faces
@@ -12,4 +11,4 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(default ((t (:family "CMU Typewriter Text" :foundry "PfEd" :slant normal :weight ultra-light :height 151 :width normal)))))
+ '(default ((t (:family "Iosevka Term" :foundry "UKWN" :slant normal :weight regular :height 151 :width normal)))))

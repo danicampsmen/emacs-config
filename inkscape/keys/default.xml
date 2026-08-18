@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<keys name="User Shortcuts">
+  <!-- Desvincular acciones y herramientas por defecto que colisionan -->
+  <bind gaction="win.tool-switch('Tweak')" keys="&lt;shift&gt;F2" />
+  <bind gaction="win.tool-switch('Spray')" keys="&lt;shift&gt;F3" />
+  <bind gaction="win.tool-switch('PaintBucket')" keys="&lt;shift&gt;F7" />
+  <bind gaction="win.tool-switch('Connector')" keys="&lt;primary&gt;F2" />
+  <bind gaction="win.tool-switch('Pencil')" keys="F6" />
+  <bind gaction="win.tool-switch('Calligraphic')" keys="&lt;primary&gt;F6" />
+  <bind gaction="win.tool-switch('Select')" keys="v, F1" />
+
+  <bind gaction="tool.all.quick-preview" keys="" />
+  <bind gaction="tool.pen.to-curve" keys="" />
+  <bind gaction="app.path-flatten" keys="" />
+  <bind gaction="app.object-flip-horizontal" keys="&lt;alt&gt;h" />
+  <bind gaction="win.canvas-scroll-bars" keys="&lt;primary&gt;&lt;shift&gt;b" />
+
+  <!-- Atajos de Extensiones Castel / Tesis -->
+  <bind gaction="app.org.tesis.castel.generate-point" keys="p" />
+  <bind gaction="app.org.tesis.castel.cycle-charts" keys="u" />
+  <bind gaction="app.org.tesis.castel.cycle-charts-prev" keys="&lt;Shift&gt;u" />
+  <bind gaction="app.org.tesis.castel.cycle-opacity" keys="o" />
+  <bind gaction="app.org.tesis.castel.cycle-opacity-prev" keys="&lt;Shift&gt;o" />
+  <bind gaction="app.org.tesis.castel.cycle-width" keys="w" />
+  <bind gaction="app.org.tesis.castel.cycle-width-prev" keys="&lt;Shift&gt;w" />
+  <bind gaction="app.org.tesis.castel.toggle-halo" keys="&lt;Primary&gt;b" />
+  <bind gaction="app.org.tesis.castel.toggle-hidden" keys="h" />
+  <bind gaction="app.org.tesis.castel.cycle-hidden-prev" keys="&lt;Shift&gt;h" />
+  <bind gaction="app.org.tesis.castel.cycle-fill" keys="f" />
+  <bind gaction="app.org.tesis.castel.cycle-fill-prev" keys="&lt;Shift&gt;f" />
+  <bind gaction="app.org.tesis.castel.cycle-arrow" keys="a" />
+  <bind gaction="app.org.tesis.castel.cycle-arrow-prev" keys="&lt;Shift&gt;a" />
+  <bind gaction="app.org.tesis.castel.reverse-arrow" keys="&lt;Shift&gt;r" />
+  <bind gaction="app.org.tesis.castel.cycle-color" keys="c" />
+  <bind gaction="app.org.tesis.castel.cycle-color-prev" keys="&lt;Shift&gt;c" />
+  <bind gaction="app.org.tesis.castel.cycle-stroke" keys="s" />
+  <bind gaction="app.org.tesis.castel.cycle-stroke-prev" keys="&lt;Shift&gt;s" />
+</keys>

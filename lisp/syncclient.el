@@ -1,0 +1,314 @@
+;;; syncclient.el --- Integración de SyncClient con Emacs -*- lexical-binding: t; -*-
+
+(require 'json)
+(require 'url)
+(require 'tabulated-list)
+
+(defgroup syncclient nil
+  "Cliente de sincronización de Google Drive para Emacs."
+  :group 'external)
+
+(defcustom syncclient-backend-url "http://127.0.0.1:3000/api"
+  "URL del demonio local de SyncClient."
+  :type 'string
+  :group 'syncclient)
+
+(defvar syncclient--session-token nil
+  "Token de sesión local obtenido del bootstrap de SyncClient.")
+
+(defvar-local syncclient--last-line nil
+  "Última línea mostrada en el mensaje de selección de SyncClient.")
+
+(defun syncclient--bootstrap-session ()
+  "Obtiene una sesión local del backend de SyncClient."
+  (let ((url-request-method "GET")
+        (url-request-extra-headers '(("X-SyncClient-Client" . "emacs"))))
+    (url-retrieve
+     (concat syncclient-backend-url "/session/bootstrap")
+     (lambda (_)
+       (goto-char (point-min))
+       (when (re-search-forward "^$" nil t)
+         (condition-case err
+             (let* ((json-object-type 'hash-table)
+                    (json-array-type 'list)
+                    (res (json-read)))
+               (when-let ((token (gethash "sessionToken" res)))
+                 (setq syncclient--session-token token)
+                 (message "⚡ SyncClient: sesión local iniciada")))
+           (error
+            (message "❌ SyncClient: respuesta vacía o inválida del backend (%s)" (error-message-string err))))))))
+
+(defun syncclient--request (endpoint method data callback)
+  "Envía peticiones HTTP al backend de SyncClient."
+  (unless syncclient--session-token
+    (syncclient--bootstrap-session))
+  (let ((headers '(("Content-Type" . "application/json")))
+        (auth-header (when syncclient--session-token
+                       (cons "Authorization" (concat "Bearer " syncclient--session-token)))))
+    (push auth-header headers)
+    (let ((url-request-method method)
+          (url-request-extra-headers headers)
+          (url-request-data (when data (json-encode data))))
+      (url-retrieve
+       (concat syncclient-backend-url endpoint)
+       (lambda (_)
+         (goto-char (point-min))
+         (when (re-search-forward "^$" nil t)
+           (condition-case err
+               (let* ((json-object-type 'hash-table)
+                      (json-array-type 'list)
+                      (res (json-read)))
+                 (when callback (funcall callback res)))
+             (error
+              (message "❌ SyncClient: respuesta vacía o inválida del backend (%s)" (error-message-string err)))))))))
+
+(defun syncclient--remote-name ()
+  "Obtiene el nombre del remote de rclone desde gdrive-sync si está disponible."
+  (if (and (featurep 'gdrive-sync)
+           (boundp 'gdrive-sync/remote-name)
+           gdrive-sync/remote-name)
+      gdrive-sync/remote-name
+    "GoogleDrive"))
+
+(defun syncclient--list-remote-folders ()
+  "Lista carpetas de Google Drive usando rclone."
+  (let* ((remote-name (syncclient--remote-name))
+         (remote-full (format "%s:" remote-name))
+         (rclone (executable-find "rclone")))
+    (unless rclone
+      (user-error "El comando 'rclone' no se encuentra en tu sistema"))
+    (message "🔍 Escaneando carpetas en %s..." remote-full)
+    (condition-case err
+        (let ((folders (apply #'process-lines rclone
+                              (list "lsf" remote-full "--dirs-only" "--recursive" "--fast-list"))))
+          (message "✅ %d carpetas encontradas." (length folders))
+          folders)
+      (error
+       (message "❌ Error al listar carpetas: %s" (error-message-string err))
+       '()))))
+
+;;;###autoload
+(defvar syncclient--remote-folders nil
+  "Lista de carpetas remotas disponibles para SyncClient.")
+
+(define-derived-mode syncclient-remote-mode tabulated-list-mode "SyncClient-Remote"
+  "Modo interactivo para explorar carpetas de Google Drive."
+  (setq tabulated-list-format
+        [("Carpeta" 50 t)])
+  (setq tabulated-list-padding 2)
+  (tabulated-list-init-header)
+  (setq-local syncclient--last-line nil)
+  (add-hook 'post-command-hook #'syncclient--maybe-show-selection nil t)
+  (add-hook 'kill-buffer-hook
+            (lambda ()
+              (remove-hook 'post-command-hook #'syncclient--maybe-show-selection t))
+            nil t)
+  (syncclient--show-selection-message))
+
+(define-key syncclient-remote-mode-map (kbd "RET") #'syncclient--remote-select)
+(define-key syncclient-remote-mode-map (kbd "q") #'quit-window)
+
+(defun syncclient-browse-remote ()
+  "Muestra las carpetas de Google Drive en un buffer interactivo."
+  (interactive)
+  (let ((folders (syncclient--list-remote-folders)))
+    (setq syncclient--remote-folders folders)
+    (let ((buf (get-buffer-create "*SyncClient Remote Folders*")))
+      (with-current-buffer buf
+        (syncclient-remote-mode)
+        (setq tabulated-list-entries
+              (mapcar (lambda (f)
+                        (list f (vector f)))
+                      folders))
+        (tabulated-list-print t)
+        (display-buffer buf)
+        (message "SyncClient Remote: RET copiar ruta, q para salir")))))
+
+(defun syncclient--remote-select ()
+  "Selecciona la carpeta remota bajo el cursor."
+  (interactive)
+  (let ((id (tabulated-list-get-id)))
+    (when id
+      (kill-new id)
+      (message "📋 Ruta remota copiada: %s" id)
+      (when (derived-mode-p 'syncclient-remote-mode)
+        (kill-buffer (current-buffer))))))
+
+(defun syncclient-add-pair ()
+  "Agrega un nuevo par de sincronización de forma interactiva."
+  (interactive)
+  (let* ((id (read-string "ID del par (ej. mi-carpeta): "))
+         (local-path (read-directory-name "Ruta local: " nil nil t))
+         (remote-dirs (syncclient--list-remote-folders))
+         (remote-candidates (append '("[Raiz del remote]" "[Crear nueva carpeta]") remote-dirs))
+         (remote-choice (completing-read "Ruta remota: " remote-candidates nil t))
+         (remote-path (cond
+                        ((string= remote-choice "[Raiz del remote]") "")
+                        ((string= remote-choice "[Crear nueva carpeta]")
+                         (read-string "Nombre de la nueva carpeta en Drive: "))
+                        (t remote-choice)))
+         (direction (completing-read "Dirección: " '("bidirectional" "upload" "download") nil t)))
+    (when (yes-or-no-p (format "¿Crear par %s?\n  Local: %s\n  Remoto: %s\n  Dirección: %s\n"
+                                id local-path remote-path direction))
+      (syncclient--request
+       "/sync/pairs" "POST"
+       `((pairs . [((id . ,id)
+                    (localPath . ,(expand-file-name local-path))
+                    (remotePath . ,(format "%s:%s" (syncclient--remote-name) remote-path))
+                    (direction . ,direction)
+                    (status . "idle")
+                    (syncMode . "mirror")
+                    (cloudCategory . "shared"))]))
+       (lambda (data)
+         (if (gethash "success" data)
+             (message "✅ Par '%s' creado correctamente." id)
+            (message "❌ Error creando par: %s" (or (gethash "error" data) "desconocido"))))))))))
+
+;;;###autoload
+(defun syncclient-status ()
+  "Muestra la lista de carpetas y su estado en un buffer interactivo."
+  (interactive)
+  (syncclient--request
+   "/sync/status" "GET" nil
+   (lambda (data)
+     (let ((buf (get-buffer-create "*SyncClient*"))
+           (pairs (gethash "pairs" data)))
+       (with-current-buffer buf
+         (syncclient-mode)
+         (setq tabulated-list-entries
+               (mapcar (lambda (p)
+                         (list (gethash "id" p)
+                               (vector (gethash "id" p)
+                                       (gethash "status" p)
+                                       (or (gethash "engineType" p) "native")
+                                       (gethash "localPath" p)
+                                       (gethash "remotePath" p))))
+                       pairs))
+         (tabulated-list-print t)
+         (display-buffer buf)
+         (message "SyncClient: usa TAB/S-TAB para moverte y 's' para sincronizar el par seleccionado"))))))
+
+;;;###autoload
+(defun syncclient-force-sync-current ()
+  "Fuerza la sincronización de la carpeta seleccionada."
+  (interactive)
+  (let ((id (tabulated-list-get-id)))
+    (if id
+        (syncclient--request "/sync/force" "POST" `((pairId . ,id))
+                             (lambda (_) (message "⚡ Sincronizando %s..." id)))
+      (message "No hay ningún par seleccionado"))))
+
+;;;###autoload
+(defun syncclient-clean-duplicates-current ()
+  "Ejecuta la deduplicación a demanda para el par seleccionado."
+  (interactive)
+  (let ((id (tabulated-list-get-id)))
+    (if id
+        (syncclient--request "/sync/clean-duplicates" "POST" `((pairId . ,id))
+                             (lambda (_) (message "✨ Limpieza de duplicados iniciada para %s" id)))
+      (message "No hay ningún par seleccionado"))))
+
+(define-derived-mode syncclient-mode tabulated-list-mode "SyncClient"
+  "Modo interactivo para gestionar SyncClient en Emacs."
+  (setq tabulated-list-format
+        [("ID" 12 t)
+         ("Estado" 12 t)
+         ("Motor" 10 t)
+         ("Ruta Local" 35 t)
+         ("Ruta Remota" 35 t)])
+  (setq tabulated-list-padding 2)
+  (tabulated-list-init-header)
+  (setq syncclient--last-line nil)
+  (add-hook 'post-command-hook #'syncclient--maybe-show-selection nil t)
+  (add-hook 'kill-buffer-hook
+            (lambda ()
+              (remove-hook 'post-command-hook #'syncclient--maybe-show-selection t))
+            nil t)
+  (syncclient--show-selection-message))
+
+(defun syncclient--show-selection-message ()
+  "Muestra el ID del par seleccionado en el echo area."
+  (when (derived-mode-p 'syncclient-mode)
+    (let ((id (tabulated-list-get-id)))
+      (if id
+          (message "SyncClient: par seleccionado → %s" id)
+        (message "SyncClient: sin pares")))))
+
+(defun syncclient--format-status-text (status)
+  "Formatea el estado de un par como texto legible."
+  (pcase status
+    ("syncing" "🔄 Sincronizando")
+    ("deduping" "✨ Deduplicando")
+    ("paused" "⏸️ Pausado")
+    ("error" "❌ Error")
+    ("idle" "💤 Inactivo")
+    ("unauthenticated" "🔒 No autenticado")
+    (_ (format "⚪ %s" status))))
+
+(defun syncclient--format-progress (progress)
+  "Formatea la información de progreso de un par."
+  (if progress
+      (format "%.0f%% (%s/%s) - %s"
+              (or (gethash "percentage" progress) 0)
+              (or (gethash "bytesTransferred" progress) 0)
+              (or (gethash "totalBytes" progress) 0)
+              (or (gethash "currentFile" progress) ""))
+    "sin progreso"))
+
+;;;###autoload
+(defun syncclient-current-activity ()
+  "Muestra en el echo area qué está haciendo SyncClient ahora."
+  (interactive)
+  (syncclient--request
+   "/sync/status" "GET" nil
+   (lambda (data)
+     (let ((pairs (gethash "pairs" data))
+           (pending (gethash "pendingConflicts" data)))
+       (if (null pairs)
+           (message "⚡ SyncClient: sin pares configurados")
+         (let* ((active (seq-filter (lambda (p) (not (member (gethash "status" p) '("idle" "paused")))) pairs))
+                (parts (append
+                        (if active
+                            (list (format "⚡ Activos: %d" (length active)))
+                          (list "⚡ Sin actividad activa"))
+                        (mapcar (lambda (p)
+                                  (format "  %s | %s | %s | %s"
+                                          (syncclient--format-status-text (gethash "status" p))
+                                          (gethash "id" p)
+                                          (gethash "engineType" p)
+                                          (syncclient--format-progress (gethash "progress" p))))
+                                pairs)
+                        (when (and pending (> (length pending) 0))
+                          (list (format "⚠️ Conflictos pendientes: %d" (length pending))))))
+            (message (mapconcat #'identity parts "\\n")))))))))
+
+(defun syncclient--maybe-show-selection ()
+  "Muestra el ID del par si cambió la línea actual."
+  (when (derived-mode-p 'syncclient-mode)
+    (let ((current-line (line-number-at-pos)))
+      (unless (eq current-line syncclient--last-line)
+        (setq syncclient--last-line current-line)
+        (syncclient--show-selection-message)))))
+
+(define-key syncclient-mode-map (kbd "g") 'syncclient-status)
+(define-key syncclient-mode-map (kbd "s") 'syncclient-force-sync-current)
+(define-key syncclient-mode-map (kbd "d") 'syncclient-clean-duplicates-current)
+(define-key syncclient-mode-map (kbd "TAB") 'tabulated-list-next-line)
+(define-key syncclient-mode-map (kbd "<backtab>") 'tabulated-list-previous-line)
+
+(with-eval-after-load 'transient
+  (transient-define-prefix syncclient-transient-prefix ()
+    "Menú interactivo de SyncClient."
+    [:description "⚡ SyncClient"
+     ["📊 Estado"
+      ("s" "Ver Estado" syncclient-status)
+      ("i" "Ver Actividad Actual" syncclient-current-activity)]
+     ["🔄 Sincronización"
+      ("f" "Forzar Sync Seleccionado" syncclient-force-sync-current)
+      ("c" "Limpiar Duplicados Seleccionado" syncclient-clean-duplicates-current)]
+     ["➕ Par"
+      ("a" "Agregar Par" syncclient-add-pair)
+      ("b" "Explorar Carpetas Remotas" syncclient-browse-remote)]]))
+
+(provide 'syncclient)
+;;; syncclient.el ends here

@@ -211,28 +211,31 @@ Si estás en Dired, actualiza el buffer automáticamente para mostrarlo."
   "gs"  '(magit-status :which-key "Status")
   
   ;; --- Google Drive / Sync ---
-  "d"   '(:ignore t :which-key "Drive/Sync")
-  "ds"  '(gdrive-bisync-now :which-key "Sync TODO")
-  "dT"  '(gdrive-show-tree :which-key "Mostrar Árbol de Carpetas (Tree)")
-  "dp"  '(gdrive-sync-project :which-key "Push PROYECTO (Local->Nube)")
-  "dt"  '(gdrive-bisync-dry-run :which-key "Dry Run TODO")
-  "dc"  '(gdrive-check-status :which-key "Check Status")
-  "da"  '(gdrive-about-quota :which-key "Ver Cuota (About)")
-  "db"  '(gdrive-browse-mount :which-key "Navegar Drive (FUSE Mount)") ;; <--- COMANDO ASÍNCRONO FUSE
-  "du"  '(gdrive-upload-current-file :which-key "Subir archivo actual")
-  "dl"  '(gdrive-list-remote :which-key "Explorar Nube (lsd)")
-  "di"  '(gdrive-upload-any-file :which-key "Subir archivo individual libremente")
-  "dd"  '(gdrive-pull-remote-folder :which-key "Descargar carpeta remota")
-  "dE"  '(gdrive-empty-trash :which-key "Vaciar Papelera Nube")
-  "df"  '(gdrive-sync-specific-folder :which-key "Sync Carpeta Específica")
-  "dD"  '(gdrive-dedupe :which-key "Eliminar Duplicados (dedupe)")
-  "dI"  '(gdrive-bisync-resync-global :which-key "Resync TODO (Emergency)")
-  "dR"  '(gdrive-bisync-resync-project :which-key "Resync PROYECTO")
-  "dM"  '(gdrive-force-push-mirror :which-key "Forzar Espejo Local->Nube")
-  "dN"  '(gdrive-force-pull-mirror :which-key "Forzar Espejo Nube->Local")
-  "dL"  '(gdrive-bisync-force-unlock :which-key "Forzar Desbloqueo")
-  "dr"  '(gdrive-resolve-conflicts :which-key "Resolver Conflictos")
-  "dx"  '(gdrive-purge-latex-aux :which-key "Purgar Auxiliares LaTeX")  
+  "d"   '(:ignore t :which-key "Google Drive / Sync")
+  "dd"  '(gdrive-sync-transient/body :which-key "Menú Transient GDrive")
+  "dn"  '(gdrive-sync/browse-remote :which-key "Navegar GDrive (Dired TRAMP)")
+  "di"  '(gdrive-sync/navigate-remote :which-key "Explorador Interactivo")
+  "dm"  '(gdrive-sync/mount-remote :which-key "Montar GDrive (FUSE)")
+  "dM"  '(gdrive-sync/unmount-remote :which-key "Desmontar GDrive (FUSE)")
+  "db"  '(gdrive-sync/bisync-now :which-key "Sincronizar Todo (bisync)")
+  "ds"  '(gdrive-sync/sync-local-to-remote :which-key "Local ➔ Remoto (Carpeta)")
+  "dS"  '(gdrive-sync/sync-remote-to-local :which-key "Remoto ➔ Local (Carpeta)")
+  "df"  '(gdrive-sync/upload-current-file :which-key "Subir Archivo Actual")
+  "dF"  '(gdrive-sync/download-remote-file :which-key "Descargar Archivo Remoto")
+  "du"  '(gdrive-sync/upload-modified :which-key "Subir Modificados en Sesión")
+  "dr"  '(gdrive-sync/bisync-resync-global :which-key "Forzar Resincronización (--resync)")
+  "dl"  '(gdrive-sync/force-unlock :which-key "Eliminar Candados (.lck)")
+  "dc"  '(gdrive-sync/resolve-conflicts :which-key "Resolver Conflictos (Ediff)")
+  "dR"  '(gdrive-sync/refresh-folder-cache :which-key "Refrescar Caché de Carpetas")
+
+  "dy"  '(:ignore t :which-key "SyncClient")
+  "dyS" '(syncclient-status :which-key "Ver Estado")
+  "dyf" '(syncclient-force-sync-current :which-key "Forzar Sync Seleccionado")
+  "dyc" '(syncclient-clean-duplicates-current :which-key "Limpiar Duplicados Seleccionado")
+  "dya" '(syncclient-add-pair :which-key "Agregar Par")
+  "dyb" '(syncclient-browse-remote :which-key "Explorar Carpetas Remotas")
+  "dyi" '(syncclient-current-activity :which-key "Ver Actividad Actual")
+  "dyt" '(syncclient-transient-prefix :which-key "Menú Transient")
 
   ;; --- Ventanas / Frames ---
   "w"   '(:ignore t :which-key "Windows/Frames")
@@ -243,11 +246,11 @@ Si estás en Dired, actualiza el buffer automáticamente para mostrarlo."
   "wp"  '(my/layout-writer :which-key "Layout Tesis (PDF)")
   "wr"  '(my/layout-researcher :which-key "Layout Referencia")
   
-  ;; --- LaTeX / Texto ---
+;; --- LaTeX / Texto ---
   "t"   '(:ignore t :which-key "TeX/Texto")
   "ta"  '(my/toggle-latex-auto-format-on-save :which-key "Toggle Auto-Format al Guardar")
   "tA"  '(my/open-apuntes-cls :which-key "Editar apuntes.cls")
-  "tb"  '(tesis-tools-insert-citation-advanced :which-key "Citar Avanzado (Tipo/Núm/Pág)")
+  "tb"  '(tesis-tools-insert-citation-advanced :which-key "Citar Avanzado")
   "tc"  '(my/smart-compile :which-key "Compilar (Smart)")
   "tC"  '(my/insert-cref :which-key "Citar con cref")
   "tp"  '(prettify-symbols-mode :which-key "Símbolos")
@@ -256,23 +259,28 @@ Si estás en Dired, actualiza el buffer automáticamente para mostrarlo."
   "te"  '(LaTeX-environment :which-key "Env")
   "tE"  '(tesis-tools-edit-inkscape-pdftex :which-key "Editar SVG en Inkscape")
   "ts"  '(LaTeX-section :which-key "Sec")
-  "tv"  '(my/tex-view-with-focus :which-key "Ver PDF (Foco)")
+  "tv"  '(my/tex-view-with-focus :which-key "Ver PDF (Zathura Sync)")
   "tz"  '(my/latex-visual-mode :which-key "Toggle Visual Zen")
   "ti"  '(citar-insert-citation :which-key "Citar")
   "to"  '(consult-imenu :which-key "Índice")
-  "tF"  '(my/ts-format-buffer :which-key "Format Tree-sitter (Instant)")
-  "tf"  '(my/format-buffer-native :which-key "Format NATIVO")
-  "tI"  '(my/format-buffer-latexindent :which-key "Format INDENT")
+  "tf"  '(my/ts-format-buffer :which-key "Formatear Buffer (Tree-sitter)") ;; <-- AQUÍ
   "tn"  '(my/quick-add-snippet :which-key "Nuevo Snippet")
   "tR"  '(my/reload-snippets :which-key "Recargar Snippets")
   "tm"  '(my/insert-matrix :which-key "Matriz Dinámica")
   "th"  '(my-latex-snippet-hydra/body :which-key "Hydra Snippets")
-  
-  ;; --- Tree-sitter LaTeX ---
-  "tr"  '(my/ts-rename-environment :which-key "TS Renombrar Entorno (Begin/End)")
-  "tV"  '(my/ts-select-environment :which-key "TS Seleccionar Entorno AST")
-  "tS"  '(my/ts-search-environments :which-key "TS Buscar Entornos AST")
-  
+  "tr"  '(my/ts-rename-environment :which-key "TS Renombrar Entorno")
+  "tV"  '(my/ts-select-environment :which-key "TS Seleccionar Entorno")
+  "tS"  '(my/ts-search-environments :which-key "TS Buscar Entornos")
+
+  ;; --- IA JARVIS y Debugging ---
+  "A"   '(:ignore t :which-key "Agente IA / Debug")
+  "Aa"  '(aidermacs-transient-menu :which-key "Agente Aider (R1)")
+  "Aj"  '(my/jarvis-chat-session :which-key "Abrir Chat")
+  "Ac"  '(my/jarvis-oneshot-command :which-key "Comando Rápido")
+  "Ae"  '(my/export-config-as-txt :which-key "Exportar Config a TXT")
+  "AE"  '(my/export-files-by-extension :which-key "Exportar extensión general")
+  "At"  '(my/export-project-tex-as-txt :which-key "Exportar .tex a TXT")
+    
   ;; --- Terminal (Vterm) ---
   "v"   '(:ignore t :which-key "Terminal")
   "vt"  '(my/toggle-term :which-key "Toggle (Smart)")
@@ -293,17 +301,7 @@ Si estás en Dired, actualiza el buffer automáticamente para mostrarlo."
   "jj"  '(avy-goto-char-timer :which-key "Saltar a texto")
   "jl"  '(avy-goto-line :which-key "Saltar a línea")
   "ss"  '(consult-line :which-key "Buscar línea")
-  
-  ;; --- IA JARVIS y Debugging ---
-  "A"   '(:ignore t :which-key "Agente IA / Debug")
-  "Aa"  '(aidermacs-transient-menu :which-key "Agente Aider (R1)")
-  "Aj"  '(my/jarvis-chat-session :which-key "Abrir Chat")
-  "Ac"  '(my/jarvis-oneshot-command :which-key "Comando Rápido")
-  "Ae"  '(my/export-config-as-txt :which-key "Exportar Config a TXT")
-  "Ad"  '(my/debug-latexindent :which-key "Diagnóstico Latexindent")
-  "AE"  '(my/export-files-by-extension :which-key "Exportar extensión general")
-  "At"  '(my/export-project-tex-as-txt :which-key "Exportar .tex a TXT")
-  
+    
   ;; --- Segundo Cerebro ---
   "k"   '(:ignore t :which-key "Segundo Cerebro")
   "kn"  '(my/brain-new-entry :which-key "Nueva Nota")

@@ -3,6 +3,9 @@
 (require 'gptel)
 (require 'aidermacs)
 
+(defconst my/gemini-models '("gemini-flash-latest" "gemini-pro-latest" "gemini-1.5-pro-latest" "gemini-1.5-flash-latest")
+  "Lista de modelos de Gemini soportados.")
+
 (defvar my/gemini-backend nil
   "Instancia del backend de Gemini para GPTel.")
 
@@ -20,16 +23,12 @@
             (gptel-make-gemini "Antigravity-Gemini"
               :key key
               :stream t
-              :models '(gemini-flash-latest gemini-pro-latest gemini-2.5-flash gemini-1.5-pro)))
+              :models (mapcar #'intern my/gemini-models)))
       (setq gptel-backend my/gemini-backend)
-      (setq gptel-model 'gemini-flash-latest)
+      (setq gptel-model (intern (car my/gemini-models)))
       (message "Antigravity/Gemini AI configurado correctamente en GPTel."))))
 
 (with-eval-after-load 'gptel
-  (my/setup-gptel-gemini))
-
-;; Si las claves ya estaban cargadas antes de gptel
-(when (or (getenv "GEMINI_API_KEY") (bound-and-true-p gptel-api-key))
   (my/setup-gptel-gemini))
 
 ;; ==================================================================
@@ -76,11 +75,14 @@ PROMPT es la instrucción del usuario."
 (defun my/ai-switch-model ()
   "Permite cambiar interactivamente el modelo de Antigravity Gemini."
   (interactive)
-  (let* ((models '("gemini-flash-latest" "gemini-pro-latest" "gemini-2.5-flash" "gemini-1.5-pro"))
-         (selected (completing-read "Selecciona Modelo Gemini: " models nil t)))
-    (when (not (string-empty-p selected))
-      (setq gptel-model (intern selected))
-      (message "🚀 Modelo de Antigravity cambiado a: %s" selected))))
+  (let* ((selected (completing-read "Selecciona Modelo Gemini: " my/gemini-models nil t)))
+    (when (and selected (not (string-empty-p selected)))
+      (let ((model-sym (intern-soft selected)))
+        (if (and model-sym (member model-sym (gptel-models my/gemini-backend)))
+            (progn
+              (setq gptel-model model-sym)
+              (message "🚀 Modelo de Antigravity cambiado a: %s" selected))
+          (message "⚠️ Modelo no válido o no soportado por el backend."))))))
 
 ;;;###autoload
 (defun my/ai-explain-last-terminal-error ()
@@ -102,7 +104,7 @@ PROMPT es la instrucción del usuario."
 ;; ==================================================================
 
 (use-package aidermacs
-  :ensure nil
+  :ensure t
   :custom
   (aidermacs-default-model "deepseek/deepseek-chat")
   (aidermacs-use-helm nil)
