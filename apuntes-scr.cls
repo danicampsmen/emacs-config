@@ -461,6 +461,7 @@
 \DeclareMathOperator{\Aut}{Aut}
 \DeclareMathOperator{\Rad}{Rad}
 \DeclareMathOperator{\nil}{nil}
+% \DeclareMathOperator{\deg}{deg}
 
 \DeclareMathOperator{\ETop}{\operatorname{Top}}
 \DeclareMathOperator{\Ev}{\operatorname{Vect}}
