@@ -7,8 +7,15 @@
 (when (file-exists-p custom-file)
   (load custom-file))
 
+(setq auth-sources '("~/.authinfo"))
+
 ;; 2. Carga de Módulos (NUEVO ORDEN)
 (require 'my-packages)           
+
+(when (memq window-system '(mac ns x pgtk))
+  (require 'exec-path-from-shell nil t)
+  (when (fboundp 'exec-path-from-shell-initialize)
+    (exec-path-from-shell-initialize)))
 
 ;; Activar GC diferido inmediatamente después de cargar paquetes
 (require 'gcmh)
@@ -23,15 +30,16 @@
 
 ;; 3. Ecosistema LaTeX y Escritura
 (require 'my-latex-core)         
-(require 'my-latex-visuals)      
-(require 'my-latex-expansions)   
-(require 'my-latex-tree-sitter)   
+(require 'my-latex-tree-sitter)   ;; <-- Cargado antes de snippets/expansiones
 (require 'my-latex-snippets)     
+(require 'my-latex-expansions)   
+(require 'my-latex-visuals)  
 
 ;; 4. Herramientas del Segundo Cerebro	
 (require 'tesis-tools)           
 (require 'tesis-layout)          
 (require 'gdrive-sync)           
+(require 'syncclient)            
 (require 'my-second-brain)       
 
 ;; 5. ATAJOS DE TECLADO (Al final, para evitar warnings de compilación)

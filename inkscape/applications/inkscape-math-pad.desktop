@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=Inkscape Math Pad
+Comment=Floating LaTeX Math Pad for Inkscape
+Exec=/home/fayfer/.local/bin/inkscape-math-pad
+Icon=accessories-calculator
+Type=Application
+Terminal=false
+Categories=Graphics;VectorGraphics;
+StartupNotify=false
+StartupWMClass=inkscape-math-pad

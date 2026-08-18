@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<inkscape-extension xmlns="http://www.inkscape.org/namespace/inkscape/extension">
+    <name>Ciclo Opacidad (O)</name>
+    <id>org.tesis.castel.cycle_opacity</id>
+    <effect><object-type>all</object-type><effects-menu><submenu name="Atajos Castel"/></effects-menu></effect>
+    <script><command location="inx" interpreter="python">castel_opacity.py</command></script>
+</inkscape-extension>

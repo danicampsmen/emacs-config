@@ -10,19 +10,19 @@
 ;; ==================================================================
 
 (defun my/open-pdf (pdf-path)
-  "Abre un PDF con Zathura (visor externo)."
+  "Abre un PDF con un visor externo, prefiriendo Zathura."
   (interactive "fPDF: ")
   (let ((pdf (expand-file-name pdf-path)))
-    (cond
-     ((not (file-exists-p pdf))
-      (message "El archivo PDF no existe: %s" pdf))
-     ((not (string-suffix-p ".pdf" pdf t))
-      (message "No es un archivo PDF: %s" pdf))
-     ((executable-find "zathura")
-      (start-process "zathura" nil "zathura" pdf)
-      (message "Abriendo PDF con Zathura: %s" (file-name-nondirectory pdf)))
-     (t
-      (message "Zathura no está instalado. Instálalo para ver PDFs.")))))
+    (unless (and (file-exists-p pdf) (string-suffix-p ".pdf" pdf t))
+      (message "Ruta inválida o no es un archivo PDF: %s" pdf)
+      (progn))
+    (let ((viewer (or (executable-find "zathura")
+                      (executable-find "xdg-open"))))
+      (if viewer
+          (progn
+            (start-process "pdf-viewer" nil viewer pdf)
+            (message "Abriendo PDF con %s: %s" (file-name-nondirectory viewer) (file-name-nondirectory pdf)))
+        (message "No se encontró un visor de PDF (Zathura, xdg-open).")))))
 
 (provide 'my-pdf)
 ;;; my-pdf.el ends here

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<inkscape-extension xmlns="http://www.inkscape.org/namespace/inkscape/extension">
+    <name>Invertir Sentido de Flecha (Shift+R)</name>
+    <id>org.tesis.castel.reverse_arrow</id>
+    <effect>
+        <object-type>all</object-type>
+        <effects-menu>
+            <submenu name="Atajos Castel"/>
+        </effects-menu>
+    </effect>
+    <script>
+        <command location="inx" interpreter="python">castel_arrow_reverse.py</command>
+    </script>
+</inkscape-extension>

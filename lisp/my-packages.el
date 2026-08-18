@@ -18,11 +18,13 @@
      aidermacs)
   "Lista de paquetes a instalar.")
 
-(dolist (pkg my/packages)
-  (unless (package-installed-p pkg)
-    (unless (package-archive-contents)
-      (package-refresh-contents))
-    (package-install pkg)))
+(let ((missing-packages (cl-remove-if #'package-installed-p my/packages)))
+  (when missing-packages
+    (message "Refrescando contenidos del archivo de paquetes...")
+    (package-refresh-contents)
+    (dolist (pkg missing-packages)
+      (message "Instalando paquete faltante: %s" pkg)
+      (package-install pkg))))
 
 (provide 'my-packages)
 ;;; my-packages.el ends here

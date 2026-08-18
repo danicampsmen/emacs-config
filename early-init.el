@@ -26,10 +26,9 @@
 (setq package-enable-at-startup nil)
 
 ;; 8. Sincronizar PATH del sistema antes de cargar paquetes
-(use-package exec-path-from-shell
-  :if (memq window-system '(mac ns x))
-  :config
-  (exec-path-from-shell-initialize))
+;; ✅ CORRECCIÓN: Reemplazado use-package por código nativo para evitar
+;; fallos en early-init.el cuando use-package no está disponible.
+
 
 (provide 'early-init)
 ;;; early-init.el ends here

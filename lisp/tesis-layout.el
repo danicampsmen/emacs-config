@@ -1,109 +1,117 @@
 ;;; tesis-layout.el --- Gestor de Layouts de Trabajo -*- lexical-binding: t; -*-
 
-;; Dependencias necesarias para el manejo de ventanas y visores
 (require 'windmove)
-(require 'project)
+(require 'transient)
 
-;; Definición del grupo de personalización
 (defgroup tesis-layout nil
   "Configuración del layout de tesis."
   :group 'tools
-  :prefix "tesis-layout-")
+  :prefix "tesis/")
 
-;; Variables globales
-(defvar tesis-layout-history nil
-  "Historial de libros de referencia.")
+(defcustom tesis/layout-split-direction 'right
+  "Dirección en la que se divide la ventana principal."
+  :type '(choice (const :tag "Vertical (derecha)" right)
+                 (const :tag "Horizontal (abajo)" below))
+  :group 'tesis-layout)
 
-;; ==================================================================
-;; --- LAYOUT 1: MODO TESIS COMPLETO (3 Ventanas) ---
-;; ==================================================================
-;;;###autoload
-(defun tesis-layout-activate ()
-  "Configura el layout: Código (Izq) | Tesis (Der-Arriba) | Libro (Der-Abajo).
-Detecta automáticamente el PDF de la tesis, pide el libro de referencia,
-y guarda el layout previo en el registro 't' por seguridad."
+(defcustom tesis/layout-split-ratio 0.5
+  "Proporción de la pantalla para la nueva ventana.
+El valor debe estar entre 0.1 y 0.9."
+  :type 'float
+  :group 'tesis-layout)
+
+(defcustom tesis/layout-register ?l
+  "Registro para guardar y restaurar la configuración de ventanas."
+  :type 'character
+  :group 'tesis-layout)
+
+;; --- Funciones auxiliares internas
+
+(defun tesis--get-main-pdf-file ()
+  "Devuelve la ruta al PDF maestro de la tesis o documento actual."
+  (let* ((master (if (fboundp 'TeX-master-file)
+                     (TeX-master-file "pdf")
+                   (when-let ((bfn (buffer-file-name)))
+                     (concat (file-name-sans-extension bfn) ".pdf"))))
+         (full-path (when master (expand-file-name master))))
+    (when (and full-path (file-exists-p full-path))
+      full-path)))
+
+(defun tesis--save-window-config ()
+  "Guarda la configuración de ventanas actual en el registro."
+  (window-configuration-to-register tesis/layout-register)
+  (message "Configuración de ventanas guardada en el registro '%c'" tesis/layout-register))
+
+(defun tesis--setup-split ()
+  "Prepara el layout base: borra ventanas y divide según la dirección configurada."
+  (delete-other-windows)
+  (pcase tesis/layout-split-direction
+    ('right (split-window-right (round (* (window-width) tesis/layout-split-ratio))))
+    ('below (split-window-below (round (* (window-height) tesis/layout-split-ratio)))))
+  (other-window 1))
+
+
+;; --- Comandos de Layout Individuales (sufijos para transient)
+
+(defun tesis/layout-writer ()
+  "Layout Escritor: Código | PDF Tesis."
   (interactive)
-  
-  ;; 0. SALVAVIDAS: Guardar layout actual en el registro 't'
-  (window-configuration-to-register ?t)
-  
-  (let* ((tex-buffer (current-buffer))
-         (tex-filename (buffer-file-name tex-buffer))
-         ;; Deduce el PDF de la tesis automáticamente
-         (thesis-pdf (if tex-filename
-                         (concat (file-name-sans-extension tex-filename) ".pdf")
-                       nil))
-         ;; Pide el libro al usuario filtrando solo por PDFs
-         (book-pdf (read-file-name "Libro de referencia (PDF): " nil nil t nil
-                                   (lambda (f) (string-suffix-p ".pdf" f t)))))
-    
-    ;; 1. Destruir el layout anterior
-    (delete-other-windows)
-    
-    ;; 2. Activar el Modo Zen en el buffer de código 
-    (when (fboundp 'my/latex-visual-mode)
-      (my/latex-visual-mode 1))
-    
-    ;; 3. Dividir la pantalla (Mitad izquierda para código, derecha para visores)
-    (split-window-right)
-    
-    ;; 4. Moverse a la derecha y dividir (Arriba / Abajo)
-    (windmove-right)
-    (split-window-below)
-    
-    ;; 5. Ventana superior derecha: PDF de la tesis
-    (if (and thesis-pdf (file-exists-p thesis-pdf))
-        (my/open-pdf thesis-pdf)
-      (message "⚠️ No se encontró el PDF de la tesis. ¡Compila primero!"))
-    
-    ;; 6. Ventana inferior derecha: Libro de Referencia
-    (windmove-down)
-    (if (and book-pdf (file-exists-p book-pdf))
-        (my/open-pdf book-pdf)
-      (message "⚠️ Libro de referencia no válido."))
-    
-    ;; 7. Devolver el foco al código fuente
-    (windmove-left)
-    (message "✅ Layout de Tesis activado. Presiona 'C-x r j t' para restaurar tu vista anterior.")))
-
-;; ==================================================================
-;; --- LAYOUT 2: MODO ESCRITOR (2 Ventanas) ---
-;; ==================================================================
-;;;###autoload
-(defun my/layout-writer ()
-  "Divide la pantalla: Código LaTeX (Izquierda) - PDF Compilado (Derecha)."
-  (interactive)
-  (unless (derived-mode-p 'LaTeX-mode)
-    (message "AVISO: Se recomienda abrir primero el archivo .tex"))
-  (let ((pdf-file (concat (file-name-sans-extension (buffer-file-name)) ".pdf")))
-    (delete-other-windows)
-    (split-window-right)
-    (other-window 1)
-    (if (file-exists-p pdf-file)
+  (tesis--save-window-config)
+  (if-let ((pdf-file (tesis--get-main-pdf-file)))
+      (progn
+        (tesis--setup-split)
         (my/open-pdf pdf-file)
-      (message "No encuentro el PDF. Compila primero (SPC t c o ;tc)."))
-    (other-window 1)
-    (message "Layout Escritor activado.")))
+        (other-window -1))
+    (user-error "El PDF de la tesis no existe. ¡Compila primero!")))
 
-;; ==================================================================
-;; --- LAYOUT 3: MODO INVESTIGADOR (2 Ventanas con Zotero) ---
-;; ==================================================================
-;;;###autoload
-(defun my/layout-researcher ()
-  "Divide la pantalla: Código (Izquierda) - Biblioteca Zotero (Derecha)."
+(defun tesis/layout-full ()
+  "Layout Completo: Código | Tesis (Arr) | Referencia (Abj)."
   (interactive)
-  ;; Intentar cargar la bibliografía local del proyecto si existe
+  (tesis--save-window-config)
+  (let ((book-pdf (read-file-name "Libro de referencia (PDF): " nil nil t nil
+                                  (lambda (f) (string-suffix-p ".pdf" f t)))))
+    (unless (and book-pdf (file-exists-p book-pdf))
+      (user-error "Libro de referencia no válido"))
+    (if-let ((thesis-pdf (tesis--get-main-pdf-file)))
+        (progn
+          (tesis--setup-split)
+          (split-window-below)
+          ;; Ventana superior: Tesis
+          (my/open-pdf thesis-pdf)
+          ;; Ventana inferior: Libro
+          (other-window 1)
+          (my/open-pdf book-pdf)
+          ;; Foco de vuelta al código
+          (other-window -2))
+      (user-error "El PDF de la tesis no existe. ¡Compila primero!"))))
+
+(defun tesis/layout-researcher ()
+  "Layout Investigador: Código | Citar/Zotero."
+  (interactive)
+  (tesis--save-window-config)
+  (tesis--setup-split)
   (when (fboundp 'my/detect-project-bibliography)
     (my/detect-project-bibliography))
-  
-  (delete-other-windows)
-  (split-window-right)
-  (other-window 1)
-  
-  ;; Abrir el buscador de Citar
   (if (fboundp 'citar-open)
       (call-interactively #'citar-open)
-    (message "Error: El paquete 'citar' no está cargado.")))
+    (user-error "El paquete 'citar' no está disponible."))
+  (other-window -1))
+
+;; --- Comando Principal (Transient)
+
+;;;###autoload
+(transient-define-prefix tesis/set-layout ()
+  "Activa un layout de trabajo para la tesis."
+  ["Layout" 
+   ("w" "Escritor" tesis/layout-writer)
+   ("f" "Completo" tesis/layout-full)
+   ("r" "Investigador" tesis/layout-researcher)])
+
+;;;###autoload
+(defun tesis/restore-layout ()
+  "Restaura la configuración de ventanas guardada."
+  (interactive)
+  (jump-to-register tesis/layout-register))
 
 (provide 'tesis-layout)
 ;;; tesis-layout.el ends here

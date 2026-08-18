@@ -42,7 +42,7 @@
 (setq font-lock-global-modes '(not vterm-mode)) 
 
 (setq font-lock-maximum-decoration t)
-(setq-default tab-width 4 indent-tabs-mode 1)
+(setq-default tab-width 4 indent-tabs-mode nil)
 
 ;; --- RENDIMIENTO Y BACKUPS ---
 (setq fast-but-imprecise-scrolling t)
@@ -104,17 +104,21 @@
 
 ;; --- TIPOGRAFÍAS ---
 
-;; 1. Fuente Principal: Iosevka para todo el texto
+;; 1. Fuente Principal: Iosevka Term para todo el texto (monoespaciada + matemáticas)
 (set-face-attribute 'default t
-                    :family "CMU Typewriter Text"
+                    :family "Iosevka Term"
                     :slant 'normal
-                    :weight 'light  ;; 'normal o 'medium suelen verse mejor en Iosevka
+                    :weight 'light
                     :height '150
                     :width 'normal)
-
-;; 2. El Truco (Fallback Matemático): STIX Two Math solo para lo que Iosevka no tenga
-(set-fontset-font t 'unicode "STIX Two Math" nil 'append)
-(set-fontset-font t 'symbol  "STIX Two Math" nil 'append)
+;; Fallback monoespaciado del sistema si Iosevka no está disponible
+(unless (member "Iosevka Term" (font-family-list))
+  (set-face-attribute 'default t
+                      :family "DejaVu Sans Mono"
+                      :slant 'normal
+                      :weight 'normal
+                      :height '150
+                      :width 'normal))
 
 ;; 3. Fallback de Iconos (Evita cuadraditos en la modeline/nerd-icons)
 (when (member "Symbols Nerd Font Mono" (font-family-list))
