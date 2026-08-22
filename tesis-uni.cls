@@ -59,14 +59,17 @@
 % =========================================================
 \RequirePackage{geometry}
 \if@estiloihes
-  % Métrica exacta IHÉS: Bloque de 14.5cm x 22.5cm centrado visualmente
+  % Métrica exacta IHÉS: Bloque clásico de 14.0cm x 22.0cm con margen exterior generoso
   \geometry{
     a4paper,
-    textwidth=14.5cm,
-    textheight=22.5cm,
+    textwidth=14.0cm,
+    textheight=22.0cm,
     heightrounded,
-    left=3.5cm,            % Margen interior amplio para encuadernación/tesis
-    marginparwidth=2.2cm,  % Espacio para el Virage Dangereux
+    inner=3.2cm,
+    outer=3.8cm,
+    top=3.0cm,
+    bottom=3.2cm,
+    marginparwidth=2.4cm,
     marginparsep=0.4cm,
     headheight=15pt,
     footskip=30pt
@@ -111,8 +114,8 @@
   \setmonofont{TeX Gyre Cursor}[Scale=MatchLowercase]
   \setmathfont{TeX Gyre Termes Math}
   \setstretch{1.12}
-  \setlength{\parindent}{0pt}
-  \setlength{\parskip}{4pt plus 1.5pt minus 0.5pt}
+  \setlength{\parindent}{1.5em}
+  \setlength{\parskip}{0pt plus 1pt}
 \else
   \setmainfont{TeX Gyre Pagella}[Ligatures=TeX]
   \setsansfont{TeX Gyre Heros}[Scale=MatchLowercase]
@@ -188,7 +191,7 @@
 \RequirePackage{ragged2e}
 
 % Elementos Clásicos Bourbaki / EGA
-\newcommand{\viragedangereux}{\marginpar{\centering\tikz[scale=0.65,baseline=-0.5ex]{\draw[fill=black,draw=black,thick,rounded corners=1pt] (0,0) -- (0.35,0.65) -- (0.7,0) -- cycle;\node at (0.35,0.22) {\color{white}\bfseries\small !};}}}
+\newcommand{\viragedangereux}{\marginpar{\centering\tikz[scale=0.15,baseline=-0.5ex]{\draw[line width=2.0pt,line cap=round,line join=round] (0.8,-1.6) -- (0.8,-0.5) arc (0:180:0.8) -- (-0.8,0.5) arc (-180:0:0.8) -- (0.8,1.6);}}}
 \newcommand{\oldpage}[2][]{{\marginnote{\normalfont\footnotesize{\textbf{#1}~|~#2}}}\ignorespaces}
 \newcommand{\egabreak}{\par\vspace{8pt}\centerline{\rmfamily\scshape * * *}\vspace{8pt}\par}
 \let\sectionbreak\egabreak
@@ -225,9 +228,9 @@
 \KOMAoptions{headsepline=0.3pt}
 
 \if@estiloihes
-  \lehead{\small\rmfamily\textbf{\pagemark}\quad\textbar\quad\scshape\MakeLowercase{\headmark}}
-  \rohead{\small\rmfamily\scshape\MakeLowercase{\headmark}\quad\textbar\quad\textbf{\pagemark}}
-  \ofoot[\pagemark]{\pagemark}
+  \lehead{\small\rmfamily\pagemark\qquad\scshape\MakeLowercase{\headmark}}
+  \rohead{\small\rmfamily\scshape\MakeLowercase{\headmark}\qquad\pagemark}
+  \ofoot[]{}
 \else
   \lehead{\small\sffamily\headmark}
   \rohead{\small\sffamily\headmark}
@@ -299,20 +302,21 @@
   \IfFileExists{\jobname.toc}{%
     \begingroup
     \etocsetnexttocdepth{section}%
-    \setlength{\parskip}{0pt}% Elimina el parskip global dentro del sumario
-    \setstretch{1.0}% Interlineado compacto
+    \setlength{\parskip}{0pt}%
+    \setlength{\parindent}{0pt}%
+    \setstretch{1.0}%
     \etocsettocstyle{%
-      \par\vspace{0.4em}\begin{center}{\fontsize{10.5pt}{13pt}\selectfont\rmfamily\scshape #1}\end{center}\vspace{0.2em}%
-    }{\vspace{1.0em}\par}%
+      \par\vspace{0.6em}\centerline{\fontsize{10pt}{12pt}\selectfont\rmfamily\scshape #1}\vspace{0.3em}\hrule height 0.3pt\vspace{0.4em}%
+    }{\vspace{0.4em}\hrule height 0.3pt\vspace{1.0em}\par}%
     \etocsetstyle{section}{}{%
-      \par\noindent\leftskip=1.8cm\rightskip=0.8cm\parindent=0pt
+      \par\noindent\leftskip=1.5cm\rightskip=0.8cm\parindent=0pt
     }{%
-      \makebox[3.0em][l]{\textcolor{brightmaroon}{\etoclink{§\etocnumber.}}}\etocname.\par\vspace{1.0pt}% <-- Espacio vertical entre secciones
+      \makebox[3.0em][l]{\etoclink{§~\etocnumber.}}\etocname.\par\vspace{1.5pt}%
     }{}%
     \localtableofcontents
     \endgroup
   }{}%
-  }
+}
   
 \setkomafont{caption}{\fontsize{9pt}{11pt}\selectfont}
 \setkomafont{captionlabel}{\fontsize{9pt}{11pt}\selectfont\bfseries}
@@ -332,11 +336,11 @@
 \newcommand{\TODO}[1]{\begingroup\setlength{\fboxsep}{2pt}\colorbox{orange!15}{\textcolor{orange}{\sffamily\textbf{\scriptsize TODO}}}\ \textcolor{orange!70!black}{\small #1}\endgroup}
 \newcommand{\FIXME}[1]{\begingroup\setlength{\fboxsep}{2pt}\colorbox{red!15}{\textcolor{red}{\sffamily\textbf{\scriptsize FIXME}}}\ \textcolor{red!85!black}{\small\textbf{#1}}\endgroup}
 
-\newtcolorbox{convencionbox}[1][]{
-  enhanced, breakable, arc=1pt, boxrule=0.4pt,
-  colback=gray!3, colframe=black!70,
-  title={\bfseries Convención fijada para este capítulo\ifx&#1&\else: #1\fi},
-  left=3mm, right=3mm, top=2mm, bottom=2mm
+\newenvironment{convencionbox}[1][]{%
+  \par\vspace{0.6em}\noindent\hrule height 0.4pt\vspace{0.4em}%
+  \noindent\textbf{\textit{Convención\ifblank{#1}{}{: #1}.\ \textemdash}}\enskip\ignorespaces
+}{%
+  \par\vspace{0.4em}\noindent\hrule height 0.4pt\vspace{0.8em}\par
 }
 
 % =========================================================
@@ -482,7 +486,7 @@
 
 % Párrafos numerados estilo EGA: (1.1.1) Texto...
 \newcommand{\parag}[1][]{\refstepcounter{theorem}\par\vspace{4pt plus 1pt minus 1pt}\noindent\textbf{\thetheorem.\ifx&#1&\else\ #1.\fi}\enskip\ignorespaces}
-\newcommand{\numpar}[1][]{\refstepcounter{theorem}\par\vspace{4pt plus 1pt minus 1pt}\noindent\textbf{(\thetheorem)}\ifx&#1&\else\ \textbf{\textit{#1.}}\fi\enskip\ignorespaces}
+\newcommand{\numpar}[1][]{\refstepcounter{theorem}\par\vspace{4pt plus 1pt minus 1pt}\noindent\textbf{(\thetheorem)}\ifblank{#1}{\textbf{.\ \textemdash}}{\ \textbf{\textit{#1.}}\ \textbf{\textemdash}}\enskip\ignorespaces}
 
 \RequirePackage[shortlabels]{enumitem}
 \setlist[enumerate,1]{topsep=2pt plus 1pt minus 1pt, parsep=0pt, partopsep=0pt, itemsep=2pt plus 1pt, leftmargin=3em, label=\normalfont\arabic*.}
@@ -493,9 +497,9 @@
 \setlist[egalist,1]{label=\normalfont\textit{\alph*)}, ref=\normalfont\textit{\alph*)}, leftmargin=2em, labelsep=0.5em, topsep=3pt, itemsep=2pt, parsep=0pt}
 \setlist[egalist,2]{label=\normalfont\textit{\roman*)}, ref=\normalfont\textit{\roman*)}, leftmargin=2em, labelsep=0.5em, topsep=1pt, itemsep=1pt}
 
-% TFAEs (The following are equivalent) clásicos: (i), (ii), (iii)
+% TFAEs (The following are equivalent) clásicos Bourbaki: (i), (ii), (iii) en cursiva
 \newlist{tfae}{enumerate}{1}
-\setlist[tfae,1]{label=\normalfont(\roman*), leftmargin=2.5em, itemsep=2pt, topsep=3pt, parsep=0pt}
+\setlist[tfae,1]{label=\normalfont\textit{(\roman*)}, ref=\normalfont\textit{(\roman*)}, leftmargin=2.5em, itemsep=2pt, topsep=3pt, parsep=0pt}
 
 \newlist{proofcases}{enumerate}{2}
 \setlist[proofcases,1]{label=\textit{Caso \arabic*:}, leftmargin=2.5em, align=left, labelwidth=*, labelindent=0pt, listparindent=2pt, itemsep=0.3em, topsep=0.3em, parsep=0pt}
@@ -503,19 +507,19 @@
 
 % Afirmaciones anidadas
 \if@estiloihes
-  \newenvironment{claim}[1][]{\refstepcounter{claimcount}\par\vspace{4pt plus 1pt minus 1pt}\noindent\ifblank{#1}{\textbf{Afirmación \arabic{claimcount}.\ \textemdash}}{\textbf{Afirmación \arabic{claimcount}\ (#1).\ \textemdash}}\enskip\itshape\ignorespaces}{\par\vspace{3pt plus 1pt minus 1pt}}
-  \newenvironment{claim*}[1][]{\par\vspace{4pt plus 1pt minus 1pt}\noindent\ifblank{#1}{\textbf{Afirmación.\ \textemdash}}{\textbf{Afirmación\ (#1).\ \textemdash}}\enskip\itshape\ignorespaces}{\par\vspace{3pt plus 1pt minus 1pt}}
+  \newenvironment{claim}[1][]{\refstepcounter{claimcount}\par\vspace{4pt plus 1pt minus 1pt}\noindent\ifblank{#1}{\def\@currentlabelname{}\textbf{Afirmación \arabic{claimcount}.\ \textemdash}}{\def\@currentlabelname{#1}\textbf{Afirmación \arabic{claimcount}\ (#1).\ \textemdash}}\enskip\itshape\ignorespaces}{\par\vspace{3pt plus 1pt minus 1pt}}
+  \newenvironment{claim*}[1][]{\par\vspace{4pt plus 1pt minus 1pt}\noindent\ifblank{#1}{\def\@currentlabelname{}\textbf{Afirmación.\ \textemdash}}{\def\@currentlabelname{#1}\textbf{Afirmación\ (#1).\ \textemdash}}\enskip\itshape\ignorespaces}{\par\vspace{3pt plus 1pt minus 1pt}}
   \newenvironment{claimproof}{\par\vspace{2pt plus 1pt minus 1pt}\noindent\textit{Prueba de la afirmación.}\enskip\ignorespaces}{\hfill$\circ$\par\vspace{3pt plus 1pt minus 1pt}}
 \else
-  \newenvironment{claim}[1][]{\refstepcounter{claimcount}\par\vspace{4pt plus 1pt minus 1pt}\noindent\ifblank{#1}{\textbf{\textit{Afirmación \arabic{claimcount}:}}}{\textbf{\textit{Afirmación \arabic{claimcount}\ (#1):}}}\enskip\itshape\ignorespaces}{\par\vspace{4pt plus 1pt minus 1pt}}
-  \newenvironment{claim*}[1][]{\par\vspace{4pt plus 1pt minus 1pt}\noindent\ifblank{#1}{\textbf{\textit{Afirmación:}}}{\textbf{\textit{Afirmación\ (#1):}}}\enskip\itshape\ignorespaces}{\par\vspace{4pt plus 1pt minus 1pt}}
+  \newenvironment{claim}[1][]{\refstepcounter{claimcount}\par\vspace{4pt plus 1pt minus 1pt}\noindent\ifblank{#1}{\def\@currentlabelname{}\textbf{\textit{Afirmación \arabic{claimcount}:}}}{\def\@currentlabelname{#1}\textbf{\textit{Afirmación \arabic{claimcount}\ (#1):}}}\enskip\itshape\ignorespaces}{\par\vspace{4pt plus 1pt minus 1pt}}
+  \newenvironment{claim*}[1][]{\par\vspace{4pt plus 1pt minus 1pt}\noindent\ifblank{#1}{\def\@currentlabelname{}\textbf{\textit{Afirmación:}}}{\def\@currentlabelname{#1}\textbf{\textit{Afirmación\ (#1):}}}\enskip\itshape\ignorespaces}{\par\vspace{4pt plus 1pt minus 1pt}}
   \newenvironment{claimproof}{\par\noindent\textit{Prueba de la afirmación.}\ \small\ignorespaces}{\hfill$\square$\par\vspace{4pt plus 1pt minus 1pt}}
 \fi
 
 \newcommand{\directstep}{\par\vspace{2pt}\noindent(\(\Rightarrow\))\enskip\ignorespaces}
 \newcommand{\reversestep}{\par\vspace{2pt}\noindent(\(\Leftarrow\))\enskip\ignorespaces}
-\newcommand{\containedstep}{\par\vspace{2pt}\noindent(\(\subseteq\))\enskip\ignorespaces}
-\newcommand{\inversecontainedstep}{\par\vspace{2pt}\noindent(\(\supseteq\))\enskip\ignorespaces}
+\newcommand{\containedstep}{\par\vspace{2pt}\noindent(\(\subset\))\enskip\ignorespaces}
+\newcommand{\inversecontainedstep}{\par\vspace{2pt}\noindent(\(\supset\))\enskip\ignorespaces}
 
 % =========================================================
 % 10. SUITE MATEMÁTICA Y GEOMETRÍA ALGEBRAICA (EGA / SGA)
@@ -539,7 +543,7 @@
 \newcommand{\Cn}{\symbb{C}^{n}}
 \newcommand{\PP}{\symbb{P}} 
 \providecommand{\A}{\symbb{A}}
-\newcommand{\Lr}{\mathcal{L}}
+\newcommand{\Lr}{\symcal{L}}
 
 \providecommand{\ie}{\textit{i.e.}\,}
 \providecommand{\tq}{\text{ t.q. }}
@@ -552,10 +556,10 @@
 \DeclarePairedDelimiter{\absolute}{\lvert}{\rvert}
 \DeclarePairedDelimiter{\inner}{\langle}{\rangle}
 
-\providecommand{\mat}[1]{\mathbf{#1}}
-\providecommand{\vect}[1]{\mathbf{#1}}
-\providecommand{\glie}[1]{\mathfrak{gl}(#1)}
-\providecommand{\evec}[2]{\mathbf{Vec}_{#1}(#2)} % Corregido a \mathbf
+\providecommand{\mat}[1]{\symbf{#1}}
+\providecommand{\vect}[1]{\symbf{#1}}
+\providecommand{\glie}[1]{\symfrak{gl}(#1)}
+\providecommand{\evec}[2]{\symbfup{Vec}_{#1}(#2)}
 
 % ---------------------------------------------------------
 % 10.3 HACES Y GAVILLAS (Sheaves)
@@ -589,26 +593,26 @@
 \newcommand{\shDiff}{\mathop{\symcal{D}\mkern-1.5mu if{}f}\nolimits}
 
 % ---------------------------------------------------------
-% 10.4 CATEGORÍAS (Bourbaki: Siempre en \mathbf, NUNCA en \operatorname)
+% 10.4 CATEGORÍAS (Bourbaki: Siempre en \symbfup, NUNCA en \operatorname)
 % ---------------------------------------------------------
-\newcommand{\Set}{\mathbf{Set}}
-\newcommand{\ETop}{\mathbf{Top}}
-\newcommand{\HTop}{\mathbf{hTop}}
-\newcommand{\Grp}{\mathbf{Grp}}
-\newcommand{\Ab}{\mathbf{Ab}}
-\newcommand{\Rng}{\mathbf{Rng}}
-\newcommand{\CRing}{\mathbf{CRing}}
-\newcommand{\Mod}{\mathbf{Mod}}
-\newcommand{\Ev}{\mathbf{Vect}}
-\newcommand{\Evn}{\mathbf{Norm}}
-\newcommand{\EBan}{\mathbf{Ban}}
-\newcommand{\EHil}{\mathbf{Hilb}}
-\newcommand{\Sch}{\mathbf{Sch}}
-\newcommand{\AffSch}{\mathbf{AffSch}}
-\newcommand{\QCoh}{\mathbf{QCoh}}
-\newcommand{\Coh}{\mathbf{Coh}}
-\newcommand{\Posets}{\mathbf{Posets}}
-\newcommand{\MCom}{\mathbf{Met}_{\mathrm{comp}}} % Simplificado el subíndice
+\newcommand{\Set}{\symbfup{Set}}
+\newcommand{\ETop}{\symbfup{Top}}
+\newcommand{\HTop}{\symbfup{hTop}}
+\newcommand{\Grp}{\symbfup{Grp}}
+\newcommand{\Ab}{\symbfup{Ab}}
+\newcommand{\Rng}{\symbfup{Rng}}
+\newcommand{\CRing}{\symbfup{CRing}}
+\newcommand{\Mod}{\symbfup{Mod}}
+\newcommand{\Ev}{\symbfup{Vect}}
+\newcommand{\Evn}{\symbfup{Norm}}
+\newcommand{\EBan}{\symbfup{Ban}}
+\newcommand{\EHil}{\symbfup{Hilb}}
+\newcommand{\Sch}{\symbfup{Sch}}
+\newcommand{\AffSch}{\symbfup{AffSch}}
+\newcommand{\QCoh}{\symbfup{QCoh}}
+\newcommand{\Coh}{\symbfup{Coh}}
+\newcommand{\Posets}{\symbfup{Posets}}
+\newcommand{\MCom}{\symbfup{Met}_{\mathrm{comp}}} % Simplificado el subíndice
 
 \newcommand{\Db}{\symbfup{D}^{\mathrm{b}}}
 \newcommand{\Rder}{\symbfup{R}}
@@ -616,7 +620,7 @@
 \newcommand{\Cls}{\symcal{C}} % Si referías a una clase/categoría abstracta C
 
 % ---------------------------------------------------------
-% 10.5 OPERADORES ALGEBRAICOS Y GEOMÉTRICOS
+% 10.5 OPERADORES ALGEBRAICOS Y GEOMÉTRICOS (EGA / SGA)
 % ---------------------------------------------------------
 \DeclareMathOperator{\id}{id}        % EGA: id en minúscula
 \DeclareMathOperator{\rg}{rg}        % EGA: rg (rango/rang) en lugar de rk
@@ -626,12 +630,13 @@
 \DeclareMathOperator{\Ext}{Ext}
 \DeclareMathOperator{\Tor}{Tor}
 \DeclareMathOperator{\Ker}{Ker}
-\DeclareMathOperator{\im}{Im}        % Reemplaza \Image para evitar redundancias
+\DeclareMathOperator{\im}{Im}
 \DeclareMathOperator{\Coker}{Coker}
 \DeclareMathOperator{\Coim}{Coim}
 \DeclareMathOperator{\Codim}{Codim}
-\DeclareMathOperator{\Ind}{Ind}      % Capitalizado
-\DeclareMathOperator{\GL}{GL}        % Capitalizado
+\DeclareMathOperator{\codim}{codim}
+\DeclareMathOperator{\Ind}{Ind}
+\DeclareMathOperator{\GL}{GL}
 \DeclareMathOperator{\SL}{SL}
 \DeclareMathOperator{\Tr}{Tr}
 \DeclareMathOperator{\Span}{Span}
@@ -639,15 +644,26 @@
 \DeclareMathOperator{\Nat}{Nat}
 
 \DeclareMathOperator{\Spec}{Spec}
+\DeclareMathOperator{\Specmax}{Specmax}
+\DeclareMathOperator{\Spm}{Spm}
 \DeclareMathOperator{\Proj}{Proj}
 \DeclareMathOperator{\Supp}{Supp}
-\DeclareMathOperator{\Ann}{Ann}      % Capitalizado
+\DeclareMathOperator{\Ann}{Ann}
+\DeclareMathOperator{\Ass}{Ass}
 \DeclareMathOperator{\Frac}{Frac}
 \DeclareMathOperator{\Sym}{Sym}
 \DeclareMathOperator{\Rad}{Rad}
 \DeclareMathOperator{\nil}{nil}
 \DeclareMathOperator{\Der}{Der}
 \DeclareMathOperator{\Tan}{Tan}
+\DeclareMathOperator{\Pic}{Pic}
+\DeclareMathOperator{\Div}{Div}
+\DeclareMathOperator{\divop}{div}
+\DeclareMathOperator{\prof}{prof}    % EGA: profondeur (depth)
+\DeclareMathOperator{\dhdim}{dh}     % EGA: dimension homologique
+\DeclareMathOperator{\grade}{grade}
+\DeclareMathOperator{\Height}{ht}    % EGA: hauteur (height)
+\DeclareMathOperator{\degre}{deg}
 
 % Límites categóricos estilo Bourbaki
 \newcommand{\dirlim}{\varinjlim}
@@ -678,7 +694,7 @@
 % 10.7 REFERENCIAS INTELIGENTES CUSTOMIZADAS (sref + cleveref)
 % ---------------------------------------------------------
 \newcommand{\@srefcontent}[1]{%
-  \IfSubStr{#1}{.}{\StrBehind{#1}{.}}{\ref{#1}}%
+  \@ifundefined{r@#1}{#1}{\ref{#1}}%
 }
 
 % 1. \sref[Tomo]{label}[ítem] -> (1.1.2) o (1.1.2, a) o (I, 1.1.2, a)
@@ -714,8 +730,8 @@
   }{%
     \IfNoValueTF{#4}{\sref[#2]{#3}}{\sref[#2]{#3}[#4]}%
   }%
-  }
-  
+}
+
 % Macro moderna para definir funciones como objetos formales (Dominio y Regla)
 \NewDocumentCommand{\Fobj}{ m m m m m }{%
   % #1: Nombre de la función (ej. f+g)
@@ -730,7 +746,7 @@
       #4 &\longmapsto #5
     \end{aligned}
   \right.
-  }
+}
 
 % ---------------------------------------------------------
 % 10.8 COMANDOS DE CITACIÓN NOMBRADA (namedsref y variaciones)
@@ -752,13 +768,13 @@
 % 2. \titref [Tomo] {label} {Título} [ítem]
 %    Ej: \titref{thm:hilbert}{Teorema de la Base de Hilbert}[a]
 %    -> Teorema de la Base de Hilbert (1.1.2, a)
-\NewDocumentCommand{\titref}{o m m o}{%
-  \hyperref[#2]{#3}%
+\NewDocumentCommand{\titref}{s o m m o}{%
+  \hyperref[#3]{#4}%
   \nobreakspace
-  \IfNoValueTF{#1}{%
-    \IfNoValueTF{#4}{\sref{#2}}{\sref{#2}[#4]}%
+  \IfNoValueTF{#2}{%
+    \IfNoValueTF{#5}{\sref{#3}}{\sref{#3}[#5]}%
   }{%
-    \IfNoValueTF{#4}{\sref[#1]{#2}}{\sref[#1]{#2}[#4]}%
+    \IfNoValueTF{#5}{\sref[#2]{#3}}{\sref[#2]{#3}[#5]}%
   }%
 }
 
@@ -773,7 +789,7 @@
   }{%
     \IfNoValueTF{#4}{\sref[#2]{#3}}{\sref[#2]{#3}[#4]}%
   }%
-  \nobreakspace\textit{(\nameref*{#3})}%
+  \IfBlankF{\nameref*{#3}}{\nobreakspace\textit{(\nameref*{#3})}}%
 }
 
 % 4. \srefname [Tomo] {label} {Nombre Breve} [ítem]
@@ -794,9 +810,9 @@
       \hyperref[#2]{\normalfont{(\textbf{#1},~\@srefcontent{#2},~{#4},~\textit{#3})}}%
     }%
   }%
-  }
+}
 
- % \namesref* [Tomo] {label} [ítem]
+% 5. \namesref* [Tomo] {label} [ítem]
 % Extrae automáticamente el tipo, el número y el título (si existe)
 \NewDocumentCommand{\namesref}{s o m o}{%
   \IfBooleanTF{#1}{\namecref{#3}~}{\nameCref{#3}~}%
@@ -805,7 +821,6 @@
   }{%
     \IfNoValueTF{#4}{\sref[#2]{#3}}{\sref[#2]{#3}[#4]}%
   }%
-  % Si el teorema tiene un título registrado con nameref, lo añade en cursiva:
   \IfBlankF{\nameref*{#3}}{\nobreakspace\textit{(\nameref*{#3})}}%
 }
 
@@ -828,8 +843,21 @@
 \RequirePackage[colorlinks=true, linkcolor=brightmaroon, citecolor=brightmaroon, urlcolor=brightmaroon, plainpages=false, pdfpagelabels=true]{hyperref}
 \RequirePackage{bookmark} 
 
+% Carga multilingüe de cleveref
 \if@langspanish
   \RequirePackage[spanish,noabbrev]{cleveref}
+\fi
+\if@langenglish
+  \RequirePackage[english,noabbrev]{cleveref}
+\fi
+\if@langfrench
+  \RequirePackage[french,noabbrev]{cleveref}
+\fi
+\if@langgerman
+  \RequirePackage[ngerman,noabbrev]{cleveref}
+\fi
+
+\if@langspanish
   \crefname{equation}{ecuación}{ecuaciones}
   \Crefname{equation}{Ecuación}{Ecuaciones}
   \crefname{theorem}{teorema}{teoremas}
@@ -854,10 +882,116 @@
   \Crefname{commentary}{Comentario}{Comentarios}
   \crefname{notation}{notación}{notaciones}
   \Crefname{notation}{Notación}{Notaciones}
+  \crefname{claim}{afirmación}{afirmaciones}
+  \Crefname{claim}{Afirmación}{Afirmaciones}
+  \crefname{algorithm}{algoritmo}{algoritmos}
+  \Crefname{algorithm}{Algoritmo}{Algoritmos}
+  \crefname{chapter}{capítulo}{capítulos}
+  \Crefname{chapter}{Capítulo}{Capítulos}
+  \crefname{section}{sección}{secciones}
+  \Crefname{section}{Sección}{Secciones}
+  \crefname{subsection}{subsección}{subsecciones}
+  \Crefname{subsection}{Subsección}{Subsecciones}
+  \crefname{convencionbox}{convención}{convenciones}
+  \Crefname{convencionbox}{Convención}{Convenciones}
+  \crefformat{equation}{ecuación~(#2#1#3)}
+  \Crefformat{equation}{Ecuación~(#2#1#3)}
 \fi
-\crefformat{equation}{Ecuación~#2#1#3}
-\Crefformat{equation}{Ecuación~#2#1#3}
-\pdfstringdefDisableCommands{\def\\{}\def\medskip{}}
+
+\if@langenglish
+  \crefname{equation}{equation}{equations}
+  \Crefname{equation}{Equation}{Equations}
+  \crefname{theorem}{theorem}{theorems}
+  \Crefname{theorem}{Theorem}{Theorems}
+  \crefname{proposition}{proposition}{propositions}
+  \Crefname{proposition}{Proposition}{Propositions}
+  \crefname{lemma}{lemma}{lemmas}
+  \Crefname{lemma}{Lemma}{Lemmas}
+  \crefname{corollary}{corollary}{corollaries}
+  \Crefname{corollary}{Corollary}{Corollaries}
+  \crefname{definition}{definition}{definitions}
+  \Crefname{definition}{Definition}{Definitions}
+  \crefname{example}{example}{examples}
+  \Crefname{example}{Example}{Examples}
+  \crefname{exercise}{exercise}{exercises}
+  \Crefname{exercise}{Exercise}{Exercises}
+  \crefname{solution}{solution}{solutions}
+  \Crefname{solution}{Solution}{Solutions}
+  \crefname{remark}{remark}{remarks}
+  \Crefname{remark}{Remark}{Remarks}
+  \crefname{commentary}{commentary}{commentaries}
+  \Crefname{commentary}{Commentary}{Commentaries}
+  \crefname{notation}{notation}{notations}
+  \Crefname{notation}{Notation}{Notations}
+  \crefname{claim}{claim}{claims}
+  \Crefname{claim}{Claim}{Claims}
+  \crefname{algorithm}{algorithm}{algorithms}
+  \Crefname{algorithm}{Algorithm}{Algorithms}
+  \crefname{chapter}{chapter}{chapters}
+  \Crefname{chapter}{Chapter}{Chapters}
+  \crefname{section}{section}{sections}
+  \Crefname{section}{Section}{Sections}
+  \crefname{subsection}{subsection}{subsections}
+  \Crefname{subsection}{Subsection}{Subsections}
+  \crefname{convencionbox}{convention}{conventions}
+  \Crefname{convencionbox}{Convention}{Conventions}
+  \crefformat{equation}{equation~(#2#1#3)}
+  \Crefformat{equation}{Equation~(#2#1#3)}
+\fi
+
+\if@langfrench
+  \crefname{equation}{équation}{équations}
+  \Crefname{equation}{Équation}{Équations}
+  \crefname{theorem}{théorème}{théorèmes}
+  \Crefname{theorem}{Théorème}{Théorèmes}
+  \crefname{proposition}{proposition}{propositions}
+  \Crefname{proposition}{Proposition}{Propositions}
+  \crefname{lemma}{lemme}{lemmes}
+  \Crefname{lemma}{Lemme}{Lemmes}
+  \crefname{corollary}{corollaire}{corollaires}
+  \Crefname{corollary}{Corollaire}{Corollaires}
+  \crefname{definition}{définition}{définitions}
+  \Crefname{definition}{Définition}{Définitions}
+  \crefname{example}{exemple}{exemples}
+  \Crefname{example}{Exemple}{Exemples}
+  \crefname{exercise}{exercice}{exercices}
+  \Crefname{exercise}{Exercice}{Exercices}
+  \crefname{solution}{solution}{solutions}
+  \Crefname{solution}{Solution}{Solutions}
+  \crefname{remark}{remarque}{remarques}
+  \Crefname{remark}{Remarque}{Remarques}
+  \crefname{commentary}{commentaire}{commentaires}
+  \Crefname{commentary}{Commentaire}{Commentaires}
+  \crefname{notation}{notation}{notations}
+  \Crefname{notation}{Notation}{Notations}
+  \crefname{claim}{affirmation}{affirmations}
+  \Crefname{claim}{Affirmation}{Affirmations}
+  \crefname{algorithm}{algorithme}{algorithmes}
+  \Crefname{algorithm}{Algorithme}{Algorithmes}
+  \crefname{chapter}{chapitre}{chapitres}
+  \Crefname{chapter}{Chapitre}{Chapitres}
+  \crefname{section}{section}{sections}
+  \Crefname{section}{Section}{Sections}
+  \crefname{subsection}{sous-section}{sous-sections}
+  \Crefname{subsection}{Sous-section}{Sous-sections}
+  \crefname{convencionbox}{convention}{conventions}
+  \Crefname{convencionbox}{Convention}{Conventions}
+  \crefformat{equation}{équation~(#2#1#3)}
+  \Crefformat{equation}{Équation~(#2#1#3)}
+\fi
+
+\pdfstringdefDisableCommands{%
+  \def\\{}%
+  \def\medskip{}%
+  \def\sref#1{(#1)}%
+  \def\eref#1{(#1)}%
+  \def\csref#1{#1}%
+  \def\namedsref#1#2{#1 (#2)}%
+  \def\titref#1#2{#2}%
+  \def\autonamedsref#1{#1}%
+  \def\srefname#1#2{(#1, #2)}%
+  \def\namesref#1{#1}%
+}
 
 \AtBeginDocument{
   \hypersetup{pdftitle={\texorpdfstring{\@title}{\@title}}, pdfauthor={\texorpdfstring{\@author}{\@author}}}
@@ -867,16 +1001,16 @@
 % 12. ESTILOS DE TEOREMAS AMSTHM (Pure EGA Architecture)
 % =========================================================
 \if@estiloihes
-  % --- EGA: Formato (1.1.1) Teorema. --- 
+  % --- EGA: Formato (1.1.1) Teorema. — --- 
   \newtheoremstyle{ihes-plain}%
     {6pt plus 2pt minus 1pt}%
     {6pt plus 2pt minus 1pt}%
     {\itshape}%
     {0pt}%
     {\bfseries}%
-    {.\ \textemdash}%
-    {0.4em}%
-    {\thmnumber{(#2)}\enskip\thmname{#1}\thmnote{ (#3)}}
+    {}%
+    {0pt}%
+    {\thmnumber{(#2)}\enskip\thmname{#1}\IfBlankTF{#3}{\def\@currentlabelname{}}{\def\@currentlabelname{#3}\thmnote{ (#3)}}.\ \textemdash\enskip}
 
   \newtheoremstyle{ihes-def}%
     {6pt plus 2pt minus 1pt}%
@@ -884,9 +1018,9 @@
     {\normalfont}%
     {0pt}%
     {\bfseries}%
-    {.\ \textemdash}%
-    {0.4em}%
-    {\thmnumber{(#2)}\enskip\thmname{#1}\thmnote{ (#3)}}
+    {}%
+    {0pt}%
+    {\thmnumber{(#2)}\enskip\thmname{#1}\IfBlankTF{#3}{\def\@currentlabelname{}}{\def\@currentlabelname{#3}\thmnote{ (#3)}}.\ \textemdash\enskip}
 
   \newtheoremstyle{ihes-remark}%
     {5pt plus 2pt minus 1pt}%
@@ -894,9 +1028,9 @@
     {\normalfont}%
     {0pt}%
     {\bfseries}%
-    {.\ \textemdash}%
-    {0.4em}%
-    {\thmnumber{(#2)}\enskip\itshape\thmname{#1}\thmnote{ (#3)}}
+    {}%
+    {0pt}%
+    {\thmnumber{(#2)}\enskip\itshape\thmname{#1}\IfBlankTF{#3}{\def\@currentlabelname{}}{\def\@currentlabelname{#3}\thmnote{ (#3)}}.\ \textemdash\enskip}
 
   \theoremstyle{ihes-plain}
   \newtheorem{theorem}{Teorema}[section]
@@ -913,9 +1047,9 @@
   \newtheorem{commentary}[theorem]{Comentario}
   \newtheorem{notation}[theorem]{Notación}
 \else
-  \newtheoremstyle{bonn-plain}{6pt}{6pt}{\itshape}{0pt}{\bfseries}{.}{5pt}{}
-  \newtheoremstyle{bonn-def}{6pt}{6pt}{\normalfont}{0pt}{\bfseries}{.}{5pt}{}
-  \newtheoremstyle{bonn-remark}{6pt}{6pt}{\normalfont}{0pt}{\scshape}{.}{5pt}{}
+  \newtheoremstyle{bonn-plain}{6pt}{6pt}{\itshape}{0pt}{\bfseries}{.}{5pt}{\thmname{#1}\thmnumber{ #2}\IfBlankTF{#3}{\def\@currentlabelname{}}{\def\@currentlabelname{#3}\thmnote{ (#3)}}}
+  \newtheoremstyle{bonn-def}{6pt}{6pt}{\normalfont}{0pt}{\bfseries}{.}{5pt}{\thmname{#1}\thmnumber{ #2}\IfBlankTF{#3}{\def\@currentlabelname{}}{\def\@currentlabelname{#3}\thmnote{ (#3)}}}
+  \newtheoremstyle{bonn-remark}{6pt}{6pt}{\normalfont}{0pt}{\scshape}{.}{5pt}{\thmname{#1}\thmnumber{ #2}\IfBlankTF{#3}{\def\@currentlabelname{}}{\def\@currentlabelname{#3}\thmnote{ (#3)}}}
 
   \theoremstyle{bonn-plain}
   \newtheorem{theorem}{Teorema}[chapter]
