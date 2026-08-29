@@ -101,22 +101,80 @@
 ;; --- 4. INTEGRACIÓN INKSCAPE -> PDF_TEX (MÁXIMO RENDIMIENTO)
 ;; ==================================================================
 
+(defcustom tesis-tools-figure-canvas-width 75
+  "Ancho estándar en milímetros (mm) del lienzo de figuras en Inkscape (75mm = estándar de columna)."
+  :type 'integer
+  :group 'tesis-tools)
+
+(defcustom tesis-tools-figure-canvas-height 45
+  "Alto estándar en milímetros (mm) del lienzo de figuras en Inkscape."
+  :type 'integer
+  :group 'tesis-tools)
+
+(defun tesis-tools--generate-svg-template (&optional width height)
+  "Genera la plantilla SVG inicial con dimensiones proporcionales estándar."
+  (let ((w (or width tesis-tools-figure-canvas-width))
+        (h (or height tesis-tools-figure-canvas-height)))
+    (format "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>
+<svg
+   xmlns:dc=\"http://purl.org/dc/elements/1.1/\"
+   xmlns:cc=\"http://creativecommons.org/ns#\"
+   xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"
+   xmlns:svg=\"http://www.w3.org/2000/svg\"
+   xmlns=\"http://www.w3.org/2000/svg\"
+   viewBox=\"0 0 %d %d\"
+   width=\"%dmm\"
+   height=\"%dmm\"
+   version=\"1.1\">
+</svg>
+" w h w h)))
+
+(defun tesis-tools--project-root ()
+  "Obtiene la raíz del proyecto (Projectile / Git) o el directorio actual."
+  (or (when (fboundp 'projectile-project-root)
+        (projectile-project-root))
+      (locate-dominating-file default-directory ".git")
+      default-directory))
+
+(defun tesis-tools--export-svg-to-pdftex (svg-file pdf-file)
+  "Exporta de forma asíncrona SVG-FILE a PDF-FILE y .pdf_tex usando Inkscape."
+  (let ((cmd (format "inkscape --export-area-drawing --export-filename=%s --export-latex %s"
+                     (shell-quote-argument pdf-file)
+                     (shell-quote-argument svg-file))))
+    (start-process-shell-command "inkscape-export-pdftex" "*Inkscape Export*" cmd)))
+
 ;;;###autoload
 (defun tesis-tools-insert-inkscape-pdftex ()
-  "Crea una figura Inkscape (.svg), la exporta a .pdf_tex e inserta el código LaTeX."
+  "Crea una figura Inkscape (.svg), abre la GUI y exporta a .pdf_tex al guardar."
   (interactive)
-  (when-let* ((project-root (projectile-project-root))
-              (fig-dir (expand-file-name tesis-tools-figures-directory project-root))
-              (raw-name (read-string "Nombre de la figura (sin extensión): "))
-              (fig-name (replace-regexp-in-string "[[:space:]]+" "-" raw-name)))
+  (let* ((project-root (tesis-tools--project-root))
+         (fig-dir (expand-file-name tesis-tools-figures-directory project-root))
+         (raw-name (read-string "Nombre de la figura (sin extensión): "))
+         (fig-name (replace-regexp-in-string "[[:space:]]+" "-" (string-trim raw-name))))
+    (when (string-empty-p fig-name)
+      (user-error "El nombre de la figura no puede estar vacío"))
     (unless (file-directory-p fig-dir)
       (make-directory fig-dir t))
-    (let ((svg-file (expand-file-name (concat fig-name ".svg") fig-dir)))
-      (start-process-shell-command
-       "inkscape-create" nil
-       (format "inkscape --export-area-drawing --export-type='pdf,pdf_tex' %s"
-               (shell-quote-argument svg-file)))
-      (message "Lanzando Inkscape para crear %s..." (file-relative-name svg-file project-root))
+    (let* ((svg-file (expand-file-name (concat fig-name ".svg") fig-dir))
+           (pdf-file (expand-file-name (concat fig-name ".pdf") fig-dir)))
+      ;; 1. Crear plantilla inicial si el SVG no existe
+      (unless (file-exists-p svg-file)
+        (with-temp-file svg-file
+          (insert (tesis-tools--generate-svg-template))))
+      ;; 2. Exportación inicial de base
+      (tesis-tools--export-svg-to-pdftex svg-file pdf-file)
+      ;; 3. Abrir la interfaz gráfica de Inkscape con vigilante de auto-exportación al cerrar
+      (let ((proc (start-process-shell-command
+                   "inkscape-gui" nil
+                   (format "inkscape %s" (shell-quote-argument svg-file)))))
+        (set-process-sentinel
+         proc
+         (lambda (p event)
+           (when (string-match-p "\\(?:finished\\|exited\\)" event)
+             (tesis-tools--export-svg-to-pdftex svg-file pdf-file)
+             (message "✅ Figura '%s.pdf_tex' exportada con éxito desde Inkscape." fig-name)))))
+      (message "🎨 Abriendo Inkscape para '%s'..." (file-relative-name svg-file project-root))
+      ;; 4. Insertar el bloque de código LaTeX en el buffer
       (insert (format (string-join
                        '("\\begin{figure}[htpb]"
                          "  \\centering"
@@ -128,23 +186,42 @@
 
 ;;;###autoload
 (defun tesis-tools-edit-inkscape-pdftex ()
-  "Edita el SVG asociado al .pdf_tex bajo el cursor y lo re-exporta."
+  "Edita el SVG asociado al .pdf_tex bajo el cursor en Inkscape y lo re-exporta."
   (interactive)
-  (save-excursion
-    (when-let ((filename (when (string-match "\\\\incfig{\\([^}]+\\)}" (thing-at-point 'line t))
-                           (match-string 1 (thing-at-point 'line t)))))
-      (let* ((project-root (projectile-project-root))
-             (fig-dir (expand-file-name tesis-tools-figures-directory project-root))
-             (svg-file (expand-file-name (concat filename ".svg") fig-dir)))
-        (if (file-exists-p svg-file)
-            (progn
-              (start-process-shell-command
-               "inkscape-edit" nil
-               (format "inkscape %s" (shell-quote-argument svg-file)))
-              (message "☁️ Abriendo '%s' en Inkscape..." (file-relative-name svg-file)))
-          (warn "El archivo SVG no existe: %s" svg-file)))
-      (unless (called-interactively-p 'any)
-        (message "❌ No se encontró \\incfig{...} en la línea actual.")))))
+  (let ((fig-name
+         (save-excursion
+           (let ((line-str (thing-at-point 'line t))
+                 (regex "\\\\incfig\\(?:\\[[^]]*\\]\\)?{\\([^}]+\\)}"))
+             (cond
+              ;; 1. En la línea actual
+              ((and line-str (string-match regex line-str))
+               (match-string 1 line-str))
+              ;; 2. En el entorno figure / párrafo circundante
+              ((re-search-backward "\\\\begin{figure}" (max (point-min) (- (point) 500)) t)
+               (when (re-search-forward regex (min (point-max) (+ (point) 500)) t)
+                 (match-string 1)))
+              ;; 3. Buscar hacia adelante cerca del cursor
+              ((re-search-forward regex (min (point-max) (+ (point) 300)) t)
+               (match-string 1)))))))
+    (if fig-name
+        (let* ((filename (string-trim (replace-regexp-in-string "\\.pdf_tex\\'" "" fig-name)))
+               (project-root (tesis-tools--project-root))
+               (fig-dir (expand-file-name tesis-tools-figures-directory project-root))
+               (svg-file (expand-file-name (concat filename ".svg") fig-dir))
+               (pdf-file (expand-file-name (concat filename ".pdf") fig-dir)))
+          (if (file-exists-p svg-file)
+              (let ((proc (start-process-shell-command
+                           "inkscape-edit" nil
+                           (format "inkscape %s" (shell-quote-argument svg-file)))))
+                (set-process-sentinel
+                 proc
+                 (lambda (p event)
+                   (when (string-match-p "\\(?:finished\\|exited\\)" event)
+                     (tesis-tools--export-svg-to-pdftex svg-file pdf-file)
+                     (message "✅ Figura '%s.pdf_tex' re-exportada con éxito desde Inkscape." filename))))
+                (message "🎨 Abriendo '%s' en Inkscape..." (file-relative-name svg-file project-root)))
+            (user-error "El archivo SVG no existe: %s" svg-file)))
+      (user-error "❌ No se encontró \\incfig{...} en la línea ni en la figura actual."))))
 
 ;; ==================================================================
 ;; --- MATH PAD FLOTANTE PARA INKSCAPE ---

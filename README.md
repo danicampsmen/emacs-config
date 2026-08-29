@@ -1,6 +1,6 @@
-# 🌌 Emacs Configuration: Mathematical Research IDE & Second Brain
+# 🌌 Emacs Configuration: Mathematical Research IDE, Second Brain & Antigravity Agent
 
-Configuración modular avanzada de **GNU Emacs (v30+)** diseñada como una estación de trabajo integral para la **investigación matemática avanzada, redacción editorial de tesis (Arquitectura IHÉS / EGA Bourbaki), apuntes académicos, gestión bibliográfica con Zotero y sincronización en la nube**.
+Configuración modular avanzada de **GNU Emacs (v30+)** diseñada como una estación de trabajo integral de alto rendimiento para la **investigación matemática avanzada, redacción editorial de tesis (Arquitectura IHÉS / EGA Bourbaki), apuntes académicos, gestión bibliográfica con Zotero, computación científica con Julia, sincronización en la nube e Inteligencia Artificial Agéntica con Google Antigravity**.
 
 ---
 
@@ -8,20 +8,28 @@ Configuración modular avanzada de **GNU Emacs (v30+)** diseñada como una estac
 
 1. [Arquitectura y Estructura del Sistema](#-arquitectura-y-estructura-del-sistema)
 2. [Pila Tecnológica y Paquetes](#-pila-tecnológica-y-paquetes)
-3. [Guía de Atajos de Teclado (Cheat Sheet)](#-guía-de-atajos-de-teclado-cheat-sheet)
-   - [Líder y Atajos Globales](#atajos-globales-y-navegación)
+3. [Guía Maestra de Atajos de Teclado (Cheat Sheet)](#-guía-maestra-de-atajos-de-teclado-cheat-sheet)
+   - [Atajos Globales y Navegación](#atajos-globales-y-navegación)
+   - [Inteligencia Artificial: Google Antigravity (`; a`)](#inteligencia-artificial-google-antigravity--a)
+   - [IA Jarvis, Agentes y Exportación de Contexto (`; A`)](#ia-jarvis-agentes-y-exportación-de-contexto--a)
    - [LaTeX y Redacción Científica (`; t`)](#latex-y-redacción-científica--t)
-   - [Archivos, Buffers y Ventanas (`; f`, `; w`, `; e`)](#archivos-buffers-y-ventanas)
-   - [Harpoon y Proyectos (`; h`, `; p`, `; g`)](#harpoon-proyectos-y-git)
-   - [Bibliografía, Citas y Zotero (`; b`)](#bibliografía-y-citas--b)
-   - [Segundo Cerebro y Notas (`; k`)](#segundo-cerebro-y-notas--k)
+   - [Inserción y Pegado Rápido (`; i`)](#inserción-y-pegado-rápido--i)
+   - [Gestión de Archivos y Buffers (`; f`, `; e`)](#gestión-de-archivos-y-buffers--f--e)
+   - [Ventanas y Disposiciones de Pantalla (`; w`)](#ventanas-y-disposiciones-de-pantalla--w)
+   - [Harpoon, Proyectos y Git (`; h`, `; p`, `; g`)](#harpoon-proyectos-y-git--h--p--g)
+   - [Bibliografía, Citas y Zotero (`; b`)](#bibliografía-citas-y-zotero--b)
+   - [Segundo Cerebro, Notas y Proyectos (`; k`)](#segundo-cerebro-notas-y-proyectos--k)
    - [Sincronización en la Nube / Google Drive (`; d`, `; dy`)](#sincronización-en-la-nube-google-drive--d--dy)
    - [Terminal Vterm (`; v`)](#terminal-vterm--v)
-   - [Inteligencia Artificial (`; a`, `; A`)](#inteligencia-artificial--a--a)
    - [Agenda y Org-Mode (`; o`)](#agenda-y-org-mode--o)
-4. [Ecosistema LaTeX y Clases Maestras](#-ecosistema-latex-y-clases-maestras)
-5. [Integración Gráfica con Inkscape](#-integración-gráfica-con-inkscape)
-6. [Instalación y Requisitos del Sistema](#-instalación-y-requisitos-del-sistema)
+4. [Ecosistema Google Antigravity en Emacs](#-ecosistema-google-antigravity-en-emacs)
+5. [Ecosistema LaTeX, Snippets y Clases Maestras](#-ecosistema-latex-snippets-y-clases-maestras)
+   - [Auto-Expansiones Matemáticas (LAAS / AAS)](#auto-expansiones-matemáticas-laas--aas)
+   - [Snippets de Geometría Compleja y Kähler (`tesis-snippets.el`)](#snippets-de-geometría-compleja-y-kähler-tesis-snippetsel)
+   - [Clase `apuntes-scr.cls` (v4.4)](#1-apuntes-scrcls-v44---apuntes-y-artículos-académicos)
+   - [Clase `tesis-uni.cls` (v22.0 - Arquitectura IHÉS EGA Bourbaki)](#2-tesis-unicls-v220---arquitectura-editorial-ihés--ega-bourbaki)
+6. [Integración Gráfica con Inkscape y Math Pad](#-integración-gráfica-con-inkscape-y-math-pad)
+7. [Instalación y Requisitos del Sistema](#-instalación-y-requisitos-del-sistema)
 
 ---
 
@@ -31,36 +39,36 @@ La configuración se organiza en una arquitectura modular limpia dentro de `lisp
 
 ```text
 ~/.emacs.d/
-├── early-init.el             # Optimizaciones de pre-arranque (GC, UI nativa, IPC)
+├── early-init.el             # Optimizaciones de pre-arranque (GC diferido, UI nativa, IPC)
 ├── init.el                  # Orquestador maestro de carga modular
 ├── custom.el                # Variables generadas por Emacs Customize
 ├── apuntes-scr.cls          # Clase Maestra para Apuntes y Artículos (KOMA-Script v4.4)
 ├── tesis-uni.cls            # Clase Maestra de Tesis (IHÉS EGA Bourbaki v22.0)
 │
 ├── lisp/                    # Módulos de configuración (Lisp)
-│   ├── my-packages.el       # Gestor de paquetes y repositorios (MELPA, ELPA)
-│   ├── my-ui.el             # Tema visual, tipografía, doom-modeline, nerd-icons
-│   ├── my-editor.el         # Motor Evil (Vim), Vertico, Consult, Marginalia, Embark
+│   ├── my-packages.el       # Gestor declarativo de paquetes (MELPA, ELPA)
+│   ├── my-ui.el             # Tema Modus Vivendi, tipografía, doom-modeline, nerd-icons
+│   ├── my-editor.el         # Motor Evil, Vertico, Consult, Marginalia, Embark, Julia
 │   ├── my-keys.el           # Mapeo maestro de atajos líder (';') con General.el
-│   ├── my-latex-core.el     # AUCTeX, Eglot (TexLab), compilación LuaLaTeX, SyncTeX
+│   ├── my-ai.el             # Integración total con Google Antigravity (CLI agy, REPL vterm, Diff, LaTeX AI, Transient)
+│   ├── my-latex-core.el     # AUCTeX, Eglot (TexLab LSP), compilación LuaLaTeX, SyncTeX Zathura
 │   ├── my-latex-expansions.el# Corfu, Tempel, Súper Salto TAB, LAAS/AAS, Capf de rutas
-│   ├── my-latex-snippets.el # Plantillas Tempel, envolturas visuales, Hydra visual
+│   ├── my-latex-snippets.el # Plantillas Tempel, envolturas visuales, Hydra visual de símbolos
 │   ├── my-latex-visuals.el  # TeX-Fold dinámico, Unicode prettify, realce semántico
-│   ├── my-latex-tree-sitter.el# Formateo AST Tree-sitter, aislamiento vertical
-│   ├── tesis-snippets.el    # Snippets especializados de Geometría Compleja y Kähler
-│   ├── tesis-layout.el      # Gestor de disposiciones de pantalla para redacción
-│   ├── tesis-tools.el       # Herramientas de tesis, Inkscape pdf_tex y Math Pad
-│   ├── my-second-brain.el   # Zotero, Citar, notas zettelkasten y exportación .bib
-│   ├── my-ai.el             # Integración con Antigravity / Gemini / GPTel / Aidermacs
+│   ├── my-latex-tree-sitter.el# Formateo AST Tree-sitter, aislamiento vertical, renombrado
+│   ├── tesis-snippets.el    # Snippets condicionales de Geometría Compleja, Kähler y Haces
+│   ├── tesis-layout.el      # Gestor de disposiciones de pantalla para redacción e investigación
+│   ├── tesis-tools.el       # Herramientas de tesis, puente Inkscape pdf_tex y Math Pad
+│   ├── my-second-brain.el   # Zotero, Citar, Zettelkasten, búsqueda neuronal y exportación .bib
 │   ├── my-pdf.el            # Visor y anotador de PDFs integrado
-│   ├── gdrive-sync.el       # Sincronizador bidireccional Google Drive con Rclone
-│   └── syncclient.el        # Monitor y gestor de sincronización de carpetas
+│   ├── gdrive-sync.el       # Sincronizador bidireccional Google Drive con Rclone (bisync/FUSE/Ediff)
+│   └── syncclient.el        # Monitor y gestor de sincronización continua de carpetas
 │
 └── inkscape/                # Entorno completo de dibujo matemático y Math Pad
     ├── applications/        # Lanzador de escritorio .desktop
     ├── bin/                 # Ejecutables inkscape-math-pad y wayland-paste (uinput)
     ├── extensions/          # Extensiones de estilo Gilles Castel (.py y .inx)
-    ├── keys/                # Atajos sin conflictos (default.xml)
+    ├── keys/                # Atajos de una sola tecla (default.xml)
     ├── systemd/             # Demonio de usuario wayland-paste.service
     ├── install.sh           # Instalador automático en un paso
     └── README.md            # Documentación del flujo de dibujo
@@ -70,17 +78,18 @@ La configuración se organiza en una arquitectura modular limpia dentro de `lisp
 
 ## ⚡ Pila Tecnológica y Paquetes
 
-- **Edición Modal y Navegación:** `evil`, `evil-collection`, `evil-surround`, `evil-mc`, `evil-tex`, `general`, `avy`, `ace-window`, `harpoon`, `drag-stuff`.
+- **Inteligencia Artificial y Agentes:** `Google Antigravity CLI (agy)`, `transient`, `gptel` *(Gemini 3.7 / 3.6 / 3.1, Claude Sonnet 4.6, GPT-OSS 120B)*, `aidermacs`, `markdown-mode`.
+- **Edición Modal y Navegación:** `evil`, `evil-collection`, `evil-surround`, `evil-mc`, `evil-tex`, `general`, `avy`, `ace-window`, `harpoon`, `drag-stuff`, `expand-region`, `undo-fu`.
 - **Búsqueda y Minibuffer:** `vertico`, `marginalia`, `orderless`, `consult`, `embark`, `embark-consult`, `wgrep`.
 - **Autocompletado e Inserción:** `corfu`, `nerd-icons-corfu`, `cape`, `tempel`, `aas`, `laas` *(LaTeX Auto-Activating Snippets)*.
 - **Motor LaTeX & LSP:** `auctex`, `reftex`, `eglot` *(TexLab Language Server)*, `treesit` *(tree-sitter-latex)*, `texmathp`.
-- **Visualización y Estética:** `modus-themes`, `doom-modeline`, `nerd-icons`, `rainbow-delimiters`, `hl-todo`, `goggles`, `diff-hl`.
-- **Gestión del Conocimiento y Citas:** `citar`, `citar-embark`, `org-mode`, `org-modern`, `calfw`, `calfw-org`.
-- **Terminal e IA:** `vterm`, `vterm-toggle`, `aidermacs`, `gptel`.
+- **Visualización y Estética:** `modus-themes`, `doom-modeline`, `nerd-icons`, `rainbow-delimiters`, `hl-todo`, `goggles`, `diff-hl`, `minions`.
+- **Gestión del Conocimiento y Citas:** `citar`, `citar-embark`, `org-mode`, `org-modern`, `calfw`, `calfw-org`, `multisession`.
+- **Computación Científica y Terminal:** `julia-mode`, `julia-repl`, `vterm`, `vterm-toggle`, `exec-path-from-shell`.
 
 ---
 
-## ⌨️ Guía de Atajos de Teclado (Cheat Sheet)
+## ⌨️ Guía Maestra de Atajos de Teclado (Cheat Sheet)
 
 > [!TIP]
 > La **Tecla Líder** principal está mapeada a **`;`** *(punto y coma)* en los modos Normal, Visual y Motion de Evil. En caso de necesitar la repetición de búsqueda horizontal de Vim, usa `,` *(hacia adelante)* y `\` *(hacia atrás)*.
@@ -106,6 +115,40 @@ La configuración se organiza en una arquitectura modular limpia dentro de `lisp
 
 ---
 
+### Inteligencia Artificial: Google Antigravity (`; a`)
+
+| Atajo | Función / Descripción |
+|---|---|
+| `; a a` | **Menú Transient Maestro de Antigravity** (`my/antigravity-menu`) |
+| `; a c` | Iniciar o enfocar **Terminal Interactiva REPL** en Vterm (`my/antigravity-cli`) |
+| `; a C` | Reanudar la última conversación activa (`agy -c`) (`my/antigravity-continue`) |
+| `; a p` | Iniciar Antigravity en **Modo Planificación** (`agy --mode plan`) (`my/antigravity-plan`) |
+| `; a q` | Consulta rápida asíncrona a Antigravity con contexto de proyecto (`my/antigravity-ask`) |
+| `; a i` | **Edición Inline dirigida** con previsualización Diff antes de aplicar (`my/antigravity-inline-edit`) |
+| `; a r` | Refactorizar región seleccionada según instrucción (`my/antigravity-refactor-region`) |
+| `; a e` | Explicar código, fórmula matemática o fragmento (`my/antigravity-explain-region`) |
+| `; a E` | Diagnosticar y solucionar error capturado en la terminal Vterm (`my/antigravity-diagnose-terminal-error`) |
+| `; a g` | Generar mensaje de commit semántico con Git a partir de staging (`my/antigravity-git-commit-message`) |
+| `; a /` | Paleta de Slash Commands (`/plan`, `/goal`, `/schedule`, `/learn`, `/grill-me`) |
+| `; a m` | Conmutar modelo de Antigravity (Gemini 3.7 Flash, Pro, Claude Sonnet 4.6, etc.) |
+| `; a x` | Ajustar nivel de razonamiento (*reasoning effort*: low, medium, high) |
+| `; a A` | Menú interactivo del agente Aidermacs (`aidermacs-transient-menu`) |
+
+---
+
+### IA Jarvis, Agentes y Exportación de Contexto (`; A`)
+
+| Atajo | Función / Descripción |
+|---|---|
+| `; A a` | Menú interactivo del agente Aidermacs (`aidermacs-transient-menu`) |
+| `; A j` | Iniciar sesión interactiva de Chat Jarvis (`my/jarvis-chat-session`) |
+| `; A c` | Ejecutar comando rápido one-shot (`my/jarvis-oneshot-command`) |
+| `; A e` | **Exportar configuración completa de Emacs a TXT** para análisis de LLMs (`my/export-config-as-txt`) |
+| `; A E` | Exportar archivos por extensión personalizada (`my/export-files-by-extension`) |
+| `; A t` | **Exportar todos los archivos `.tex` del proyecto activo a TXT** (`my/export-project-tex-as-txt`) |
+
+---
+
 ### LaTeX y Redacción Científica (`; t`)
 
 | Atajo | Función / Descripción |
@@ -114,9 +157,9 @@ La configuración se organiza en una arquitectura modular limpia dentro de `lisp
 | `; t v` | **Ver PDF sincronizado** con Zathura y SyncTeX hacia la línea actual (`my/tex-view-with-focus`) |
 | `; t z` | Alternar **Modo Visual Zen / TeX-Fold** (plegado tipográfico de símbolos) |
 | `; t f` | **Formatear Buffer con Tree-sitter AST** y aislamiento vertical (`my/ts-format-buffer`) |
-| `; t h` | **Hydra Visual de Snippets** (Menú interactivo con todos los atajos matemáticos) |
-| `; t l` | Insertar etiqueta inteligente (`\label{...}`) |
-| `; t C` | Insertar referencia inteligente con cleveref (`\cref{...}`) |
+| `; t h` | **Hydra Visual de Snippets** (Menú interactivo con todos los entornos y símbolos) |
+| `; t l` | Insertar etiqueta inteligente (`my/smart-latex-label`) |
+| `; t C` | Insertar referencia inteligente con cleveref (`my/insert-cref`) |
 | `; t b` | Insertar cita bibliográfica avanzada con formato y página (`tesis-tools-insert-citation-advanced`) |
 | `; t i` | Insertar cita rápida con Citar (`citar-insert-citation`) |
 | `; t e` | Insertar entorno LaTeX (`LaTeX-environment`) |
@@ -124,11 +167,15 @@ La configuración se organiza en una arquitectura modular limpia dentro de `lisp
 | `; t m` | Asistente interactivo para matrices dinámicas (`my/insert-matrix`) |
 | `; t o` | Explorador de estructura del documento / índice (`consult-imenu`) |
 | `; t E` | Editar figura SVG de Inkscape asociada al cursor (`tesis-tools-edit-inkscape-pdftex`) |
-| `; t A` | Abrir la clase maestra `apuntes-scr.cls` para edición |
-| `; t a` | Alternar autoformateo semántico al guardar |
-| `; t r` | Renombrar entorno LaTeX bajo cursor mediante Tree-sitter |
-| `; t V` | Seleccionar visualmente el entorno LaTeX actual |
-| `; t S` | Buscar y navegar entre entornos LaTeX |
+| `; t A` | Abrir la clase maestra `apuntes-scr.cls` para edición (`my/open-apuntes-cls`) |
+| `; t a` | Alternar autoformateo semántico al guardar (`my/toggle-latex-auto-format-on-save`) |
+| `; t n` | Crear y añadir rápidamente un nuevo snippet (`my/quick-add-snippet`) |
+| `; t R` | Recargar definiciones de snippets (`my/reload-snippets`) |
+| `; t r` | Renombrar entorno LaTeX bajo cursor mediante Tree-sitter (`my/ts-rename-environment`) |
+| `; t V` | Seleccionar visualmente el entorno LaTeX actual (`my/ts-select-environment`) |
+| `; t S` | Buscar y navegar entre entornos LaTeX (`my/ts-search-environments`) |
+| `; t p` | Alternar prettify-symbols (`prettify-symbols-mode`) |
+| `; t d` | Alternar coloreado de delimitadores arcoíris (`rainbow-delimiters-mode`) |
 
 #### 🔀 Súper Salto Estructural con TAB
 En cualquier buffer LaTeX:
@@ -137,28 +184,48 @@ En cualquier buffer LaTeX:
 
 ---
 
-### Archivos, Buffers y Ventanas
+### Inserción y Pegado Rápido (`; i`)
+
+| Atajo | Función / Descripción |
+|---|---|
+| `; i s` | Insertar plantilla Tempel interactiva (`tempel-insert`) |
+| `; i p` | **Pegar Limpio** (elimina caracteres de control y formatos residuales) (`my/yank-clean`) |
+| `; i f` | Autocompletar ruta de archivo con Cape (`cape-file`) |
+| `; i i` | Crear y vincular nuevo dibujo Inkscape con renderizado LaTeX (`tesis-tools-insert-inkscape-pdftex`) |
+| `; i m` | Lanzar ventana flotante Math Pad para Inkscape (`tesis-tools-inkscape-math-popup`) |
+
+---
+
+### Gestión de Archivos y Buffers (`; f`, `; e`)
 
 | Atajo | Función / Descripción |
 |---|---|
 | `; f f` | Buscar archivo en el sistema / proyecto (`consult-find`) |
 | `; f b` | Conmutar entre buffers abiertos (`consult-buffer`) |
 | `; f s` | Guardar buffer actual (`save-buffer`) |
-| `; f e` | Editar directorio actual estilo Oil.nvim (`wdired`) |
+| `; f e` | **Editar directorio actual estilo Oil.nvim** (`my/dired-edit-directory` / `wdired`) |
 | `; f n` | Crear nuevo archivo vacío (`my/create-empty-file`) |
+| `; e c` | Buscar y abrir rápidamente cualquier archivo `.el` de la configuración (`my/find-config-file`) |
+| `; e i` | Editar `init.el` directamente (`my/open-init-file`) |
+| `; e r` | Reiniciar Emacs (`restart-emacs`) |
+| `; e t` | Conmutar modo Terminal-GUI para máxima fidelidad visual (`my-terminal-gui-mode`) |
+
+---
+
+### Ventanas y Disposiciones de Pantalla (`; w`)
+
+| Atajo | Función / Descripción |
+|---|---|
 | `; w w` | Saltar rápidamente entre ventanas con Ace-Window (`ace-window`) |
 | `; w o` | Saltar al siguiente frame (`other-frame`) |
 | `; w d` | Cerrar ventana actual (`delete-window`) |
 | `; w l` | Activar disposición de pantalla para Tesis (`tesis-layout-activate`) |
 | `; w p` | Disposición de pantalla Redactor + PDF (`my/layout-writer`) |
 | `; w r` | Disposición de pantalla Investigador / Referencias (`my/layout-researcher`) |
-| `; e c` | Buscar y abrir cualquier archivo `.el` de la configuración |
-| `; e i` | Editar `init.el` directamente |
-| `; e r` | Reiniciar Emacs (`restart-emacs`) |
 
 ---
 
-### Harpoon, Proyectos y Git
+### Harpoon, Proyectos y Git (`; h`, `; p`, `; g`)
 
 | Atajo | Función / Descripción |
 |---|---|
@@ -174,37 +241,37 @@ En cualquier buffer LaTeX:
 
 ---
 
-### Bibliografía y Citas (`; b`)
+### Bibliografía, Citas y Zotero (`; b`)
 
 | Atajo | Función / Descripción |
 |---|---|
 | `; b b` | Abrir biblioteca bibliográfica de Zotero con Citar (`citar-open`) |
 | `; b n` | Abrir o crear nota bibliográfica asociada (`citar-open-notes`) |
 | `; b p` | Vista previa de la entrada de Zotero bajo cursor (`my/citar-preview-at-point`) |
-| `; b e` | Exportar `.bib` local limpio para el proyecto actual |
-| `; b l` | Insertar Magic Link hacia PDF anotado (`my/insert-pdf-link`) |
+| `; b e` | **Exportar `.bib` local limpio** exclusivo para las citas del proyecto actual (`my/brain-export-local-bib`) |
+| `; b l` | Insertar **Magic Link** hacia PDF anotado (`my/insert-pdf-link`) |
 | `; b o` | Abrir archivo PDF vinculado al Magic Link (`my/open-pdf-link`) |
 
 ---
 
-### Segundo Cerebro y Notas (`; k`)
+### Segundo Cerebro, Notas y Proyectos (`; k`)
 
 | Atajo | Función / Descripción |
 |---|---|
 | `; k n` | Crear nueva nota en el Segundo Cerebro (`my/brain-new-entry`) |
-| `; k s` | Búsqueda semántica / neuronal en notas (`my/brain-neural-search`) |
+| `; k s` | **Búsqueda semántica / neuronal** en notas de investigación (`my/brain-neural-search`) |
 | `; k B` | Regenerar archivo maestro `.bib` del cerebro (`my/brain-generate-bib`) |
 | `; k c` | Compilar documento maestro del cerebro (`my/smart-compile`) |
 | `; k C` | Limpieza y compilación profunda (`my/brain-clean-and-compile`) |
 | `; k p` | Ver PDF maestro generado (`my/brain-open-pdf`) |
-| `; k F` | Asistente IA para clasificar y organizar nota (`my/brain-ai-librarian`) |
+| `; k F` | **Asistente IA Bibliotecario** para clasificar y organizar nota (`my/brain-ai-librarian`) |
 | `; k G` | Generar mapa visual de relaciones entre notas (`my/brain-generate-graph`) |
-| `; k P` | Crear nuevo proyecto matemático aislado |
-| `; k d` | Abrir o crear diario de hoy (`my/journal-today`) |
+| `; k P` | Crear nuevo proyecto matemático aislado (`my/project-new-isolated`) |
+| `; k d` | Abrir o crear diario de investigación de hoy (`my/journal-today`) |
 
 ---
 
-### Sincronización en la Nube / Google Drive (`; d` / `; dy`)
+### Sincronización en la Nube / Google Drive (`; d`, `; dy`)
 
 | Atajo | Función / Descripción |
 |---|---|
@@ -214,14 +281,22 @@ En cualquier buffer LaTeX:
 | `; d S` | Descargar carpeta remota desde Google Drive |
 | `; d f` | Subir archivo actual al almacenamiento remoto |
 | `; d F` | Descargar archivo actual desde remoto |
-| `; d m` | Montar Google Drive como sistema de archivos FUSE |
+| `; d u` | Subir todos los archivos modificados durante la sesión (`my/upload-modified`) |
+| `; d m` | Montar Google Drive como sistema de archivos FUSE (`rclone mount`) |
 | `; d M` | Desmontar Google Drive FUSE |
 | `; d n` | Explorar Google Drive vía Dired / TRAMP |
-| `; d c` | Resolver conflictos de sincronización con Ediff (`gdrive-sync/resolve-conflicts`) |
+| `; d i` | Explorador interactivo de rutas remotas |
+| `; d c` | **Resolver conflictos de sincronización con Ediff** (`gdrive-sync/resolve-conflicts`) |
 | `; d r` | Forzar resincronización total (`--resync`) |
 | `; d l` | Eliminar candados huérfanos de sincronización (`.lck`) |
-| `; dy t` | Menú interactivo de SyncClient (`syncclient-transient-prefix`) |
+| `; d R` | Refrescar caché de carpetas remotas |
+| `; dy t` | **Menú Transient de SyncClient** (`syncclient-transient-prefix`) |
 | `; dy S` | Ver estado y monitoreo de sincronización |
+| `; dy f` | Forzar sincronización del par seleccionado |
+| `; dy c` | Limpiar duplicados del par seleccionado |
+| `; dy a` | Añadir nuevo par de sincronización local/remoto |
+| `; dy b` | Explorar carpetas remotas |
+| `; dy i` | Ver actividad actual de sincronización |
 
 ---
 
@@ -229,25 +304,9 @@ En cualquier buffer LaTeX:
 
 | Atajo | Función / Descripción |
 |---|---|
-| `; v t` | Conmutar terminal desplegable en el proyecto actual (`my/toggle-term`) |
+| `; v t` | Conmutar terminal desplegable en el contexto del proyecto actual (`my/toggle-term`) |
 | `; v n` | Abrir nueva pestaña independiente de terminal (`my/vterm-new`) |
 | `; v k` | Recompilar módulo C nativo de Vterm (`vterm-module-compile`) |
-
----
-
-### Inteligencia Artificial (`; a` / `; A`)
-
-| Atajo | Función / Descripción |
-|---|---|
-| `; a c` | Abrir sesión de chat con IA en buffer dedicado (`my/ai-chat`) |
-| `; a C` | Abrir terminal CLI de Antigravity (`my/ai-cli`) |
-| `; a m` | Conmutar modelo de IA (Gemini / Claude / GPT) |
-| `; a r` | Refactorizar región seleccionada con IA (`my/ai-refactor-region`) |
-| `; a e` | Explicar código o fórmula matemática seleccionada |
-| `; a E` | Diagnosticar y explicar el último error de compilación de la terminal |
-| `; A a` | Menú interactivo del agente Aidermacs (`aidermacs-transient-menu`) |
-| `; A e` | Exportar configuración completa como TXT para análisis |
-| `; A t` | Exportar archivos `.tex` del proyecto a TXT |
 
 ---
 
@@ -257,31 +316,134 @@ En cualquier buffer LaTeX:
 |---|---|
 | `; o a` | Abrir panel de **Agenda Semanal** (`org-agenda`) |
 | `; o c` | Captura rápida de tareas o ideas (`org-capture`) |
-| `; o k` | Abrir calendario gráfico interactivo (`calfw`) |
+| `; o k` | Abrir calendario gráfico interactivo (`calfw` / `my/open-calendar`) |
 | `; o t` | Abrir archivo maestro de planificación (`vida.org`) |
 | `; o i` | Importar notas y capturas móviles (`my/org-process-mobile-inbox`) |
 
 ---
 
-## 📐 Ecosistema LaTeX y Clases Maestras
+## 🛸 Ecosistema Google Antigravity en Emacs
 
-### 1. `apuntes-scr.cls` (v4.4) - Apuntes y Artículos Académicos
-Diseñada sobre **KOMA-Script** (`scrartcl` / `scrbook`) con soporte multilingüe automático (español/inglés) y tipografía **STIX Two Math**.
-- **Entornos Teoremáticos:** Teoremas, lemas, proposiciones, corolarios, definiciones, ejemplos, ejercicios, soluciones, contraejemplos y algoritmos con numeración dependiente de sección o capítulo.
-- **Cajas Estilizadas:** `notabox` (azul marino), `warningbox` (rojo alerta), `controlbox` (verde verificación), `afirmacion` con remate `\lozenge`.
-- **Bloques de Código Ejecutables:** Entornos Minted para Python (`pythoncode`, `pythonlib`, `pythonexec` con captura automática de `stdout`).
-- **Optimización y Cálculo:** Paquete `optidef` traducido con macros `\optmin`, `\optmax`, `\optst`.
+El módulo `lisp/my-ai.el` integra el motor agéntico de **Google Antigravity (`agy`)** directamente en el flujo de trabajo de Emacs, soportando todas las modalidades operativas del ecosistema:
+
+```text
+                                  ┌──────────────────────────────┐
+                                  │   🛸 Google Antigravity      │
+                                  │   (CLI: agy / Gemini 3.7)    │
+                                  └──────────────┬───────────────┘
+                                                 │
+          ┌──────────────────────┬───────────────┴───────────────┬──────────────────────┐
+          │                      │                               │                      │
+┌─────────▼──────────┐ ┌─────────▼──────────┐          ┌─────────▼──────────┐ ┌─────────▼──────────┐
+│  Agente Autónomo   │ │   Edición Inline   │          │ Auto-Diagnóstico   │ │ Herramientas LaTeX │
+│  (REPL en vterm)   │ │  (Diff Previews)   │          │  (Terminal / Build)│ │ (TikZ, Ecuaciones) │
+│  `; a c` / `; a p` │ │     `; a i`        │          │     `; a E`        │ │ `; a a -> [L...]`  │
+└────────────────────┘ └────────────────────┘          └────────────────────┘ └────────────────────┘
+```
+
+### 1. Modalidades de Interacción
+
+- **Agente Autónomo en Terminal (`vterm`)**:
+  - Lanzamiento automático en la raíz del proyecto activo.
+  - Reanudación de sesiones (`agy -c`) y cambio a **Modo Plan** (`agy --mode plan`).
+  - Envío de regiones de código y menciones de archivo contextuales (`@ruta/al/archivo`).
+  - Paleta interactiva de **Slash Commands** (`/plan`, `/goal`, `/schedule`, `/learn`, `/grill-me`).
+
+- **Modo Instructivo Inline (`Ctrl+I` / `; a i`)**:
+  - Aplica refactorizaciones dirigidas sobre el bloque seleccionado.
+  - Permite previsualizar los cambios en un búfer `diff-mode` antes de aplicarlos (`a` para aceptar, `d` para diff, `c` para cancelar).
+
+- **Ejecución Asíncrona en Streaming**:
+  - Consultas rápidas (`my/antigravity-ask`) que renderizan en tiempo real dentro de un búfer Markdown interactivo (`*Antigravity-Response*`), con atajos para copiar (`y`) o insertar en el punto original (`i`).
+
+### 2. Auto-Diagnóstico de Errores
+
+- **Diagnóstico de Terminal (`my/antigravity-diagnose-terminal-error`)**: Captura los últimos registros de `vterm` para que Antigravity analice el fallo y proponga los comandos de corrección.
+- **Diagnóstico de Compilación (`my/antigravity-diagnose-compilation-error`)**: Diagnostica errores en búferes de compilación (AUCTeX, Latexmk, gcc, python, julia).
+
+### 3. Asistente Especializado para LaTeX y Matemáticas
+
+- **Optimización de Fórmulas (`my/antigravity-latex-fix-formula`)**: Formateo y corrección de sintaxis en entornos `amsmath`, `align` y matrices.
+- **Generador TikZ / PGFPlots (`my/antigravity-latex-generate-tikz`)**: Generación de diagramas y curvas en LaTeX a partir de descripciones en lenguaje natural.
+- **Asistente de Demostraciones (`my/antigravity-latex-proof-assist`)**: Estructuración formal de lemas y pasos lógicos.
+
+### 4. Menú Transient Maestro
+
+Accesible mediante **`; a a`** o `M-x my/antigravity-menu`, permite conmutar en caliente:
+- Modelos (`gemini-3.7-flash`, `gemini-3.6-flash-high`, `gemini-3.1-pro-high`, `claude-sonnet-4-6`, `claude-opus-4-6-thinking`, `gpt-oss-120b-medium`).
+- Nivel de razonamiento (*effort*: `low`, `medium`, `high`).
+- Modos de seguridad (`--dangerously-skip-permissions` y `--sandbox`).
+- Acceso a **Rules** (`.agents/rules/`) y **Skills** (`.agents/skills/`).
+
+---
+
+## 📐 Ecosistema LaTeX, Snippets y Clases Maestras
+
+### Auto-Expansiones Matemáticas (LAAS / AAS)
+
+En cualquier búfer LaTeX, al escribir en modo matemático las fórmulas se expanden automáticamente sin necesidad de presionar TAB:
+
+| Trigger | Expansión Resultado | Descripción |
+|---|---|---|
+| `mk` | `\( ... \)` | Ecuación matemática inline |
+| `dm` | `\[ ... \]` | Ecuación en bloque display |
+| `//` | `\frac{...}{...}` | Fracción con salto automático de numerador a denominador con TAB |
+| `=>` / `<==` | `\implies` / `\impliedby` | Implicaciones lógicas |
+| `<=>` | `\iff` | Equivalencia si y solo si |
+| `@a`, `@b`, `@g`, `@d` | `\alpha`, `\beta`, `\gamma`, `\delta` | Letras griegas directas |
+| `@t`, `@s`, `@w`, `@o` | `\theta`, `\sigma`, `\omega`, `\omega` | Letras griegas frecuentes |
+| `mbb` / `mcal` / `mbf` | `\mathbb{...}` / `\mathcal{...}` / `\mathbf{...}` | Tipografías matemáticas |
+| `sub` / `subn` | `\subseteq` / `\subsetneq` | Subconjuntos e inclusiones |
+| `inn` / `nin` | `\in` / `\notin` | Pertenencia a conjuntos |
+| `!=` / `>=` / `<=` | `\neq` / `\ge` / `\le` | Relaciones de orden y desigualdad |
+| `xx` / `ox` / `o+` | `\times` / `\otimes` / `\oplus` | Productos tensoriales y directos |
+| `norm` / `abs` | `\left\| ... \right\|` / `\left\| ... \right\|` | Normas y valores absolutos auto-escalables |
+
+---
+
+### Snippets de Geometría Compleja y Kähler (`tesis-snippets.el`)
+
+Se activan condicionalmente en proyectos de investigación matemática (`Tesis`, `Monografia`, `Variedades Complejas`):
+
+| Snippet | Salida LaTeX | Concepto Matemático |
+|---|---|---|
+| `ac` | `\symcal{A}^{p,q}` | $(p,q)$-formas diferenciales |
+| `acf` | `\symcal{A}^{\bullet}_{\Complex}` | Álgebra de formas complejas |
+| `jop` / `nij` | `J` / `N_{J}` | Estructura casi-compleja / Tensor de Nijenhuis |
+| `t10` / `t01` | `T^{1,0}M` / `T^{0,1}M` | Fibrados tangentes holomorfo y antiholomorfo |
+| `dolb` | `H_{\overline{\partial}}^{p,q}(X)` | Grupos de Cohomología de Dolbeault |
+| `kahm` | `\omega = \frac{i}{2} \sum h_{i\overline{j}} dz^i \wedge d\bar{z}^j` | Métrica de Kähler en coordenadas |
+| `kahpot`| `\omega = i \partial \overline{\partial} \phi` | Potencial local de Kähler |
+| `ric` | `\operatorname{Ric}(\omega)` | Forma y curvatura de Ricci |
+| `lef` / `lefs`| `L(\alpha)` / `\Lambda` | Operadores de Lefschetz y su adjunto |
+| `lald` | `\Delta_{\overline{\partial}}` | Laplaciano de Dolbeault |
+| `canb` | `K_X` / `\omega_X` | Fibrado / Haz Canónico |
+| `serre` | `H^{p,q}(X) \cong H^{n-p,n-q}(X)^*` | Dualidad de Serre |
+| `cy` | `c_1(X) = 0` | Condición de Variedad de Calabi-Yau |
+
+---
+
+### 1. `apuntes-scr.cls` (v5.0 - Full Enhanced Edition) - Apuntes y Artículos Académicos
+Diseñada sobre **KOMA-Script** (`scrartcl` / `scrbook`) con soporte multilingüe automático (español/inglés) y tipografía **STIX Two Math**, ahora integrada con todas las capacidades editoriales de la arquitectura IHÉS / Bourbaki:
+- **Ecosistema Bourbaki / EGA:** Párrafos numerados `\numpar[(1.1.1)]`, marcas marginales `\viragedangereux` (⚠️), separadores estrellados `\egabreak` (`* * *`), alinéas `egalist` ($a), b), c)$) y equivalencias lógicas `tfae` ($(i), (ii), (iii)$).
+- **Demostraciones Estructuradas:** Barra lateral de enfoque visual en demostraciones, pasos formales `\directstep`, `\reversestep`, `\containedstep`, subcasos con `proofcases` y afirmaciones anidadas `claim` con remate `claimproof`.
+- **Suite de Referencias Inteligentes:** Soporte nativo para `\sref`, `\csref`, `\namedsref`, `\titref`, `\autonamedsref` y `\srefname`.
+- **Suite Matemática y de Haces:** Funtores de haces con micro-kerning (`\shHom`, `\shExt`, `\shTor`, `\shDer`, `\shEnd`, `\shAut`), gavillas (`\Ox`, `\Fsh`, `\Gsh`, `\Ish`), categorías en negrita `\symbfup` (`\Set`, `\Sch`, `\QCoh`, `\Coh`, `\Ab`, `\CRing`, `\Mod`, `\Top`, `\Grp`, `\Vect`).
+- **Entornos Teoremáticos & Cajas:** Teoremas, lemas, proposiciones, corolarios, definiciones, ejemplos, ejercicios, soluciones, contraejemplos y algoritmos con `notabox` (azul marino), `warningbox` (rojo alerta), `controlbox` (verde verificación) y `convencionbox`.
+- **Integración Gráfica e Inkscape:** Comando universal `\incfig[width]{nombre}` con búsqueda automática en `./figuras/`, `../figuras/` y `./`.
+- **Bloques de Código Ejecutables:** Entornos Minted para Python (`pythoncode`, `pythonlib`, `pythonexec` con captura y ejecución automática de `stdout`).
+- **Optimización y Cálculo:** Paquete `optidef` traducido con macros `\optmin`, `\optmax`, `\optst` y función formal `\Fobj`.
 
 ### 2. `tesis-uni.cls` (v22.0) - Arquitectura Editorial IHÉS / EGA Bourbaki
 Diseñada para investigaciones matemáticas profundas con tipografía **TeX Gyre Termes / Heros / Cursor** bajo LuaLaTeX.
 - **Formato Visual Bourbaki:** Párrafos numerados `\numpar[(1.1.1)]`, marcas marginales `\viragedangereux` (⚠️), separadores estrellados `\egabreak` (`* * *`).
 - **Demostraciones Estructuradas:** Pasos formales `\directstep` ($(\Rightarrow)$), `\reversestep` ($(\Leftarrow)$), `\containedstep` ($(\subseteq)$), subcasos con `proofcases` y afirmaciones anidadas con `claimproof`.
 - **Suite de Referencias Inteligentes:** `\sref`, `\csref`, `\namedsref`, `\titref`, `\autonamedsref`, `\srefname`.
-- **Suite de Geometría Algebraica y Haces:** Funtor de haces con kerning IHÉS (`\shHom`, `\shExt`, `\shTor`, `\shDer`), gavillas (`\Ox`, `\Fsh`, `\Gsh`) y categorías en negrita Bourbaki (`\Set`, `\Sch`, `\QCoh`, `\Ab`, `\CRing`).
+- **Suite de Geometría Algebraica y Haces:** Funtor de haces con kerning IHÉS (`\shHom`, `\shExt`, `\shTor`, `\shDer`), gavillas (`\Ox`, `\Fsh`, `\Gsh`) y categorías en negrita Bourbaki (`\Set`, `\Sch`, `\QCoh`, `\Ab`, `\CRing`, `\Mod`, `\Top`, `\Grp`, `\Vect`).
 
 ---
 
-## 🎨 Integración Gráfica con Inkscape
+## 🎨 Integración Gráfica con Inkscape y Math Pad
 
 La suite incluye un puente bidireccional entre Emacs, GNOME Wayland e Inkscape:
 
@@ -299,12 +461,16 @@ La suite incluye un puente bidireccional entre Emacs, GNOME Wayland e Inkscape:
 ### Dependencias Principales (Ubuntu / Debian)
 
 ```bash
-# 1. Herramientas base y compiladores
+# 1. Herramientas base, compiladores y utilidades
 sudo apt install -y emacs-pgtk texlive-full zathura zathura-pdf-poppler \
                     ripgrep fd-find libvterm-dev libtool-bin cmake \
                     rclone python3-evdev python3-pyperclip inkscape wl-clipboard
 
-# 2. Permisos de teclado virtual para Wayland Paste
+# 2. Google Antigravity CLI (agy)
+# Asegurar que ~/.local/bin está en el PATH del sistema
+which agy || echo "Instala el CLI oficial de Antigravity en ~/.local/bin/agy"
+
+# 3. Permisos de teclado virtual para Wayland Paste (Inkscape Math Pad)
 sudo usermod -aG uinput $USER
 echo 'KERNEL=="uinput", GROUP="uinput", MODE="0660"' | sudo tee /etc/udev/rules.d/99-uinput.rules
 sudo udevadm control --reload-rules && sudo udevadm trigger
@@ -317,4 +483,4 @@ cd ~/.emacs.d/inkscape
 ```
 
 ### Arranque
-Al iniciar Emacs por primera vez, `my-packages.el` descargará y compilará automáticamente todos los paquetes faltantes de MELPA y ELPA sin necesidad de intervención manual.
+Al iniciar Emacs, `my-packages.el` descargará y compilará automáticamente todos los paquetes faltantes de MELPA y ELPA sin necesidad de intervención manual.

@@ -179,6 +179,24 @@
 \RequirePackage{import}       
 \RequirePackage{transparent}  
 \RequirePackage{float}
+
+% Integración Inkscape -> pdf_tex (Workflow Castel / TeX)
+\newcommand{\incfig}[2][]{%
+  \if\relax\detokenize{#1}\relax
+    \let\svgwidth\undefined
+  \else
+    \def\svgwidth{#1\columnwidth}%
+  \fi
+  \IfFileExists{./figuras/#2.pdf_tex}{%
+    \import{./figuras/}{#2.pdf_tex}%
+  }{%
+    \IfFileExists{../figuras/#2.pdf_tex}{%
+      \import{../figuras/}{#2.pdf_tex}%
+    }{%
+      \import{./}{#2.pdf_tex}%
+    }%
+  }%
+}
 \RequirePackage{booktabs}
 \RequirePackage{tabularray}
 \RequirePackage{varwidth}
@@ -504,6 +522,18 @@
 \newlist{proofcases}{enumerate}{2}
 \setlist[proofcases,1]{label=\textit{Caso \arabic*:}, leftmargin=2.5em, align=left, labelwidth=*, labelindent=0pt, listparindent=2pt, itemsep=0.3em, topsep=0.3em, parsep=0pt}
 \setlist[proofcases,2]{label=\textit{Subcaso \arabic{proofcasesi}.\arabic*:}, leftmargin=2.5em, align=left, labelwidth=*, labelindent=0pt, itemsep=0.2em}
+
+% Lista modular para propiedades, axiomas o condiciones nombradas
+\newlist{properties}{itemize}{1}
+\setlist[properties]{
+  label=\textbullet,
+  leftmargin=2.2em,
+  topsep=2.5pt plus 1pt minus 1pt,
+  itemsep=2pt plus 1pt,
+  parsep=0pt,
+  partopsep=0pt
+}
+\newcommand{\propitem}[1]{\item \textbf{#1.}\enskip\ignorespaces}
 
 % Afirmaciones anidadas
 \if@estiloihes

@@ -40,9 +40,9 @@
         (while (re-search-forward "\n\n\n+" nil t)
           (replace-match "\n\n"))
 
-        ;; 2. Separar cada \item en su propia línea si viene precedido de texto
+        ;; 2. Separar cada \item o \propitem en su propia línea si viene precedido de texto
         (goto-char (point-min))
-        (while (re-search-forward "\\([^ \t\n%]\\)[ \t]*\\(\\\\item\\b\\)" nil t)
+        (while (re-search-forward "\\([^ \t\n%]\\)[ \t]*\\(\\\\\\(\\(?:item\\|propitem\\)\\)\\b\\)" nil t)
           (replace-match "\\1\n\\2"))
 
         ;; 3. Separar comandos de pasos EGA (\directstep, \reversestep, etc.)
@@ -244,8 +244,8 @@
                    (indent (make-string (* depth indent-width) ?\s)))
               (push (concat indent trimmed) out-lines)))
 
-           ;; 9. Estructuras especiales: cabeceras, pasos EGA, \item
-           ((string-match-p "\\`\\\\\\(chapter\\|section\\|subsection\\|subsubsection\\|directstep\\|reversestep\\|containedstep\\|inversecontainedstep\\|parag\\|numpar\\|egabreak\\|item\\)" trimmed)
+           ;; 9. Estructuras especiales: cabeceras, pasos EGA, \item, \propitem
+           ((string-match-p "\\`\\\\\\(chapter\\|section\\|subsection\\|subsubsection\\|directstep\\|reversestep\\|containedstep\\|inversecontainedstep\\|parag\\|numpar\\|egabreak\\|item\\|propitem\\)" trimmed)
             (flush-prose)
             (let* ((depth (length (cl-remove-if (lambda (e) (member e root-containers)) env-stack)))
                    (indent (make-string (* depth indent-width) ?\s))
@@ -492,6 +492,7 @@ Preserva con exactitud la línea, columna y posición de scroll del cursor."
                   ("Teoremas" ".*\\\\begin{\\(?:theorem\\|lemma\\|proposition\\|corollary\\)}\\(\\[[^]\n]*\\]\\|\\\\label{[^}\n]+}\\)?" 1)
                   ("Definiciones" ".*\\\\begin{\\(?:definition\\|notation\\|example\\|remark\\|commentary\\)}\\(\\[[^]\n]*\\]\\|\\\\label{[^}\n]+}\\)?" 1)
                   ("Demostraciones" ".*\\\\begin{\\(?:proof\\|claim\\|claimproof\\)}" 0)
+                  ("Propiedades" ".*\\\\begin{properties}\\(\\\\label{[^}\n]+}\\)?" 0)
                   ("Convenciones" ".*\\\\begin{convencionbox}\\(\\[[^]\n]*\\)\\]?" 1)))))
 
 (add-hook 'LaTeX-mode-hook #'my/setup-latex-imenu)

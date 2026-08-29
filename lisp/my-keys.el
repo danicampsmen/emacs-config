@@ -151,15 +151,22 @@ Si estás en Dired, actualiza el buffer automáticamente para mostrarlo."
   "SPC" '(execute-extended-command :which-key "M-x")
   "sa"  '(my/select-all-buffer :which-key "Seleccionar Todo")
 
-  ;; --- Inteligencia Artificial (Antigravity / Gemini) ---
-  "a"   '(:ignore t :which-key "Inteligencia Artificial")
-  "ac"  '(my/ai-chat :which-key "Chat Antigravity IA (Búfer)")
-  "aC"  '(my/ai-cli :which-key "Terminal CLI Antigravity")
-  "am"  '(my/ai-switch-model :which-key "Cambiar Modelo Gemini")
-  "ar"  '(my/ai-refactor-region :which-key "Refactorizar Región con IA")
-  "ae"  '(my/ai-explain-region :which-key "Explicar Código/Error con IA")
-  "aE"  '(my/ai-explain-last-terminal-error :which-key "Diagnosticar Error de Terminal")
-  "aa"  '(aidermacs-transient-menu :which-key "Agente Aider")
+  ;; --- Inteligencia Artificial (Google Antigravity) ---
+  "a"   '(:ignore t :which-key "Antigravity IA")
+  "aa"  '(my/antigravity-menu :which-key "Menú Transient Antigravity")
+  "ac"  '(my/antigravity-cli :which-key "Terminal Interactiva (vterm)")
+  "aC"  '(my/antigravity-continue :which-key "Reanudar Última Sesión (-c)")
+  "ap"  '(my/antigravity-plan :which-key "Modo Planificación")
+  "aq"  '(my/antigravity-ask :which-key "Preguntar / Consultar")
+  "ai"  '(my/antigravity-inline-edit :which-key "Edición Inline (Diff)")
+  "ar"  '(my/antigravity-refactor-region :which-key "Refactorizar Región")
+  "ae"  '(my/antigravity-explain-region :which-key "Explicar Selección / Fórmula")
+  "aE"  '(my/antigravity-diagnose-terminal-error :which-key "Diagnosticar Error Terminal")
+  "am"  '(my/antigravity-switch-model :which-key "Cambiar Modelo Antigravity")
+  "ax"  '(my/antigravity-switch-effort :which-key "Nivel Razonamiento (Effort)")
+  "a/"  '(my/antigravity-send-slash-command :which-key "Slash Commands")
+  "ag"  '(my/antigravity-git-commit-message :which-key "Generar Commit Git")
+  "aA"  '(aidermacs-transient-menu :which-key "Agente Aider (Fallback)")
 
   ;; --- Archivos e Inserción ---
   "i"   '(:ignore t :which-key "Insertar/Pegar") 

@@ -39,6 +39,8 @@
         (egal  . ("\\begin{egalist}" n> "\\item " r q n> "\\end{egalist}"))
         (ega   . ("\\begin{egalist}" n> "\\item " r q n> "\\end{egalist}"))
         (tfae  . ("\\begin{tfae}" n> "\\item " r q n> "\\end{tfae}"))
+        (props . ("\\begin{properties}" n> "\\propitem{" (p "Propiedad") "} " r q n> "\\end{properties}"))
+        (pit   . ("\\propitem{" (p "Propiedad") "} "))
 
         ;; Teoremas y Estructuras amsthm
         (thm   . ("\\begin{theorem}[" p "] \\label{thm:" (p "etiqueta") "}" n> r q n> "\\end{theorem}"))
