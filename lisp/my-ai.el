@@ -625,7 +625,9 @@
     ("s" "Enviar Región al CLI" my/antigravity-send-region)
     ("f" "Enviar Archivo al CLI (@)" my/antigravity-send-file)]
 
-   ["🛠️ Diagnóstico & Git"
+   ["🛠️ Diagnóstico & Logs"
+    ("L" "Salida de Terminal en Vivo (Tail)" my/antigravity-live-output)
+    ("T" "Terminal vterm en Vivo" my/antigravity-live-vterm)
     ("E" "Diagnosticar Terminal vterm" my/antigravity-diagnose-terminal-error)
     ("B" "Diagnosticar Compilación" my/antigravity-diagnose-compilation-error)
     ("G" "Generar Commit Message" my/antigravity-git-commit-message)
@@ -645,6 +647,66 @@
     ("b" "Alternar Sandbox" my/antigravity-toggle-sandbox)
     ("k" "Abrir Reglas (.agents/rules)" my/antigravity-find-rules)
     ("K" "Abrir Skills (.agents/skills)" my/antigravity-find-skills)]])
+
+;; ====================================================================
+;; --- 11.1 SEGUIMIENTO DE LOGS Y TAREAS EN TIEMPO REAL ---
+;; ====================================================================
+
+(defun my/antigravity-find-latest-task-log ()
+  "Encuentra el archivo .log de la tarea más reciente de Antigravity."
+  (let* ((brain-dir (expand-file-name ".gemini/antigravity-ide/brain" (getenv "HOME")))
+         (all-logs nil))
+    (when (file-directory-p brain-dir)
+      (dolist (conv (directory-files brain-dir t "^[^.]"))
+        (let ((tasks-dir (expand-file-name ".system_generated/tasks" conv)))
+          (when (file-directory-p tasks-dir)
+            (dolist (log-file (directory-files tasks-dir t "\\.log$"))
+              (push (cons (file-attribute-modification-time (file-attributes log-file))
+                          log-file)
+                    all-logs))))))
+    (when all-logs
+      (cdr (car (sort all-logs (lambda (a b) (time-less-p (car b) (car a)))))))))
+
+;;;###autoload
+(defun my/antigravity-live-output ()
+  "Abre una ventana dedicada que muestra la salida de terminal en tiempo real de Antigravity."
+  (interactive)
+  (let ((log-path (my/antigravity-find-latest-task-log)))
+    (if (not (and log-path (file-exists-p log-path)))
+        (message "ℹ️ No hay tareas recientes de Antigravity en ejecución.")
+      (let ((buf (get-buffer-create "*Antigravity-Live-Output*")))
+        (with-current-buffer buf
+          (read-only-mode -1)
+          (erase-buffer)
+          (insert-file-contents log-path)
+          (goto-char (point-max))
+          (view-mode 1)
+          (setq-local auto-revert-tail-mode t)
+          (setq-local auto-revert-interval 0.5)
+          (auto-revert-mode 1)
+          (setq-local revert-without-query '(".*"))
+          (setq-local header-line-format
+                      (format " 🛸 Antigravity Live Log: %s | (Presiona 'q' para ocultar)"
+                              (file-name-nondirectory log-path))))
+        (pop-to-buffer buf '(display-buffer-at-bottom
+                             (window-height . 0.35)))
+        (message "🛸 Mostrando log en vivo: %s" (file-name-nondirectory log-path))))))
+
+;;;###autoload
+(defun my/antigravity-live-vterm ()
+  "Abre una terminal vterm ejecutando `tail -f` sobre la tarea más reciente de Antigravity."
+  (interactive)
+  (let ((log-path (my/antigravity-find-latest-task-log)))
+    (if (not (and log-path (file-exists-p log-path)))
+        (message "ℹ️ No hay tareas recientes de Antigravity.")
+      (let* ((vterm-buffer-name "*Antigravity-Tail*")
+             (buf (get-buffer vterm-buffer-name)))
+        (if (and buf (buffer-live-p buf))
+            (pop-to-buffer buf)
+          (let ((new-buf (vterm vterm-buffer-name)))
+            (with-current-buffer new-buf
+              (vterm-send-string (format "tail -f %s\n" (shell-quote-argument log-path))))
+            (pop-to-buffer new-buf)))))))
 
 ;; ====================================================================
 ;; --- 12. CONFIGURACIÓN COMPATIBLE DE GPTEL Y AIDERMACS ---

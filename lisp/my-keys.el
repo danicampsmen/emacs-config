@@ -279,8 +279,11 @@ Si estás en Dired, actualiza el buffer automáticamente para mostrarlo."
   "tV"  '(my/ts-select-environment :which-key "TS Seleccionar Entorno")
   "tS"  '(my/ts-search-environments :which-key "TS Buscar Entornos")
 
-  ;; --- IA JARVIS y Debugging ---
+  ;; --- IA JARVIS, Antigravity y Debugging ---
   "A"   '(:ignore t :which-key "Agente IA / Debug")
+  "AM"  '(my/antigravity-menu :which-key "Menú Antigravity")
+  "Al"  '(my/antigravity-live-output :which-key "Salida Terminal en Vivo (Tail)")
+  "Av"  '(my/antigravity-live-vterm :which-key "Terminal vterm en Vivo")
   "Aa"  '(aidermacs-transient-menu :which-key "Agente Aider (R1)")
   "Aj"  '(my/jarvis-chat-session :which-key "Abrir Chat")
   "Ac"  '(my/jarvis-oneshot-command :which-key "Comando Rápido")

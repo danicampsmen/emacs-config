@@ -52,7 +52,8 @@
 
 \DeclareOption*{\PassOptionsToClass{\CurrentOption}{scrbook}}
 \ProcessOptions\relax
-\LoadClass[a4paper,fontsize=11pt,twoside,openright,usegeometry]{scrbook}
+\LoadClass[a4paper,fontsize=11pt,twoside,openright]{scrbook}
+\KOMAoptions{usegeometry=true}
 
 % =========================================================
 % 2. GEOMETRÍA Y MÁRGENES (Métricas Reales IHÉS / PMIHES)
@@ -66,12 +67,10 @@
     textheight=22.0cm,
     heightrounded,
     inner=3.2cm,
-    outer=3.8cm,
     top=3.0cm,
-    bottom=3.2cm,
     marginparwidth=2.4cm,
     marginparsep=0.4cm,
-    headheight=15pt,
+    headheight=18pt,
     footskip=30pt
   }
 \else
@@ -155,7 +154,7 @@
 \displaywidowpenalty=10000
 \raggedbottom
 
-\RequirePackage[activate={true,nocompatibility}, final, factor=1100, stretch=10, shrink=10]{microtype}
+\RequirePackage[activate={true,nocompatibility}, protrusion=true, expansion=true, final, factor=1100, stretch=10, shrink=10]{microtype}
 
 \AtBeginDocument{
   \setlength{\abovedisplayskip}{4pt plus 2pt minus 1pt}
@@ -297,9 +296,10 @@
   \KOMAoptions{toc=chapterentrywithdots} % Puntos conductores incluso en capítulos
   \setkomafont{chapterentry}{\normalfont\scshape} % Capítulos en Versalitas
   \setkomafont{chapterentrypagenumber}{\normalfont\scshape}
-  \RedeclareSectionCommand[tocnumwidth=2.5em]{chapter}
-  \RedeclareSectionCommand[tocindent=2.5em, tocnumwidth=3.0em]{section}
-  \RedeclareSectionCommand[tocindent=5.5em, tocnumwidth=3.5em]{subsection}
+  \RedeclareSectionCommand[tocnumwidth=2.5em, tocpagenumberwidth=2.5em]{chapter}
+  \RedeclareSectionCommand[tocindent=2.5em, tocnumwidth=3.0em, tocpagenumberwidth=2.5em]{section}
+  \RedeclareSectionCommand[tocindent=5.5em, tocnumwidth=3.5em, tocpagenumberwidth=2.5em]{subsection}
+  \RedeclareSectionCommand[tocindent=8.5em, tocnumwidth=4.0em, tocpagenumberwidth=2.5em]{subsubsection}
 \else
   \KOMAoptions{chapterprefix=true}
   \setkomafont{disposition}{\sffamily\bfseries}
@@ -417,20 +417,26 @@
     \cleardoublepage
 }
 
-\newcommand{\makecitacion}{
-    \thispagestyle{plain}
-    \vspace*{1.5cm}
-    \begin{singlespace}\frenchspacing\begingroup\def\\{ }\def\medskip{}
-    \begin{tblr}{colspec = {Q[c,m,4.0cm] X[l,m]}, hline{1,Z} = {0.5pt, solid}, hline{2} = {1}{0.5pt, solid}, cell{2}{1} = {r=1, c=1}{c,m}}
+\newcommand{\makecitacion}{%
+    \thispagestyle{plain}%
+    \vspace*{1.5cm}%
+    \begingroup
+    \setlength{\parindent}{0pt}%
+    \def\\{ }%
+    \def\medskip{}%
+    \protected@edef\cit@title{\@title}%
+    \begin{singlespace}\frenchspacing
+    \noindent\begin{tblr}{width = \linewidth, colspec = {Q[c,m,3.2cm] X[l,m]}, hline{1,Z} = {0.5pt, solid}, hline{2} = {1}{0.5pt, solid}, cell{2}{1} = {r=1, c=1}{c,m}}
         Citar/How to cite & \@apellidos~[1] \\
-        {Referencia/Reference \\ \vspace{0.4cm} Estilo/Style: \\ IEEE} & {[1] \@iniciales~\@apellidos, ``\textit{\@title}'' [\@tipodocumento]. Lima (Perú): Universidad Nacional de Ingeniería, \@date.} \\
-    \end{tblr}
-    \vspace{1.5cm}
-    \begin{tblr}{colspec = {Q[c,m,4.0cm] X[l,m]}, hline{1,Z} = {0.5pt, solid}, hline{2} = {1}{0.5pt, solid}, cell{2}{1} = {r=1, c=1}{c,m}}
+        {Referencia/Reference \\ \vspace{0.3cm} Estilo/Style: \\ IEEE} & {[1] \@iniciales~\@apellidos, ``\textit{\cit@title}'' [\@tipodocumento]. Lima (Perú): Universidad Nacional de Ingeniería, \@date.} \\
+    \end{tblr}\par
+    \vspace{1.5cm}%
+    \noindent\begin{tblr}{width = \linewidth, colspec = {Q[c,m,3.2cm] X[l,m]}, hline{1,Z} = {0.5pt, solid}, hline{2} = {1}{0.5pt, solid}, cell{2}{1} = {r=1, c=1}{c,m}}
         Citar/How to cite & (\@apellidos, \@date) \\
-        {Referencia/Reference \\ \vspace{0.4cm} Estilo/Style: \\ APA (7ma ed.)} & {\@apellidos, \@iniciales~ (\@date). \textit{\@title}. [\@tipodocumento, Universidad Nacional de Ingeniería]. Repositorio Institucional UNI.} \\
-    \end{tblr}
-    \endgroup\end{singlespace}
+        {Referencia/Reference \\ \vspace{0.3cm} Estilo/Style: \\ APA (7ma ed.)} & {\@apellidos, \@iniciales~ (\@date). \textit{\cit@title}. [\@tipodocumento, Universidad Nacional de Ingeniería]. Repositorio Institucional UNI.} \\
+    \end{tblr}\par
+    \end{singlespace}%
+    \endgroup
     \vfill\cleardoublepage
 }
 
