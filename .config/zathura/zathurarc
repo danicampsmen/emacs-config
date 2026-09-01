@@ -2,3 +2,10 @@
 set synctex true
 set synctex-editor-command "emacsclient -nw +%{line} %{input}"
 set selection-clipboard clipboard
+
+# Page background: white
+set default-bg "#ffffff"
+
+# UI: dark (statusbar, etc)
+set statusbar-bg "#1a1a1a"
+set statusbar-fg "#ffffff"
