@@ -1,0 +1,210 @@
+;;; tesis-tools.el --- Herramientas auxiliares para Tesis -*- lexical-binding: t; -*-
+
+(require 'windmove) 
+(require 'projectile) 
+(require 'citar)
+
+(defgroup tesis-tools nil
+  "Herramientas para la escritura de la tesis y layouts."
+  :group 'tex
+  :prefix "tesis-tools-")
+
+(defcustom tesis-tools-author-name "Tu Nombre"
+  "Nombre del autor para insertar en notas."
+  :type 'string
+  :group 'tesis-tools)
+
+(defcustom tesis-tools-figures-directory "figuras"
+  "Nombre del directorio donde se guardan las figuras del proyecto."
+  :type 'string
+  :group 'tesis-tools)
+
+(defcustom tesis-tools-todo-keywords '("TODO" "NOTE" "FIXME" "HACK" "XXX")
+  "Lista de palabras clave para buscar en el reporte de TODOs."
+  :type '(repeat string)
+  :group 'tesis-tools)
+
+;; ==================================================================
+;; --- 1. HERRAMIENTAS DE REDACCIÓN Y UTILIDADES
+;; ==================================================================
+
+;;;###autoload
+(defun tesis-tools-status ()
+  "Muestra un reporte de progreso (conteo de palabras)."
+  (interactive)
+  (message "Progreso Buffer: %d palabras." (count-words (point-min) (point-max))))
+
+;;;###autoload
+(defun tesis-tools-insert-note ()
+  "Inserta un comentario de nota con fecha y autor."
+  (interactive)
+  (insert (format "%% NOTE (%s) [%s]: "
+                  tesis-tools-author-name
+                  (format-time-string "%Y-%m-%d"))))
+
+;;;###autoload
+(defun tesis-tools-wrap-in-environment (env-name)
+  "Envuelve la región seleccionada en un entorno LaTeX y la indenta."
+  (interactive "sNombre del entorno: ")
+  (if (use-region-p)
+      (let ((start (region-beginning))
+            (end (region-end)))
+        (save-excursion
+          (goto-char end)
+          (insert "\n\\end{" env-name "}")
+          (goto-char start)
+          (insert "\\begin{" env-name "}\n")
+          ;; Indentar el contenido del nuevo entorno
+          (indent-region (line-beginning-position) (line-end-position (1- end)))))
+    (message "Región no activa.")))
+
+;; ==================================================================
+;; --- 2. LAYOUTS RÁPIDOS PARA ESCRITURA E INVESTIGACIÓN
+;; ==================================================================
+;; (Las definiciones de layouts residen en tesis-layout.el)
+
+;; ==================================================================
+;; --- 3. INTEGRACIÓN CON CITAR / ZOTERO MAGIA
+;; ==================================================================
+;; (Configuraciones de Zotero manejadas por my-second-brain.el)
+
+;;;###autoload
+(defun tesis-tools-insert-citation-advanced ()
+  "Inserta una cita con Citar, preguntando tipo, número y página."
+  (interactive)
+  (let* ((tipos '(("Teorema" . "Teo.") ("Proposición" . "Prop.") ("Lema" . "Lem.")
+                 ("Corolario" . "Cor.") ("Definición" . "Def.") ("Ejemplo" . "Ej.")
+                 ("Observación" . "Obs.") ("Ecuación" . "Ec.") ("Sección" . "Sec.")
+                 ("Capítulo" . "Cap.") ("Apéndice" . "Ap.")))
+         (tipo-str (completing-read "Tipo de referencia (o abreviatura): "
+                                    (append (mapcar #'car tipos) (mapcar #'cdr tipos))
+                                    nil nil))
+         (numero (unless (string-empty-p tipo-str)
+                   (read-string (format "Número de %s: " tipo-str))))
+         (pagina (read-string "Página (opcional): "))
+         (refs (citar-select-ref))
+         (keys (mapconcat #'identity refs ",")))
+    (when keys
+      (let ((elemento (if (and tipo-str numero (not (string-empty-p numero)))
+                          (format "%s %s" tipo-str numero)
+                        tipo-str))
+            (pagina-str (unless (string-empty-p pagina)
+                          (format "p. %s" pagina))))
+        (insert " "
+                (format "\\cite%s{%s}"
+                        (if (or elemento pagina-str)
+                            (format "[%s]" (string-trim (concat elemento " " pagina-str)))
+                          "")
+                        keys))))))
+
+;; ==================================================================
+;; --- 4. INTEGRACIÓN INKSCAPE -> PDF_TEX (MÁXIMO RENDIMIENTO)
+;; ==================================================================
+
+;;;###autoload
+(defun tesis-tools-insert-inkscape-pdftex ()
+  "Crea una figura Inkscape (.svg), la exporta a .pdf_tex e inserta el código LaTeX."
+  (interactive)
+  (when-let* ((project-root (projectile-project-root))
+              (fig-dir (expand-file-name tesis-tools-figures-directory project-root))
+              (raw-name (read-string "Nombre de la figura (sin extensión): "))
+              (fig-name (replace-regexp-in-string "[[:space:]]+" "-" raw-name)))
+    (unless (file-directory-p fig-dir)
+      (make-directory fig-dir t))
+    (let ((svg-file (expand-file-name (concat fig-name ".svg") fig-dir)))
+      (start-process-shell-command
+       "inkscape-create" nil
+       (format "inkscape --export-area-drawing --export-type='pdf,pdf_tex' %s"
+               (shell-quote-argument svg-file)))
+      (message "Lanzando Inkscape para crear %s..." (file-relative-name svg-file project-root))
+      (insert (format (string-join
+                       '("\\begin{figure}[htpb]"
+                         "  \\centering"
+                         "  \\incfig{%s}"
+                         "  \\caption{%s}"
+                         "  \\label{fig:%s}"
+                         "\\end{figure}") "\n")
+                      fig-name raw-name fig-name)))))
+
+;;;###autoload
+(defun tesis-tools-edit-inkscape-pdftex ()
+  "Edita el SVG asociado al .pdf_tex bajo el cursor y lo re-exporta."
+  (interactive)
+  (save-excursion
+    (when-let ((filename (when (string-match "\\\\incfig{\\([^}]+\\)}" (thing-at-point 'line t))
+                           (match-string 1 (thing-at-point 'line t)))))
+      (let* ((project-root (projectile-project-root))
+             (fig-dir (expand-file-name tesis-tools-figures-directory project-root))
+             (svg-file (expand-file-name (concat filename ".svg") fig-dir)))
+        (if (file-exists-p svg-file)
+            (progn
+              (start-process-shell-command
+               "inkscape-edit" nil
+               (format "inkscape %s" (shell-quote-argument svg-file)))
+              (message "☁️ Abriendo '%s' en Inkscape..." (file-relative-name svg-file)))
+          (warn "El archivo SVG no existe: %s" svg-file)))
+      (unless (called-interactively-p 'any)
+        (message "❌ No se encontró \\incfig{...} en la línea actual.")))))
+
+;;;###autoload
+(defun tesis-tools-inkscape-math-popup ()
+  "Envía la combinación de teclas para pegar en Inkscape (para popups de LaTeX)."
+  (interactive)
+  (let ((cmd (if (and (bound-and-true-p my/is-wayland) (executable-find "wtype"))
+                 "wtype -M ctrl -M shift -P v -m shift -m ctrl"
+               "xdotool key ctrl+shift+v")))
+    (start-process-shell-command "inkscape-paste" nil cmd)
+    (message "✅ Comando de auto-pegado enviado al servidor gráfico.")))
+
+;; ==================================================================
+;; --- 5. REPORTE DE TODOS DEL PROYECTO (CON RIPGREP)
+;; ==================================================================
+
+;;;###autoload
+(defun tesis-tools-todo-report ()
+  "Escanea el proyecto con ripgrep en busca de TODOs y los muestra en un buffer interactivo."
+  (interactive)
+  (unless (executable-find "rg")
+    (user-error "ripgrep (rg) no está instalado en tu sistema."))
+  (unless (and (bound-and-true-p projectile-mode) (projectile-project-p))
+    (user-error "No estás dentro de un proyecto de Projectile."))
+
+  (let* ((root (projectile-project-root))
+         (keywords-regex (concat "%[[:space:]]*\\(" (regexp-opt tesis-tools-todo-keywords) "\\)"))
+         (report-title "*Tesis TODO Report*")
+         (report-buf (get-buffer-create report-title)))
+    (with-current-buffer report-buf
+      (let ((inhibit-read-only nil)) (read-only-mode -1))
+      (erase-buffer)
+      (insert (format "#+TITLE: Reporte de TODOs del Proyecto\n"))
+      (insert (format "#+SUBTITLE: %s\n" root))
+      (insert (format "#+DATE: %s\n\n" (format-time-string "%Y-%m-%d %H:%M")))
+
+      (let ((process-connection-type nil)) ; Usar tubería
+        (start-process-shell-command "rg-todos" report-buf
+                                     (format "rg --type tex --line-number --heading --no-messages '%s' ."
+                                             keywords-regex)))
+      (set-buffer-process-sentinel
+       (get-buffer-process report-buf)
+       (lambda (proc event)
+         (when (memq (process-status proc) '(exit signal))
+           (with-current-buffer (process-buffer proc)
+             (goto-char (point-min))
+             (while (re-search-forward "^\\(.*?\\):\\([0-9]+\\):.*%[[:space:]]*\\(.*?\\):\\(.*\\)$" nil t)
+               (let* ((file (match-string 1))
+                      (line (match-string 2))
+                      (tag (match-string 3))
+                      (msg (string-trim (match-string 4)))
+                      (start (match-beginning 0))
+                      (end (match-end 0)))
+                 (replace-match
+                  (format "- [%s] [[file:%s::%s][%s:%s]] %s"
+                          tag (expand-file-name file root) line file line msg)
+                  t nil nil 0)))
+             (org-mode)
+             (read-only-mode +1)
+             (message "Reporte de TODOs generado."))))))
+    (pop-to-buffer report-buf)))
+
+(provide 'tesis-tools) 
+;;; tesis-tools.el ends here

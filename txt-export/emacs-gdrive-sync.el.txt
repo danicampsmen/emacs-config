@@ -1,0 +1,235 @@
+;;; gdrive-sync.el --- Sincronización Inteligente, Persistente y Rápida -*- lexical-binding: t; -*-
+
+(require 'projectile)
+(require 'consult)
+(require 'multisession)
+(require 'subr-x)
+
+(defgroup gdrive-sync nil
+  "Configuración de sincronización con Google Drive."
+  :group 'tools
+  :prefix "gdrive-sync/")
+
+;; ==================================================================
+;; --- 1. CONFIGURACIÓN Y PERSISTENCIA DE CACHÉ ---
+;; ==================================================================
+
+(defcustom gdrive-sync/remote-name "GoogleDrive-Documentos_Ubuntu_Fayfer"
+  "Nombre exacto del remote en rclone."
+  :type 'string
+  :group 'gdrive-sync)
+
+(defcustom gdrive-sync/local-dir (expand-file-name "~/Documentos/")
+  "Directorio local raíz."
+  :type 'directory
+  :group 'gdrive-sync)
+
+(defcustom gdrive-sync/remote-dir "Documentos-Ubuntu-Fayfer"
+  "Carpeta destino dentro del remote."
+  :type 'string
+  :group 'gdrive-sync)
+
+(defcustom gdrive-sync/filter-file (expand-file-name "~/.config/rclone/rclone-filters.txt")
+  "Archivo de filtros para ignorar archivos basura (.elc, .git, etc.)."
+  :type 'file
+  :group 'gdrive-sync)
+
+(defcustom gdrive-sync/on-exit-strategy 'prompt
+  "Estrategia de sincronización al salir de Emacs."
+  :type '(choice (const :tag "Preguntar si hay cambios" prompt)
+                 (const :tag "Segundo plano (nohup)" async)
+                 (const :tag "Subida rápida de editados" fast)
+                 (const :tag "Desactivar" nil))
+  :group 'gdrive-sync)
+
+(define-multisession-variable gdrive-sync--remote-folders-cache '("/")
+  "Caché persistente de carpetas de GDrive."
+  :synchronized t)
+
+(defvar gdrive-sync--modified-files-in-session nil
+  "Lista de archivos modificados en la sesión actual que están dentro del directorio de sincronización.")
+
+(defun gdrive-sync--get-full-remote (path)
+  "Construye la ruta remota completa para rclone (ej. Remote:Ruta)."
+  (format "%s:%s" gdrive-sync/remote-name path))
+
+(defun gdrive-sync--track-modified-file ()
+  "Añade el archivo actual a la lista de modificados si está en el dir de sync."
+  (when (and buffer-file-name
+             (string-prefix-p (expand-file-name gdrive-sync/local-dir)
+                              (expand-file-name buffer-file-name)))
+    (add-to-list 'gdrive-sync--modified-files-in-session buffer-file-name)))
+
+(add-hook 'after-save-hook #'gdrive-sync--track-modified-file)
+
+;; ==================================================================
+;; --- 2. MOTOR DE SINCRONIZACIÓN SEGURO Y ASÍNCRONO ---
+;; ==================================================================
+
+(defun gdrive-sync--execute (command-type args &optional silent)
+  "Ejecuta un comando rclone de forma segura y asíncrona usando una lista de argumentos."
+  (unless (executable-find "rclone")
+    (user-error "El comando 'rclone' no se encuentra en tu sistema."))
+
+  (let* ((base-flags '("--progress" "-v" "--drive-acknowledge-abuse" "--fast-list" "--tpslimit" "8"))
+         (sync-flags '("--transfers" "8" "--checkers" "16" "--track-renames"))
+         (use-filter (not (member command-type '("cleanup" "about" "dedupe" "lsf" "tree"))))
+         (filter-flags (when (and use-filter (file-exists-p gdrive-sync/filter-file))
+                         (list "--filter-from" gdrive-sync/filter-file)))
+         (remote-full (gdrive-sync--get-full-remote gdrive-sync/remote-dir))
+         
+         ;; Utilizamos 'append' y strings puros para evitar errores de tipo en make-process
+         (command-args (pcase command-type
+                         ("bisync" (append (list "bisync" gdrive-sync/local-dir remote-full)
+                                           sync-flags base-flags filter-flags args))
+                         ("cleanup" (append (list "cleanup" remote-full) base-flags args))
+                         (_ (append (list command-type) args))))
+                         
+         (output-buffer (generate-new-buffer (format "*gdrive-%s-output*" command-type))))
+
+    (unless silent
+      (display-buffer output-buffer))
+    (message "Iniciando rclone %s..." command-type)
+
+    (let ((process (make-process
+                    :name (format "gdrive-%s" command-type)
+                    :buffer output-buffer
+                    :command (cons (executable-find "rclone") command-args)
+                    :sentinel
+                    (lambda (proc event)
+                      (cond
+                       ((string= event "finished\n")
+                        (message "✅ rclone %s: completado." command-type)
+                        (when (and silent (buffer-live-p output-buffer))
+                          (kill-buffer output-buffer)))
+                       ((string-match-p "exited abnormally" event)
+                        (message "❌ rclone %s: error. Revisa el buffer %s" command-type (buffer-name output-buffer))
+                        (unless silent (display-buffer output-buffer))))))))
+      process)))
+
+
+;; ==================================================================
+;; --- 3. CACHÉ PERSISTENTE Y MONTAJE FUSE ---
+;; ==================================================================
+
+;;;###autoload
+(defun gdrive-sync/refresh-folder-cache ()
+  "Actualiza asíncronamente la caché de carpetas de Google Drive."
+  (interactive)
+  (message "Actualizando caché de carpetas de Google Drive...")
+  (let* ((remote-full (gdrive-sync--get-full-remote gdrive-sync/remote-dir))
+         (process (gdrive-sync--execute "lsf" (list remote-full "--dirs-only" "--recursive") t))
+         (output-buffer (process-buffer process)))
+    (set-process-sentinel
+     process
+     (lambda (proc event)
+       (when (string= event "finished\n")
+         (with-current-buffer output-buffer
+           (let ((folders (split-string (buffer-string) "\n" t)))
+             (setf (multisession-value gdrive-sync--remote-folders-cache) (cons "/" folders))
+             (message "✅ Caché de carpetas actualizada.")))
+         (kill-buffer output-buffer))))))
+
+;; ==================================================================
+;; --- 4. COMANDOS DE SINCRONIZACIÓN PRINCIPALES ---
+;; ==================================================================
+
+;;;###autoload
+(defun gdrive-sync/bisync-now (&optional silent)
+  "Ejecuta la sincronización bidireccional (bisync) inmediatamente."
+  (interactive)
+  (gdrive-sync--execute "bisync" nil silent))
+
+;;;###autoload
+(defun gdrive-sync/upload-modified ()
+  "Sube únicamente los archivos modificados en la sesión actual."
+  (interactive)
+  (if-let (modified-files (seq-uniq gdrive-sync--modified-files-in-session))
+      (progn
+        (message "Subiendo %d archivos modificados..." (length modified-files))
+        (dolist (file modified-files)
+          (let* ((relative-path (file-relative-name file gdrive-sync/local-dir))
+                 (remote-path (concat gdrive-sync/remote-dir "/" relative-path)))
+            (gdrive-sync--execute "copyto" (list file (gdrive-sync--get-full-remote remote-path)) t)))
+        (setq gdrive-sync--modified-files-in-session nil))
+    (message "No hay archivos modificados para subir.")))
+
+
+;; ==================================================================
+;; --- 5. MANTENIMIENTO Y EMERGENCIA ---
+;; ==================================================================
+
+;;;###autoload
+(defun gdrive-sync/bisync-resync-global ()
+  "Forzar la inicialización/reparación de la base de datos (--resync)."
+  (interactive)
+  (when (yes-or-no-p "⚠️ ¿Inicializar/Reparar la base de datos de bisync? (--resync) ")
+    (gdrive-sync--execute "bisync" (list "--resync"))))
+
+;;;###autoload
+(defun gdrive-sync/force-unlock ()
+  "Elimina a la fuerza los archivos de bloqueo (.lck) activos."
+  (interactive)
+  (let* ((possible-dirs (list (expand-file-name "~/.cache/rclone/bisync/")
+                              (expand-file-name "~/.config/rclone/bisync/")))
+         (lock-files (cl-loop for dir in possible-dirs
+                              when (file-directory-p dir)
+                              append (directory-files dir t "\\.lck$"))))
+    (if (null lock-files)
+        (message "No se encontraron candados (.lck) activos.")
+      (dolist (lock lock-files)
+        (delete-file lock)
+        (message "✅ Candado %s eliminado." (file-name-nondirectory lock))))))
+
+;;;###autoload
+(defun gdrive-sync/resolve-conflicts ()
+  "Busca y resuelve archivos de conflicto generados por rclone vía Ediff."
+  (interactive)
+  (let ((conflict-files (directory-files-recursively gdrive-sync/local-dir "\\.conflict\\|conflict_")))
+    (if (null conflict-files)
+        (message "No se encontraron archivos de conflicto.")
+      (let* ((file-to-resolve (completing-read "Conflicto a resolver: " conflict-files nil t))
+             (original-file (replace-regexp-in-string "\\.conflict.*$\\|_conflict.*$" "" file-to-resolve)))
+        (if (file-exists-p original-file)
+            (ediff-files original-file file-to-resolve)
+          (user-error "No se encontró el archivo original: %s" original-file))))))
+
+;; ==================================================================
+;; --- 6. GESTIÓN DE LA SESIÓN Y SALIDA DE EMACS ---
+;; ==================================================================
+
+(defun gdrive-sync--on-exit-handler ()
+  "Maneja la sincronización al salir de Emacs según la estrategia configurada."
+  (when (and (executable-find "rclone") gdrive-sync--modified-files-in-session)
+    (pcase gdrive-sync/on-exit-strategy
+      ('prompt
+       (when (yes-or-no-p "Hay archivos modificados. ¿Sincronizar con Google Drive antes de salir? ")
+         (gdrive-sync/bisync-now t)))
+      ('async
+       (message "Cerrando Emacs y lanzando sincronización en segundo plano...")
+       (apply #'process-file (executable-find "rclone") nil nil nil
+              (list "bisync" gdrive-sync/local-dir (gdrive-sync--get-full-remote gdrive-sync/remote-dir)
+                    "--log-file=/tmp/rclone-exit.log")))
+      ('fast (gdrive-sync/upload-modified)))))
+
+(add-hook 'kill-emacs-hook #'gdrive-sync--on-exit-handler)
+
+;; ==================================================================
+;; --- 7. MENÚ INTERACTIVO (TRANSIENT) ---
+;; ==================================================================
+
+;;;###autoload
+(transient-define-prefix gdrive-sync-transient/body ()
+  "Menú interactivo para gestionar la sincronización con Google Drive."
+  ["Sincronización"
+   ("b" "Sincronizar Ahora (bisync)" gdrive-sync/bisync-now)
+   ("u" "Subir Modificados en Sesión" gdrive-sync/upload-modified)]
+  ["Mantenimiento"
+   ("r" "Forzar Resincronización (Global)" gdrive-sync/bisync-resync-global)
+   ("l" "Eliminar Candados (.lck)" gdrive-sync/force-unlock)
+   ("c" "Resolver Conflictos" gdrive-sync/resolve-conflicts)]
+  ["Caché"
+   ("R" "Refrescar Caché de Carpetas" gdrive-sync/refresh-folder-cache)])
+
+(provide 'gdrive-sync)
+;;; gdrive-sync.el ends here

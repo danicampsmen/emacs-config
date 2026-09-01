@@ -1,0 +1,179 @@
+;;; my-latex-tree-sitter.el --- Formateo semántico e integrado con Tree-sitter -*- lexical-binding: t; -*-
+
+(defvar my/latex-auto-format-on-save t
+  "Indica si se debe formatear el buffer .tex al guardar de forma inteligente.")
+
+;; ==================================================================
+;; --- 1. CONFIGURACIÓN DE TREE-SITTER (Formateo Horizontal)
+;; ==================================================================
+
+(defun my/ts-latex-available-p ()
+  "Verifica si el parser Tree-sitter para LaTeX está listo."
+  (and (fboundp 'treesit-available-p)
+       (treesit-available-p)
+       (fboundp 'treesit-node-at)
+       (featurep 'treesit-latex)))
+
+(defvar my/ts-latex-indent-rules
+  '((latex-mode
+     ;; Entornos matemáticos y estándar: Indentación de 4 espacios
+     ((parent-is "environment") parent-bol 4)
+     ((parent-is "math_environment") parent-bol 4)
+     ((parent-is "generic_environment") parent-bol 4)
+     
+     ;; Items dentro de listas (itemize, enumerate)
+     ((node-is "\\item") parent-bol 4)
+     
+     ;; El cierre de los entornos vuelve al nivel original
+     ((node-is "\\end") parent-bol 0)
+     
+     ;; Secciones mayores siempre van pegadas a la izquierda
+     ((n-p-gp "chapter" "section" "subsection") parent-bol 0)
+     
+     ;; Los comentarios no alteran la indentación de la raíz
+     ((match "comment" nil nil) parent-bol 0)
+     
+     ;; CATCH-ALL: Todo lo demás (Preámbulo, metadatos, \inputs, \title)
+     ;; Se mantiene rígidamente en el nivel 0. Esto preserva tu contexto.
+     (catch-all parent-bol 0)))
+  "Reglas estrictas de indentación para Tree-sitter.")
+
+;; ==================================================================
+;; --- 2. FORMATEO SEMÁNTICO VERTICAL (El reemplazo de Latexindent)
+;; ==================================================================
+
+(defun my/latex-semantic-vertical-format ()
+  "Ordena verticalmente el documento respetando agrupaciones lógicas y metadatos."
+  (save-excursion
+    ;; 1. Colapsar excesos: Cualquier bloque de 3 o más saltos de línea se reduce a 2 (1 línea en blanco)
+    ;; Esto respeta tus agrupaciones lógicas de metadatos o de \inputs, pero elimina espacios gigantes.
+    (goto-char (point-min))
+    (while (re-search-forward "\n\\{3,\\}" nil t)
+      (replace-match "\n\n"))
+
+    ;; 2. Forzar estructura: Asegurar un salto de línea ANTES de comandos estructurales mayores,
+    ;; a menos que justo arriba haya un banner decorativo de comentarios (% ===).
+    (let ((estructuras '("part" "chapter" "section" "subsection"
+                         "frontmatter" "mainmatter" "backmatter"
+                         "printindex" "printbibliography"
+                         "begin{document}" "end{document}")))
+      (dolist (macro estructuras)
+        (goto-char (point-min))
+        (let ((regex (format "^[ \t]*\\\\%s\\b" macro)))
+          (while (re-search-forward regex nil t)
+            (let ((inicio (match-beginning 0)))
+              (save-excursion
+                (goto-char inicio)
+                ;; Si no es el inicio del archivo, y no tiene ya una línea vacía encima,
+                ;; ni tampoco tiene un bloque de comentarios encima, insertamos salto.
+                (unless (or (bobp)
+                            (looking-back "\n\n[ \t]*" (- (point) 3))
+                            (looking-back "%[= -]+\n[ \t]*" (- (point) 100)))
+                  (insert "\n"))))))))))
+
+(defun my/latex-align-metadata ()
+  "Alinea opcionalmente y limpia espacios extra al final de las líneas."
+  (save-excursion
+    (goto-char (point-min))
+    (delete-trailing-whitespace (point-min) (point-max))))
+
+;; ==================================================================
+;; --- 3. ORQUESTADOR MAESTRO DE FORMATEO (El comando ;tF)
+;; ==================================================================
+
+;;;###autoload
+(defun my/ts-format-buffer ()
+  "Aplica la solución integrada: Formateo Semántico Vertical + Indentación Tree-Sitter."
+  (interactive)
+  (when (and (derived-mode-p 'LaTeX-mode 'latex-mode) (not buffer-read-only))
+    (undo-boundary)
+    
+    ;; Guardar el estado de los modos visuales para no corromper la pantalla
+    (let ((fold-active (bound-and-true-p TeX-fold-mode))
+          (zen-active (bound-and-true-p my/latex-visual-mode)))
+      
+      (unwind-protect
+          (save-excursion
+            ;; Apagar plegados temporalmente
+            (when fold-active
+              (when (fboundp 'TeX-fold-clearout-buffer) (TeX-fold-clearout-buffer))
+              (TeX-fold-mode -1))
+              
+            (setq-local fill-column 120)
+            (setq-local LaTeX-fill-column 120)
+            
+            (when (and (my/ts-latex-available-p) (treesit-parser-list))
+              (setq-local treesit-simple-indent-rules my/ts-latex-indent-rules)
+              (setq-local indent-line-function #'treesit-indent))
+
+            ;; PASO 1: Formateo Semántico Vertical (Orden y Contexto)
+            (my/latex-semantic-vertical-format)
+            
+            ;; PASO 2: Limpieza de espacios residuales
+            (my/latex-align-metadata)
+
+            ;; PASO 3: Formateo Horizontal Inteligente (Tree-sitter)
+            (indent-region (point-min) (point-max))
+            
+            ;; PASO 4: AUCTeX Wrap (Solo para párrafos de texto, respeta preámbulo)
+            (when (fboundp 'LaTeX-fill-buffer)
+              (ignore-errors (LaTeX-fill-buffer nil)))
+            
+            (untabify (point-min) (point-max))))
+            
+      ;; Restaurar modos visuales
+      (when fold-active
+        (TeX-fold-mode 1)
+        (font-lock-flush)
+        (font-lock-ensure)
+        (when (fboundp 'TeX-fold-buffer) (TeX-fold-buffer)))
+      (when (and zen-active (fboundp 'my/latex-fold-visible-region))
+        (my/latex-fold-visible-region)))
+      
+    (undo-boundary)
+    (message "⚡ Formateo Integrado: Estructura vertical respetada + Indentación TS aplicada.")))
+
+;; ==================================================================
+;; --- 4. GESTIÓN DE GUARDADO E INICIALIZACIÓN
+;; ==================================================================
+
+(defun my/toggle-latex-auto-format-on-save ()
+  "Alterna el formateo automático integrado al guardar buffers .tex."
+  (interactive)
+  (setq my/latex-auto-format-on-save (not my/latex-auto-format-on-save))
+  (message "Formateo Integrado al guardar: %s"
+           (if my/latex-auto-format-on-save "ACTIVADO" "DESACTIVADO")))
+
+(defun my/latex-before-save-format-hook ()
+  "Se ejecuta instantes antes de escribir el archivo al disco."
+  (when (and (bound-and-true-p my/latex-auto-format-on-save)
+             (derived-mode-p 'LaTeX-mode 'latex-mode)
+             (buffer-file-name)
+             (string= (file-name-extension (buffer-file-name)) "tex"))
+    (my/ts-format-buffer)))
+
+(add-hook 'before-save-hook #'my/latex-before-save-format-hook)
+
+(defun my/ts-setup-latex-treesit ()
+  "Inicializa Tree-sitter para proveer indentación en TIEMPO REAL."
+  (when (my/ts-latex-available-p)
+    (treesit-parser-create 'latex)
+    (setq-local treesit-simple-indent-rules my/ts-latex-indent-rules)
+    (setq-local indent-line-function #'treesit-indent)
+    (treesit-major-mode-setup)))
+
+(add-hook 'LaTeX-mode-hook #'my/ts-setup-latex-treesit)
+
+;; Menú de navegación semántico
+(defun my/setup-latex-imenu ()
+  (when (derived-mode-p 'latex-mode 'LaTeX-mode)
+    (setq-local imenu-generic-expression
+                '(("Capítulo" ".*\\\\chapter\\*?{\\([^}]+\\)}" 1)
+                  ("Sección" ".*\\\\section\\*?{\\([^}]+\\)}" 1)
+                  ("Subsección" ".*\\\\subsection\\*?{\\([^}]+\\)}" 1)
+                  ("Teoremas" ".*\\\\begin{\\(?:theorem\\|lemma\\|proposition\\)}\\[\\([^]]+\\)\\]" 1)
+                  ("Definiciones" ".*\\\\begin{definition}\\[\\([^]]+\\)\\]" 1)))))
+
+(add-hook 'LaTeX-mode-hook #'my/setup-latex-imenu)
+
+(provide 'my-latex-tree-sitter)
