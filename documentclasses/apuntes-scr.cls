@@ -83,10 +83,11 @@
 \else
   \LoadClass[a4paper, twoside, open=any, bibliography=totoc, index=totoc, numbers=enddot, usegeometry]{scrbook}
 \fi
-\DeclareOldFontCommands
 
-\KOMAoptions{usegeometry=true}
-\setcounter{tocdepth}{2}
+% Compatibility with current LaTeX kernels: this macro is obsolete.
+\providecommand{\DeclareOldFontCommands}{}
+
+
 
 % =========================================================
 % 2. GEOMETRÍA Y MÁRGENES (Métricas Reales Bourbaki / IHÉS / KOMA)

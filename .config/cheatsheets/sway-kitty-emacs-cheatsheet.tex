@@ -1,0 +1,73 @@
+\documentclass[article,spanish]{apuntes-scr}
+
+\begin{document}
+\begin{center}
+  {\LARGE\bfseries FAyFER - Sway / Kitty / Emacs (TTY) Cheat Sheet}
+\end{center}
+\vspace{0.8em}
+\begin{multicols}{2}
+
+  \section*{Sway (mod = Super / Mod4)}
+  \begin{itemize}
+    \item Mod + Return: abrir Kitty
+    \item Mod + d: lanzador (wofi)
+    \item Mod + h / j / k / l: foco izquierda / abajo / arriba / derecha
+    \item Mod + Shift + h / j / k / l: mover ventana
+    \item Mod + b: splith (horizontal)
+    \item Mod + u: splitv (vertical)
+    \item Mod + s: layout stacking
+    \item Mod + w: layout tabbed
+    \item Mod + e: alternar la vista dividida
+    \item Mod + f: fullscreen
+    \item Mod + Shift + Space: alternar flotante
+    \item Mod + 1..9: cambiar workspace
+    \item Mod + Shift + 1..9: mover ventana a workspace
+    \item Print: captura área con grim + slurp y copia al portapapeles
+    \item Shift + Print: captura completa y copia al portapapeles
+  \end{itemize}
+
+  \section*{Kitty (terminal)}
+  \begin{itemize}
+    \item Ctrl + Shift + C: copiar
+    \item Ctrl + Shift + V: pegar
+    \item Ctrl + Shift + T: nueva pestaña
+    \item Ctrl + Shift + W: cerrar pestaña
+    \item Ctrl + Alt + Enter: nueva ventana
+    \item Ctrl + Alt + T: nueva pestaña
+    \item Ctrl + Shift + F: toggle fullscreen
+    \item Ctrl + +: aumentar tamaño de fuente
+    \item Ctrl + -: disminuir tamaño de fuente
+    \item Ctrl + 0: resetear tamaño de fuente
+  \end{itemize}
+
+  \section*{Emacs TUI (daemon)}
+  \begin{itemize}
+    \item Start daemon: \texttt{emacs --daemon}
+    \item Conectar en terminal: \texttt{emacsclient -t -a ""}
+    \item Conectar en GUI: \texttt{emacsclient -c -a ""}
+    \item Compilar LaTeX: \texttt{;tc} (si tu config lo define)
+    \item Forward search: \texttt{my/tex-view-with-focus}
+    \item Reverse search: Ctrl + click en Zathura con SyncTeX
+  \end{itemize}
+
+  \section*{Comandos útiles de Sway}
+  \begin{itemize}
+    \item \texttt{swaymsg reload}: recargar configuración
+    \item \texttt{swaymsg exit}: salir de Sway
+    \item \texttt{swaymsg -t get\_outputs}: listar salidas / monitores
+    \item \texttt{pkill -USR1 waybar}: recargar la barra
+  \end{itemize}
+
+  \section*{Notas y troubleshooting}
+  \begin{itemize}
+    \item Los backups originales se generan con sufijo \texttt{.pre-fayfer-<ts>}.
+    \item Si Waybar no refleja cambios, recárgalo o reinicia el proceso desde la sesión.
+    \item Asegúrate de tener instalados \texttt{wl-clipboard}, \texttt{grim}, \texttt{slurp}, \texttt{waybar}, \texttt{kitty}, \texttt{zathura} y un compilador LaTeX.
+    \item Para un flujo completo usa \texttt{emacs --daemon} y luego \texttt{emacsclient -t -a ""} desde Kitty.
+  \end{itemize}
+\end{multicols}
+\vfill
+\begin{center}
+  {\small\itshape Enjoy -- tweak any mapping in \texttt{~/.emacs.d/.config/} and redeploy if you want different keys.}
+\end{center}
+\end{document}
