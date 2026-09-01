@@ -1,0 +1,56 @@
+FAyFER - Sway / Kitty / Emacs (TTY) Cheat Sheet
+
+Sway (mod = Super/Mod4)
+-----------------------
+Mod + Return        : Open Kitty terminal
+Mod + d             : Run launcher (wofi)
+Mod + h/j/k/l       : Focus left/down/up/right
+Mod + Shift + h/j/k/l : Move window left/down/up/right
+Mod + b             : splith (horizontal)
+Mod + u             : splitv (vertical)
+Mod + s             : layout stacking
+Mod + w             : layout tabbed
+Mod + e             : toggle split layout
+Mod + f             : fullscreen toggle
+Mod + Shift + space : floating toggle
+Mod + number (1..9) : switch workspace
+Mod + Shift + number: move window to workspace
+Print               : select area (grim+slurp) -> copied to clipboard
+Shift + Print       : full screenshot -> copied to clipboard
+
+Kitty (in-terminal)
+--------------------
+Ctrl+Shift+C        : copy selection to clipboard
+Ctrl+Shift+V        : paste from clipboard
+Ctrl+Shift+T        : new tab
+Ctrl+Shift+W        : close tab
+Ctrl+Alt+Enter      : open new kitty window
+Ctrl+Alt+T          : open new kitty tab
+Ctrl+Shift+F        : toggle fullscreen
+Ctrl + +            : increase font size
+Ctrl + -            : decrease font size
+Ctrl + 0            : reset font size
+
+Emacs TUI (daemon)
+-------------------
+Start daemon: emacs --daemon
+Connect (TTY): emacsclient -t -a ""
+Connect (GUI): emacsclient -c -a ""
+Compile LaTeX (example): ;tc (depends on your config)
+Forward search (Emacs -> Zathura): run the my/tex-view-with-focus function
+Reverse search (Zathura -> Emacs): Ctrl+Click in Zathura (if synctex configured)
+
+Useful Sway commands (terminal)
+--------------------------------
+swaymsg reload                 # reload config
+swaymsg exit                   # exit sway
+swaymsg -t get_outputs         # list outputs
+pkill -USR1 waybar             # reload waybar (if launched as user app)
+
+Notes and troubleshooting
+-------------------------
+- Backups of original configs were created in your home directory with the .pre-fayfer-<ts> suffix.
+- If Waybar doesn't reflect edits, restart or send USR1 to it from within the graphical session.
+- Ensure wl-clipboard, grim, slurp, waybar, kitty, zathura and texlive are installed for full experience.
+
+Enjoy — tweak any mapping in ~/.emacs.d/.config/ and re-deploy if you want different keys.
