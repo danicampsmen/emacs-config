@@ -21,15 +21,14 @@
   (setq TeX-auto-save t)
   (setq TeX-parse-self t)
   (setq-default TeX-master nil)
-  (setq-default TeX-engine 'luatex)
 
-  (setq-default TeX-auto-parse-length 4000)
-  (setq-default TeX-auto-regexp-list 'LaTeX-auto-minimal-regexp-list)
-  (setq-default TeX-arg-input-file-search nil)
+  ;; Do not force a TeX engine here; respect the document's \documentclass
+  ;; and local file variables. AUCTeX/kpses will find the correct engine
+  ;; based on the document or user's TeX configuration (TEXMF tree).
 
-  (setq TeX-view-program-list `((,my/latex-pdf-viewer
-                                 (,my/latex-pdf-viewer " %o"))))
-  (setq TeX-view-program-selection '((output-pdf "Zathura")))
+  ;; Configure PDF viewer for forward search (Zathura)
+  (setq TeX-view-program-list '(("zathura" "zathura --synctex-forward %l:1:%f %o")))
+  (setq TeX-view-program-selection '((output-pdf "zathura")))
 
   (setq TeX-source-correlate-mode t)
   (setq TeX-source-correlate-start-server t)
