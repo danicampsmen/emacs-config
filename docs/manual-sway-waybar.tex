@@ -1,7 +1,6 @@
 %%% Local Variables:
 %%% mode: LaTeX
 %%% TeX-engine: luatex
-%%% TeX-master: t
 %%% TeX-backend: "biber"
 %%% End:
 \documentclass[11pt,article,spanish]{apuntes-scr}
@@ -24,6 +23,10 @@
 
 El modificador maestro del sistema es la tecla \textbf{Super / Windows}:
 $$\mathbf{\$mod = \text{Mod4}}$$
+
+\begin{notabox}[Filosofía Wayland]
+  A diferencia de X11, Wayland maneja cada ventana en su propio buffer aislado. Sway actúa como compositor, lo que implica mayor seguridad, menor latencia y soporte nativo de HiDPI sin configuraciones adicionales.
+\end{notabox}
 
 \section{Atajos de Teclado del Ecosistema}
 
@@ -50,6 +53,10 @@ $$\mathbf{\$mod = \text{Mod4}}$$
     \item \textbf{\texttt{\$mod + Shift + h / j / k / l}}: Mueve la ventana activa en la dirección indicada.
 \end{itemize}
 
+\begin{controlbox}[Autoevaluación]
+  Si tienes Emacs en el Workspace 2 y quieres moverlo al Workspace 3 sin cambiar de escritorio, ¿qué combinación usas?
+\end{controlbox}
+
 \subsection{Distribuciones de Pantalla (Layouts)}
 \begin{itemize}[leftmargin=*]
     \item \textbf{\texttt{\$mod + e}}: Alterna la dirección del split para la próxima ventana (\textit{toggle split}).
@@ -63,6 +70,7 @@ $$\mathbf{\$mod = \text{Mod4}}$$
 
 \section{Organización de Espacios de Trabajo (Workspaces)}
 El flujo de trabajo se estructura en 5 escritorios dedicados:
+
 \begin{center}
 \begin{tabular}{lll}
 \toprule
@@ -88,6 +96,10 @@ El flujo de trabajo se estructura en 5 escritorios dedicados:
     \item \textbf{\texttt{\$mod + -}} / \textbf{\texttt{\$mod + Shift + -}}: Mostrar ventana del scratchpad / Enviar ventana activa al scratchpad.
 \end{itemize}
 
+\begin{notabox}[Scratchpad como Terminal Rápida]
+  Configura el scratchpad con un tamaño reducido y la opción \texttt{floating enable} en Sway para tener una calculadora, monitor de sistema o terminal rápida siempre a un atajo de distancia.
+\end{notabox}
+
 \section{Utilidades de Hardware y Teclado}
 \begin{itemize}[leftmargin=*]
     \item \textbf{Print (Impr Pant)}: Captura interactiva de un área de la pantalla (\texttt{grim + slurp}) copiada directamente al portapapeles.
@@ -96,8 +108,31 @@ El flujo de trabajo se estructura en 5 escritorios dedicados:
     \item \textbf{Control de Volumen y Brillo}: Teclas multimedia integradas con \texttt{wpctl} y \texttt{brightnessctl}.
 \end{itemize}
 
+\begin{warningbox}[Advertencia de Hardware]
+  La tecla \textbf{Bloq Mayús} como \textbf{Escape} requiere configuración por hardware (firmware del teclado o utilidad like \texttt{setkeycodes}). Si no funciona, verifica que \texttt{interception-tools} o \texttt{kmonad} estén activos en tu sesión.
+\end{warningbox}
+
 \section{Barra de Estado Waybar}
 Configurada en \texttt{\textasciitilde/.config/waybar/config} con estilo CSS oscuro:
 Muestra en tiempo real los espacios de trabajo activos, uso porcentual de CPU y memoria RAM, nivel de batería, estado de volumen de audio y fecha/hora con tipografía \texttt{Iosevka Term}.
+
+\begin{center}
+\small
+\begin{tabularx}{\linewidth}{l X}
+\toprule
+\textbf{Módulo} & \textbf{Información Mostrada} \\
+\midrule
+\texttt{sway/workspaces} & Espacios de trabajo activos con nombres personalizados \\
+\texttt{sway/mode} & Estado actual de Sway (modo resize, etc.) \\
+\texttt{clock} & Fecha y hora con formato \texttt{\%a \%d \%b | \%H:\%M} \\
+\texttt{pulseaudio} & Volumen de audio con icono y estado mute \\
+\texttt{backlight} & Brillo de pantalla en porcentaje \\
+\texttt{battery} & Nivel de batería con estados warning (30\%) y critical (15\%) \\
+\texttt{tray} & Bandeja del sistema (iconos de aplicaciones en segundo plano) \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\backmatter
 
 \end{document}

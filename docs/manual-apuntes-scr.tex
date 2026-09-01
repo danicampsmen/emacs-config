@@ -10,6 +10,8 @@
 \curso{Manuales y Documentación de Sistemas}
 \usepackage{tabularx}
 \usepackage{booktabs}
+\usepackage{makeidx}
+\makeindex
 
 \title[Guía Definitiva de Arquitectura Tipográfica, Estructura Bourbaki / IHÉS y Redacción Científica]{Manual de Referencia Oficial e Integral de la Clase \texttt{apuntes-scr.cls}}
 \author{Campos Mendoza, D. Daniel}
@@ -27,6 +29,10 @@
 
 La clase \texttt{apuntes-scr.cls} es un sistema tipográfico de nivel editorial diseñado para la redacción de textos matemáticos de alta exigencia, monografías científicas, apuntes de posgrado y libros de investigación. Construida sobre la base sólida de \textbf{KOMA-Script} (\texttt{scrbook} y \texttt{scrartcl}), está optimizada específicamente para el motor \textbf{Lua\LaTeX} con soporte nativo de \textbf{HarfBuzz}, \textbf{OpenType} y fuentes matemáticas \textbf{Unicode-Math}.
 
+\begin{notabox}[Objetivo Principal]
+  Esta clase busca reproducir la estética editorial de los grandes tratados matemáticos (Bourbaki, EGA, SGA) manteniendo la legibilidad moderna y la compatibilidad con herramientas de edición asistida por computadora.
+\end{notabox}
+
 \section{Pilares Editoriales de la Clase}
 \begin{enumerate}[label=\bfseries\arabic*., leftmargin=10mm]
     \item \textbf{Estética Bourbaki / IHÉS:} Inspirada directamente en los \textit{Éléments de mathématique} de Nicolas Bourbaki y las publicaciones del \textit{Institut des Hautes Études Scientifiques} (IHÉS). Utiliza proporciones geométricas áureas, filetes sobrios y márgenes exteriores generosos para notas y aclaraciones marginales.
@@ -34,6 +40,10 @@ La clase \texttt{apuntes-scr.cls} es un sistema tipográfico de nivel editorial 
     \item \textbf{Sistema Completo de Entornos Vectoriales (\texttt{tcolorbox}):} Todos los teoremas, definiciones, lemas y problemas cuentan con recuadros vectoriales nítidos con numeración unificada por capítulo y compatibilidad total con \texttt{cleveref}.
     \item \textbf{Modularidad Total (Segundo Cerebro):} Gracias a su integración con \texttt{docmute} e \texttt{import}, cualquier subdocumento escrito con \texttt{apuntes-scr} puede compilarse de forma autónoma o integrarse directamente dentro del libro maestro unificado sin colisiones de preámbulo.
 \end{enumerate}
+
+\begin{egabox}[Filosofía Bourbaki]
+  El rigor no es un obstáculo para la claridad. Cada definición, cada teorema y cada demostración debe encajar en una arquitectura lógica donde la tipografía sirve al pensamiento matemático, no al revés.
+\end{egabox}
 
 \chapter{Opciones de Clase y Plantillas de Inicio}
 
@@ -66,6 +76,10 @@ se pueden especificar las siguientes opciones:
 \bottomrule
 \end{tabularx}
 \end{center}
+
+\begin{warningbox}[Advertencia Importante]
+  La opción \texttt{fast} desactiva \texttt{minted} y las figuras vectoriales pesadas. Úsala únicamente para borradores de desarrollo. No la uses en documentos finales.
+\end{warningbox}
 
 \section{Plantilla Mínima para un Libro de Investigación}
 \begin{lstlisting}[language=TeX, basicstyle=\ttfamily\footnotesize, frame=single, backgroundcolor=\color{gray!5}]
@@ -235,15 +249,15 @@ Para organizar tratados monumentales mediante artículos numerados de forma comp
 \section{Cajas Especiales de Alerta y Estudio}
 
 \begin{notabox}[Consejo de Estudio]
-    Para asimilar los conceptos de álgebra homológica, es recomendable verificar cada propiedad universal dibujando explícitamente el diagrama conmutativo correspondiente antes de iniciar el cálculo algebraico.
+  Para asimilar los conceptos de álgebra homológica, es recomendable verificar cada propiedad universal dibujando explícitamente el diagrama conmutativo correspondiente antes de iniciar el cálculo algebraico.
 \end{notabox}
 
 \begin{warningbox}[Advertencia Importante]
-    La aplicación de localización no preserva en general ideales maximales; la imagen de un ideal maximal puede degenerar en el anillo total en el cuerpo de fracciones.
+  La aplicación de localización no preserva en general ideales maximales; la imagen de un ideal maximal puede degenerar en el anillo total en el cuerpo de fracciones.
 \end{warningbox}
 
 \begin{controlbox}[Pregunta de Autoevaluación]
-    ¿Por qué el lema de Nakayama exige que el módulo $M$ sea finitamente generado? ¿Qué contraejemplo surge considerando $M = \Q$ sobre $A = \Z_{(p)}$?
+  ¿Por qué el lema de Nakayama exige que el módulo $M$ sea finitamente generado? ¿Qué contraejemplo surge considerando $M = \Q$ sobre $A = \Z_{(p)}$?
 \end{controlbox}
 
 \section{Marcadores de Estado en la Investigación}

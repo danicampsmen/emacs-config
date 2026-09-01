@@ -22,8 +22,12 @@
 \section{Introducción y Filosofía de Zathura}
 \textbf{Zathura} es un visor de documentos altamente eficiente, modular y minimalista diseñado bajo la filosofía Unix y la ergonomía modal de Vim. Utiliza el motor de renderizado de alta fidelidad (\texttt{mupdf} o \texttt{poppler}) y está completamente integrado con el servidor gráfico Wayland y el editor GNU Emacs mediante el protocolo \textbf{SyncTeX}.
 
+\begin{notabox}[Filosofía de Diseño]
+  Zathura sigue el principio de \textit{«hacer una cosa y hacerla bien»}. No es un navegador web ni un gestor de archivos; es un visor de documentos puro que prioriza la velocidad, la legibilidad y la integración perfecta con tu flujo de trabajo en \LaTeX.
+\end{notabox}
+
 \section{Navegación y Atajos de Teclado Esenciales}
-Toda la interacción en Zathura se realiza mediante el teclado:
+Toda la interacción en Zathura se realiza mediante el teclado, siguiendo la ergonomía modal de Vim:
 
 \subsection{Movimiento y Desplazamiento (Scroll)}
 \begin{itemize}[leftmargin=*]
@@ -55,6 +59,10 @@ Toda la interacción en Zathura se realiza mediante el teclado:
     \item \textbf{\texttt{y}}: Copiar el texto seleccionado directamente al portapapeles del sistema (Wayland).
 \end{itemize}
 
+\begin{controlbox}[Autoevaluación]
+  ¿Qué secuencia de teclas usarías para saltar a la página 42, buscar la palabra «teorema» e ir al siguiente resultado?
+\end{controlbox}
+
 \section{Sincronización Bidireccional SyncTeX con Emacs}
 La integración permite una interacción simbiótica entre el código fuente \LaTeX{} y el PDF generado:
 \begin{enumerate}[leftmargin=*]
@@ -62,11 +70,71 @@ La integración permite una interacción simbiótica entre el código fuente \La
     \item \textbf{Inverse Search (Zathura $\to$ Emacs)}: Al hacer \textbf{\texttt{Ctrl + Clic Izquierdo}} sobre cualquier párrafo, ecuación o teorema en Zathura, el foco regresa a Emacs abriendo el archivo fuente en la línea precisa correspondiente.
 \end{enumerate}
 
-\section{Estructura del Archivo de Configuración}
-El archivo reside en \texttt{\textasciitilde/.config/zathura/zathurarc}:
+\begin{notabox}[Flujo de Trabajo SyncTeX]
+  1. Edita tu \texttt{.tex} en Emacs. 2. Compila con \texttt{; k c} (Lua\LaTeX). 3. Zathura se abre mostrando la página correcta. 4. Al leer el PDF, \textbf{Ctrl+Clic} en cualquier punto te lleva de vuelta a la línea exacta en Emacs.
+\end{notabox}
+
+\section{Configuración de Apariencia y Renderizado}
+El archivo reside en \texttt{\textasciitilde/.config/zathura/zathurarc} y controla cada aspecto visual y comportamental del visor:
+
+\subsection{Integración con Emacs y SyncTeX}
+\begin{lstlisting}[language=TeX, basicstyle=\ttfamily\footnotesize, frame=single, backgroundcolor=\color{gray!5}]
+set synctex true
+set synctex-editor-command "emacsclient -n +%{line} %{input}"
+\end{lstlisting}
+
+\subsection{Ajuste de Ventana y Desplazamiento}
 \begin{itemize}[leftmargin=*]
-    \item \textbf{\texttt{set synctex true}} y \textbf{\texttt{set synctex-editor-command "emacsclient -n +\%\{line\} \%\{input\}"}}: Activa la comunicación por socket.
-    \item \textbf{\texttt{set default-bg "\#1e1e1e"}} y \textbf{\texttt{set page-padding 8}}: Proporciona un marco perimetral oscuro para distinguir los límites de la hoja de papel blanca.
+    \item \textbf{\texttt{set adjust-open "width"}}: Abre siempre el PDF ajustado al ancho de la ventana.
+    \item \textbf{\texttt{set scroll-step 40}}: Suaviza el desplazamiento línea a línea.
+    \item \textbf{\texttt{set guioptions ""}}: Oculta las barras de desplazamiento para un look minimalista.
 \end{itemize}
+
+\subsection{Modo Oscuro (Recolor)}
+\begin{lstlisting}[language=TeX, basicstyle=\ttfamily\footnotesize, frame=single, backgroundcolor=\color{gray!5}]
+set recolor-lightcolor "#111111"
+set recolor-darkcolor  "#e0e0e0"
+set recolor-keephue   true
+\end{lstlisting}
+
+\begin{warningbox}[Advertencia]
+  El modo \texttt{recolor} invierte los colores del PDF original. Si tu documento ya tiene un fondo oscuro nativo, desactívalo con \texttt{set recolor false} para evitar contraste excesivo.
+\end{warningbox}
+
+\subsection{Paleta de Colores de la Interfaz}
+\begin{center}
+\small
+\begin{tabularx}{\linewidth}{l X}
+\toprule
+\textbf{Elemento} & \textbf{Color} \\
+\midrule
+\texttt{statusbar-bg} / \texttt{inputbar-bg} & \#1e1e1e (Fondo oscuro) \\
+\texttt{statusbar-fg} / \texttt{inputbar-fg} & \#ffffff (Texto blanco) \\
+\texttt{notification-bg} & \#d3869b (Violeta suave) \\
+\texttt{notification-error-bg} & \#ff0000 (Rojo error) \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\section{Atajos de Teclado Personalizados}
+Además de los atajos por defecto, tu configuración añade:
+
+\begin{center}
+\small
+\begin{tabularx}{\linewidth}{l X}
+\toprule
+\textbf{Atajo} & \textbf{Acción} \\
+\midrule
+\texttt{i} & Alternar Modo Oscuro / Modo Claro (\texttt{recolor}). \\
+\texttt{R} & Recargar el PDF manualmente (\texttt{reload}). \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\begin{notabox}[Consejo de Productividad]
+  Usa \texttt{ma} \dots \texttt{mz} para marcar hasta 26 posiciones clave en un documento largo. Combínalo con la búsqueda \texttt{/} para navegar libros de 500+ páginas en segundos.
+\end{notabox}
+
+\backmatter
 
 \end{document}

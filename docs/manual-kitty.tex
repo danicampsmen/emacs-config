@@ -22,12 +22,29 @@
 \section{Arquitectura y Características de Kitty}
 \textbf{Kitty} es un emulador de terminal moderno diseñado para un rendimiento extremo. Traslada el renderizado de texto y glifos a la tarjeta gráfica mediante OpenGL, soporta el protocolo extendido de teclado de Emacs, renderizado tipográfico complejo y gestión nativa de paneles (\textit{splits}) y pestañas sin sobrecarga de multiplexores como tmux.
 
+\begin{notabox}[Por qué Kitty y no Alacritty / WezTerm]
+  Kitty combina aceleración GPU madura con soporte nativo de \texttt{extended\_keyboard} (esencial para Emacs PGTK), control remoto por socket y un ecosistema de scripts en Python extremadamente flexible.
+\end{notabox}
+
 \section{Tipografía y Renderizado Matemático}
 La terminal utiliza una combinación tipográfica de máxima legibilidad:
-\begin{itemize}[leftmargin=*]
-    \item \textbf{Fuente Principal}: \texttt{Iosevka Term} (Light, 12.5pt) con altura de línea optimizada al 110\% (\texttt{modify\_font cell\_height 110\%}).
-    \item \textbf{Símbolos Matemáticos}: Integración mediante \texttt{symbol\_map} directo a \texttt{STIX Two Math} para caracteres de operadores lógicos ($\forall, \exists, \in, \notin$), flechas ($\implies, \to, \mapsto$) y conjuntos numéricos ($\mathbb{R}, \mathbb{C}, \mathbb{N}, \mathbb{Z}$).
-\end{itemize}
+
+\begin{center}
+\small
+\begin{tabularx}{\linewidth}{l X}
+\toprule
+\textbf{Componente} & \textbf{Configuración} \\
+\midrule
+Fuente Principal & \texttt{Iosevka Term} (Light, 12.5pt) con altura de línea al 110\% \\
+Negrita / Cursiva & Variantes Bold / Italic de Iosevka Term \\
+Símbolos Matemáticos & Mapeo directo a \texttt{STIX Two Math} vía \texttt{symbol\_map} \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\begin{warningbox}[Nota sobre Fuentes Matemáticas]
+  Para que \texttt{STIX Two Math} se renderice correctamente en la terminal, la variante \texttt{Symbols Nerd Font Mono} debe estar instalada en el sistema. Si observas cuadrados en lugar de símbolos, revisa que la ruta de fuentes de Kitty apunte a la carpeta de \texttt{Nerd Fonts}.
+\end{warningbox}
 
 \section{Gestión de Paneles Divididos (Splits)}
 Tu configuración tiene habilitado el motor \texttt{enabled\_layouts splits,stack,tall,fat} que permite dividir el espacio de trabajo de forma intuitiva:
@@ -54,15 +71,57 @@ Tu configuración tiene habilitado el motor \texttt{enabled\_layouts splits,stac
     \item \textbf{Soporte OSC 52}: Permite que programas remotos o locales (como Emacs en TTY con \texttt{clipetty}) copien al portapapeles del sistema a través de secuencias de escape estándar.
 \end{itemize}
 
+\begin{notabox}[Portapapeles en Wayland]
+  La combinación \texttt{Ctrl+Shift+C/V} funciona de forma nativa con \texttt{wl-clipboard} en Wayland. Para copiar desde Emacs TUI a otras aplicaciones, asegúrate de tener \texttt{clipetty} o \texttt{osc52} activo en \texttt{kitty.conf}.
+\end{notabox}
+
 \section{Historial y Scrollback de 30,000 Líneas}
 Kitty almacena hasta \textbf{30,000 líneas} de historial en memoria RAM:
+
 \begin{itemize}[leftmargin=*]
     \item \textbf{\texttt{Shift + RePág}} / \textbf{\texttt{Shift + AvPág}}: Desplazamiento rápido por el historial.
     \item \textbf{\texttt{Shift + $\uparrow$}} / \textbf{\texttt{Shift + $\downarrow$}}: Desplazamiento línea a línea.
     \item \textbf{\texttt{Ctrl + Shift + H}}: Abre el historial de la terminal en un visor de texto editable para buscar y extraer bloques de logs.
 \end{itemize}
 
+\section{Configuración de Ventanas y Decoraciones}
+\begin{center}
+\small
+\begin{tabularx}{\linewidth}{l X}
+\toprule
+\textbf{Directiva} & \textbf{Valor y Efecto} \\
+\midrule
+\texttt{window\_padding\_width} & 2px de padding interno \\
+\texttt{window\_border\_width} & 1px de borde de ventana \\
+\texttt{active\_border\_color} & \#51afef (Azul zafiro) \\
+\texttt{inactive\_border\_color} & \#1e1e1e (Fondo oscuro) \\
+\texttt{hide\_window\_decorations} & \texttt{yes} (sin bordes de ventana del WM) \\
+\texttt{cursor\_shape} & \texttt{block} (cursor bloque sólido) \\
+\texttt{cursor\_blink\_interval} & 0 (sin parpadeo) \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
 \section{Paleta Modus Vivendi Deuteranopia}
 Fondo negro absoluto (\texttt{\#000000}) con acentos en cian turquesa (\texttt{\#00d3d0}), oro (\texttt{\#fec43f}), azul zafiro (\texttt{\#2fafff}), menta (\texttt{\#70d770}) y óxido (\texttt{\#ff6f6f}) para máximo confort visual y accesibilidad cromática.
+
+\begin{center}
+\small
+\begin{tabularx}{\linewidth}{l l}
+\toprule
+\textbf{Rol} & \textbf{Color} \\
+\midrule
+Fondo & \#000000 \\
+Texto Principal & \#ffffff \\
+Cursor & \#f0c674 \\
+Selección & \#3a3f58 / \#ffffff \\
+Acento Primario & \#51afef (Azul) \\
+Error / Crítico & \#ff6655 \\
+Éxito / Info & \#7bc275 \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\backmatter
 
 \end{document}
