@@ -98,60 +98,62 @@
     \geometry{
       a4paper,
       twoside,
-      textwidth=14.2cm,
-      textheight=22.5cm,
+      textwidth=14.8cm,
+      textheight=24.0cm,
       heightrounded,
-      inner=2.8cm,
-      top=2.8cm,
+      inner=2.5cm,
+      top=2.5cm,
+      bottom=2.6cm,
       marginparwidth=2.4cm,
       marginparsep=0.4cm,
       headheight=18pt,
-      footskip=28pt
+      footskip=20pt
     }
   \else
     \geometry{
       a4paper,
       twoside,
       textwidth=15.2cm,
-      textheight=23.5cm,
+      textheight=24.0cm,
       heightrounded,
       inner=22mm,
       outer=22mm,
       top=22mm,
-      bottom=22mm,
+      bottom=24mm,
       headheight=18pt,
-      footskip=28pt
+      footskip=20pt
     }
   \fi
 \else
   \if@estiloihes
-    % Métrica exacta Bourbaki / IHÉS: Bloque clásico de 14.0cm x 22.0cm con margen exterior generoso para tournants dangereux
+    % Métrica equilibrada IHÉS / KOMA en A4 con margen exterior generoso para notas marginales y tournants dangereux
     \geometry{
       a4paper,
       twoside,
-      textwidth=14.0cm,
-      textheight=22.0cm,
+      textwidth=14.8cm,
+      textheight=24.0cm,
       heightrounded,
-      inner=3.2cm,
-      top=3.0cm,
+      inner=2.8cm,
+      top=2.5cm,
+      bottom=2.6cm,
       marginparwidth=2.5cm,
       marginparsep=0.4cm,
       headheight=18pt,
-      footskip=30pt
+      footskip=20pt
     }
   \else
     \geometry{
       a4paper,
       twoside,
-      textwidth=14.8cm,
-      textheight=23.0cm,
+      textwidth=15.0cm,
+      textheight=24.0cm,
       heightrounded,
-      inner=25mm,
-      outer=25mm,
+      inner=24mm,
+      outer=24mm,
       top=24mm,
-      bottom=24mm,
+      bottom=25mm,
       headheight=18pt,
-      footskip=30pt
+      footskip=20pt
     }
   \fi
 \fi
@@ -352,7 +354,7 @@
 \providecommand{\blacksquare}{\mbox{\rule{1.2ex}{1.2ex}}}
 \providecommand{\blackSquare}{\blacksquare}
 
-% Tipografía Principal: STIX Two (Científica / Editorial IHÉS Contemporánea) con fallback a TeX Gyre Termes
+% Tipografía Principal: STIX Two Text + STIX Two Math (Científica / Editorial IHÉS Monumental)
 \IfFontExistsTF{STIX Two Text}{%
   \setmainfont{STIX Two Text}[
     Renderer = HarfBuzz,
@@ -363,15 +365,15 @@
   ]
   \setmathfont{STIX Two Math}[StylisticSet = {1, 8}]
 }{%
-  \IfFontExistsTF{STIXTwoText-Regular.ttf}{%
-    \setmainfont{STIXTwoText-Regular.ttf}[
+  \IfFontExistsTF{STIXTwoText-Regular.otf}{%
+    \setmainfont{STIXTwoText-Regular.otf}[
       Renderer = HarfBuzz,
-      BoldFont = STIXTwoText-Bold.ttf,
-      ItalicFont = STIXTwoText-Italic.ttf,
-      BoldItalicFont = STIXTwoText-BoldItalic.ttf,
+      BoldFont = STIXTwoText-Bold.otf,
+      ItalicFont = STIXTwoText-Italic.otf,
+      BoldItalicFont = STIXTwoText-BoldItalic.otf,
       Numbers = {Proportional, Lining}
     ]
-    \setmathfont{STIX Two Math}[StylisticSet = {1, 8}]
+    \setmathfont{STIXTwoMath-Regular.otf}[StylisticSet = {1, 8}]
   }{%
     \setmainfont{TeX Gyre Termes}[Ligatures=TeX]
     \setmathfont{TeX Gyre Termes Math}
@@ -714,9 +716,9 @@
       \par\noindent\leftskip=1.5cm\rightskip=1.0cm\parindent=0pt
     }{%
       \etocifnumbered{%
-        \makebox[3.2em][l]{\etoclink{§~\etocnumber.}}\etocname.\par\vspace{2.0pt}%
+        \makebox[3.2em][l]{\etoclink{§~\etocnumber.}}\etocname\par\vspace{2.0pt}%
       }{%
-        \hspace*{1.0em}\textit{\etocname}.\par\vspace{2.0pt}%
+        \hspace*{1.0em}\textit{\etocname}\par\vspace{2.0pt}%
       }%
     }{}%
     \localtableofcontents
@@ -768,15 +770,16 @@
 }
 
 % =========================================================
-% 8. CAJAS, RESALTADOS Y AMBIENTES AUXILIARES
+% 8. CAJAS Y AMBIENTES AUXILIARES
 % =========================================================
 \RequirePackage{tcolorbox}
 \RequirePackage{luacolor}
-\RequirePackage{lua-ul}
 
-\newcommand{\deftech}[1]{\highLight[pink!40]{#1}} 
-\newcommand{\usual}[1]{\highLight[yellow!40]{#1}}
-\newcommand{\highlightgreen}[1]{\highLight[ForestGreen!20]{#1}}
+% Énfasis Tipográfico Clásico EGA (sin resaltados artificiales de marcador)
+\providecommand{\highLight}[2][]{#2}
+\newcommand{\deftech}[1]{\emph{#1}\index{#1}} 
+\newcommand{\usual}[1]{\emph{#1}}
+\newcommand{\highlightgreen}[1]{\emph{#1}}
 
 \directlua{os.setenv("TEXMF_OUTPUT_DIRECTORY", ".")} 
 \tcbuselibrary{listings, breakable, skins, minted}
@@ -790,10 +793,67 @@
 \newcommand{\DEBUG}[1]{\begingroup\setlength{\fboxsep}{2pt}\colorbox{emacsdebug!15}{\textcolor{emacsdebug}{\sffamily\textbf{\scriptsize DEBUG}}}\ \textcolor{emacsdebug!70!black}{\small #1}\endgroup}
 \newcommand{\NOTE}[1]{\begingroup\setlength{\fboxsep}{2pt}\colorbox{emacsnote!15}{\textcolor{emacsnote}{\sffamily\textbf{\scriptsize NOTE}}}\ \textcolor{emacsnote!70!black}{\small #1}\endgroup}
 
-% Cajas estilizadas
-\newtcolorbox{notabox}[1][]{enhanced, breakable, arc=2pt, boxrule=0.5pt, colback=MidnightBlue!3, colframe=MidnightBlue!60!black, title={\ifblank{#1}{\textbf{\noteboxnamecustom}}{\textbf{\noteboxnamecustom}: #1}}, left=4mm, right=4mm, top=2mm, bottom=2mm, before skip=\mastervskip, after skip=\mastervskip, drop fuzzy shadow}
-\newtcolorbox{warningbox}[1][]{enhanced, breakable, arc=2pt, boxrule=0.5pt, colback=red!3, colframe=red!60!black, title={\ifblank{#1}{\textbf{\warnboxnamecustom}}{\textbf{\warnboxnamecustom}: #1}}, left=4mm, right=4mm, top=2mm, bottom=2mm, before skip=\mastervskip, after skip=\mastervskip, drop fuzzy shadow}
-\newtcolorbox{controlbox}[1][]{enhanced, breakable, arc=2pt, boxrule=0.5pt, colback=ForestGreen!3, colframe=ForestGreen!40!black, title={\ifblank{#1}{\textbf{\ctrlboxnamecustom}}{\textbf{\ctrlboxnamecustom}: #1}}, left=4mm, right=4mm, top=2mm, bottom=2mm, before skip=\mastervskip, after skip=\mastervskip, drop fuzzy shadow}
+% Cajas estilizadas sobrias (Armonizadas con el estilo clásico EGA / IHÉS)
+\if@estiloihes
+  \newtcolorbox{notabox}[1][]{%
+    enhanced,
+    breakable,
+    sharp corners,
+    boxrule=0pt,
+    left=10pt,
+    right=6pt,
+    top=4pt,
+    bottom=4pt,
+    colback=black!1.5,
+    borderline west={1.2pt}{0pt}{black!65},
+    title={\ifblank{#1}{\noteboxnamecustom}{\noteboxnamecustom: #1}},
+    attach title to upper={.\ \textemdash\enskip},
+    coltitle=black,
+    fonttitle=\small\rmfamily\scshape,
+    before skip=\mastervskip,
+    after skip=\mastervskip
+  }
+  \newtcolorbox{warningbox}[1][]{%
+    enhanced,
+    breakable,
+    sharp corners,
+    boxrule=0pt,
+    left=10pt,
+    right=6pt,
+    top=4pt,
+    bottom=4pt,
+    colback=black!2,
+    borderline west={1.5pt}{0pt}{black!80},
+    title={\ifblank{#1}{\warnboxnamecustom}{\warnboxnamecustom: #1}},
+    attach title to upper={.\ \textemdash\enskip},
+    coltitle=black,
+    fonttitle=\small\rmfamily\scshape,
+    before skip=\mastervskip,
+    after skip=\mastervskip
+  }
+  \newtcolorbox{controlbox}[1][]{%
+    enhanced,
+    breakable,
+    sharp corners,
+    boxrule=0pt,
+    left=10pt,
+    right=6pt,
+    top=4pt,
+    bottom=4pt,
+    colback=black!1.5,
+    borderline west={1.0pt}{0pt}{black!50},
+    title={\ifblank{#1}{\ctrlboxnamecustom}{\ctrlboxnamecustom: #1}},
+    attach title to upper={.\ \textemdash\enskip},
+    coltitle=black,
+    fonttitle=\small\rmfamily\scshape,
+    before skip=\mastervskip,
+    after skip=\mastervskip
+  }
+\else
+  \newtcolorbox{notabox}[1][]{enhanced, breakable, arc=2pt, boxrule=0.5pt, colback=MidnightBlue!3, colframe=MidnightBlue!60!black, title={\ifblank{#1}{\textbf{\noteboxnamecustom}}{\textbf{\noteboxnamecustom}: #1}}, left=4mm, right=4mm, top=2mm, bottom=2mm, before skip=\mastervskip, after skip=\mastervskip, drop fuzzy shadow}
+  \newtcolorbox{warningbox}[1][]{enhanced, breakable, arc=2pt, boxrule=0.5pt, colback=red!3, colframe=red!60!black, title={\ifblank{#1}{\textbf{\warnboxnamecustom}}{\textbf{\warnboxnamecustom}: #1}}, left=4mm, right=4mm, top=2mm, bottom=2mm, before skip=\mastervskip, after skip=\mastervskip, drop fuzzy shadow}
+  \newtcolorbox{controlbox}[1][]{enhanced, breakable, arc=2pt, boxrule=0.5pt, colback=ForestGreen!3, colframe=ForestGreen!40!black, title={\ifblank{#1}{\textbf{\ctrlboxnamecustom}}{\textbf{\ctrlboxnamecustom}: #1}}, left=4mm, right=4mm, top=2mm, bottom=2mm, before skip=\mastervskip, after skip=\mastervskip, drop fuzzy shadow}
+\fi
 
 \newenvironment{convencionbox}[1][]{%
   \par\vspace{0.6em}\noindent\hrule height 0.4pt\vspace{0.4em}%
@@ -801,6 +861,58 @@
 }{%
   \par\vspace{0.4em}\noindent\hrule height 0.4pt\vspace{0.8em}\par
 }
+
+% Entorno EGA Box: Caja de realce editorial sobrio / clásico EGA (doble filete superior/inferior, sin fondos de color)
+\newtcolorbox{egatcolorbox}{%
+  blanker,
+  breakable,
+  left=0pt,
+  right=0pt,
+  top=0.6em,
+  bottom=0.6em,
+  before skip=\mastervskip,
+  after skip=\mastervskip,
+  borderline north={0.5pt}{0pt}{black},
+  borderline south={0.5pt}{0pt}{black}
+}
+
+\NewDocumentEnvironment{egabox}{o}{%
+  \begin{egatcolorbox}%
+  \IfValueT{#1}{%
+    {\noindent\small\rmfamily\scshape #1}\par\vspace{0.4em}\noindent%
+  }%
+  \ignorespaces
+}{%
+  \end{egatcolorbox}%
+}
+\let\ihesbox\egabox
+\let\endihesbox\endegabox
+
+% Entorno filetealgoritmo: Enmarcado con filetes tipográficos clásicos (estilo Knuth / Acta Numerica / EGA)
+\newtcolorbox{filetetcolorbox}{%
+  blanker,
+  breakable,
+  left=0pt,
+  right=0pt,
+  top=0.5em,
+  bottom=0.5em,
+  before skip=\mastervskip,
+  after skip=\mastervskip,
+  borderline north={0.8pt}{0pt}{black},
+  borderline south={0.8pt}{0pt}{black}
+}
+
+\NewDocumentEnvironment{filetealgoritmo}{o}{%
+  \begin{filetetcolorbox}%
+  \IfValueT{#1}{%
+    {\noindent\normalsize\rmfamily\bfseries #1}\par\vspace{0.3em}\hrule height 0.4pt\vspace{0.5em}\noindent%
+  }%
+  \ignorespaces
+}{%
+  \end{filetetcolorbox}%
+}
+\let\algoritmobox\filetealgoritmo
+\let\endalgoritmobox\endfiletealgoritmo
 
 % =========================================================
 % 9. GESTIÓN BIBLIOGRÁFICA CON BIBLATEX
@@ -1022,17 +1134,28 @@
 \fi
 
 % Casos y Afirmaciones
-\newenvironment{caso}[1]{\refstepcounter{casocounter}\par\smallskip\noindent\textbf{\textcolor{MidnightBlue!90!black}{\casenamecustom\ #1:}} }{\par\smallskip}
-\newenvironment{condicion}[1]{\refstepcounter{condicioncounter}\par\smallskip\noindent\textbf{\textcolor{DarkOrchid!90!black}{\condnamecustom\ #1:}} }{\par\smallskip}
+\if@estiloihes
+  \newenvironment{caso}[1]{\refstepcounter{casocounter}\par\smallskip\noindent\textbf{\textit{\casenamecustom\ #1.\ \textemdash}}\enskip}{\par\smallskip}
+  \newenvironment{condicion}[1]{\refstepcounter{condicioncounter}\par\smallskip\noindent\textbf{\textit{\condnamecustom\ #1.\ \textemdash}}\enskip}{\par\smallskip}
+\else
+  \newenvironment{caso}[1]{\refstepcounter{casocounter}\par\smallskip\noindent\textbf{\textcolor{MidnightBlue!90!black}{\casenamecustom\ #1:}} }{\par\smallskip}
+  \newenvironment{condicion}[1]{\refstepcounter{condicioncounter}\par\smallskip\noindent\textbf{\textcolor{DarkOrchid!90!black}{\condnamecustom\ #1:}} }{\par\smallskip}
+\fi
 
 \newenvironment{claim}[1][]{\refstepcounter{claimcount}\par\vspace{4pt plus 1pt minus 1pt}\noindent\ifblank{#1}{\def\@currentlabelname{}\textbf{\claimnamecustom\ \arabic{claimcount}.\ \textemdash}}{\def\@currentlabelname{#1}\textbf{\claimnamecustom\ \arabic{claimcount}\ (#1).\ \textemdash}}\enskip\itshape\ignorespaces}{\par\vspace{3pt plus 1pt minus 1pt}}
 \newenvironment{claim*}[1][]{\par\vspace{4pt plus 1pt minus 1pt}\noindent\ifblank{#1}{\def\@currentlabelname{}\textbf{\claimnamecustom.\ \textemdash}}{\def\@currentlabelname{#1}\textbf{\claimnamecustom\ (#1).\ \textemdash}}\enskip\itshape\ignorespaces}{\par\vspace{3pt plus 1pt minus 1pt}}
 \newenvironment{claimproof}{\par\vspace{2pt plus 1pt minus 1pt}\noindent\textit{\proofclaimnamecustom}\enskip\ignorespaces}{\hfill$\circ$\par\vspace{3pt plus 1pt minus 1pt}}
 \newenvironment{pruebaafirmacion}{\par\noindent\small\textit{\proofclaimnamecustom} }{\hfill\ensuremath{\lozenge}\par\smallskip}
 
-\newcommand{\casobase}[1]{\par\smallskip\noindent\textbf{\textcolor{ForestGreen!90!black}{\basecasenamecustom\ (#1):}}\ }
-\newcommand{\pasoinductivo}{\par\smallskip\noindent\textbf{\textcolor{ForestGreen!90!black}{\indstepnamecustom:}}\ }
-\newcommand{\hipotesisind}{\par\smallskip\noindent\textbf{\textcolor{ForestGreen!90!black}{\indhypnamecustom:}}\ }
+\if@estiloihes
+  \newcommand{\casobase}[1]{\par\smallskip\noindent\textbf{\textit{\basecasenamecustom\ (#1).\ \textemdash}}\enskip}
+  \newcommand{\pasoinductivo}{\par\smallskip\noindent\textbf{\textit{\indstepnamecustom.\ \textemdash}}\enskip}
+  \newcommand{\hipotesisind}{\par\smallskip\noindent\textbf{\textit{\indhypnamecustom.\ \textemdash}}\enskip}
+\else
+  \newcommand{\casobase}[1]{\par\smallskip\noindent\textbf{\textcolor{ForestGreen!90!black}{\basecasenamecustom\ (#1):}}\ }
+  \newcommand{\pasoinductivo}{\par\smallskip\noindent\textbf{\textcolor{ForestGreen!90!black}{\indstepnamecustom:}}\ }
+  \newcommand{\hipotesisind}{\par\smallskip\noindent\textbf{\textcolor{ForestGreen!90!black}{\indhypnamecustom:}}\ }
+\fi
 
 % Pasos formales de demostración
 \newcommand{\directstep}{\par\vspace{2pt}\noindent(\(\Rightarrow\))\enskip\ignorespaces}
@@ -1070,6 +1193,61 @@
 
 \newlist{enuthm}{enumerate}{1}
 \setlist[enuthm,1]{label=\normalfont\arabic*., leftmargin=\myleftmargin, topsep=0pt, partopsep=0pt, parsep=0pt, itemsep=0.4ex plus 0.1ex, before=\leavevmode}
+
+% Estandarización Editorial del Entorno Algoritmo (Filetes Clásicos Knuth / Acta Numerica / EGA)
+\tcolorboxenvironment{algorithm}{%
+  blanker,
+  breakable,
+  left=0pt,
+  right=0pt,
+  top=0.4em,
+  bottom=0.4em,
+  before skip=\mastervskip,
+  after skip=\mastervskip,
+  borderline north={0.8pt}{0pt}{black},
+  borderline south={0.8pt}{0pt}{black}
+}
+
+% Macros auxiliares semánticas para estructura de algoritmos
+\newcommand{\alginput}[1]{{\noindent\textbf{\textit{Entrada:}}\ #1\par\vspace{2pt}}}
+\newcommand{\algoutput}[1]{{\noindent\textbf{\textit{Salida:}}\ #1\par\vspace{2pt}}}
+\newcommand{\alginit}[1]{{\noindent\textbf{\textit{Inicialización:}}\ #1\par\vspace{2pt}}}
+\newcommand{\algparams}[1]{{\noindent\textbf{\textit{Parámetros:}}\ #1\par\vspace{2pt}}}
+\newcommand{\algstop}[1]{{\noindent\textbf{\textit{Criterio de Parada:}}\ #1\par\vspace{2pt}}}
+\newcommand{\algstep}[1]{\textbf{Paso #1.}\enskip\ignorespaces}
+
+% Entorno específico para pasos de algoritmos con numeración y sangría consistente
+\newlist{algsteps}{enumerate}{2}
+\setlist[algsteps,1]{
+  label=\textbf{Paso \arabic*.},
+  ref=\arabic*,
+  leftmargin=*,
+  labelsep=0.6em,
+  topsep=3pt plus 1pt minus 1pt,
+  itemsep=3pt plus 1pt minus 1pt,
+  parsep=0pt
+}
+\setlist[algsteps,2]{
+  label=\textbf{(\alph*)},
+  ref=\thealgstepsi.(\alph*),
+  leftmargin=2em,
+  labelsep=0.5em,
+  topsep=1pt,
+  itemsep=1pt,
+  parsep=0pt
+}
+
+\AtBeginEnvironment{algorithm}{%
+  \setlist[enumerate,1]{
+    label=\textbf{Paso \arabic*.},
+    ref=\arabic*,
+    leftmargin=*,
+    labelsep=0.6em,
+    topsep=3pt plus 1pt minus 1pt,
+    itemsep=3pt plus 1pt minus 1pt,
+    parsep=0pt
+  }%
+}
 
 % =========================================================
 % 11. REFERENCIAS INTELIGENTES (CLEVEREF + SREF SUITE)
@@ -1122,6 +1300,14 @@
   \Crefname{rappel}{Recordatorio}{Recordatorios}
   \crefname{conventions}{convención}{convenciones}
   \Crefname{conventions}{Convención}{Convenciones}
+  \crefname{egabox}{recuadro}{recuadros}
+  \Crefname{egabox}{Recuadro}{Recuadros}
+  \crefname{ihesbox}{recuadro}{recuadros}
+  \Crefname{ihesbox}{Recuadro}{Recuadros}
+  \crefname{filetealgoritmo}{algoritmo}{algoritmos}
+  \Crefname{filetealgoritmo}{Algoritmo}{Algoritmos}
+  \crefname{algoritmobox}{algoritmo}{algoritmos}
+  \Crefname{algoritmobox}{Algoritmo}{Algoritmos}
   \crefformat{equation}{ecuación~(#2#1#3)}
   \Crefformat{equation}{Ecuación~(#2#1#3)}
 \fi
@@ -1174,6 +1360,14 @@
   \Crefname{rappel}{Recollection}{Recollections}
   \crefname{conventions}{convention}{conventions}
   \Crefname{conventions}{Convention}{Conventions}
+  \crefname{egabox}{box}{boxes}
+  \Crefname{egabox}{Box}{Boxes}
+  \crefname{ihesbox}{box}{boxes}
+  \Crefname{ihesbox}{Box}{Boxes}
+  \crefname{filetealgoritmo}{algorithm}{algorithms}
+  \Crefname{filetealgoritmo}{Algorithm}{Algorithms}
+  \crefname{algoritmobox}{algorithm}{algorithms}
+  \Crefname{algoritmobox}{Algorithm}{Algorithms}
   \crefformat{equation}{equation~(#2#1#3)}
   \Crefformat{equation}{Equation~(#2#1#3)}
 \fi
@@ -1226,6 +1420,14 @@
   \Crefname{rappel}{Rappel}{Rappels}
   \crefname{conventions}{convention}{conventions}
   \Crefname{conventions}{Convention}{Conventions}
+  \crefname{egabox}{encadré}{encadrés}
+  \Crefname{egabox}{Encadré}{Encadrés}
+  \crefname{ihesbox}{encadré}{encadrés}
+  \Crefname{ihesbox}{Encadré}{Encadrés}
+  \crefname{filetealgoritmo}{algorithme}{algorithmes}
+  \Crefname{filetealgoritmo}{Algorithme}{Algorithmes}
+  \crefname{algoritmobox}{algorithme}{algorithmes}
+  \Crefname{algoritmobox}{Algorithme}{Algorithmes}
   \crefformat{equation}{équation~(#2#1#3)}
   \Crefformat{equation}{Équation~(#2#1#3)}
 \fi
@@ -1278,6 +1480,14 @@
   \Crefname{rappel}{Erinnerung}{Erinnerungen}
   \crefname{conventions}{Konvention}{Konventionen}
   \Crefname{conventions}{Konvention}{Konventionen}
+  \crefname{egabox}{Kasten}{Kästen}
+  \Crefname{egabox}{Kasten}{Kästen}
+  \crefname{ihesbox}{Kasten}{Kästen}
+  \Crefname{ihesbox}{Kasten}{Kästen}
+  \crefname{filetealgoritmo}{Algorithmus}{Algorithmen}
+  \Crefname{filetealgoritmo}{Algorithmus}{Algorithmen}
+  \crefname{algoritmobox}{Algorithmus}{Algorithmen}
+  \Crefname{algoritmobox}{Algorithmus}{Algorithmen}
   \crefformat{equation}{Gleichung~(#2#1#3)}
   \Crefformat{equation}{Gleichung~(#2#1#3)}
 \fi

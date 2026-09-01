@@ -1,7 +1,0 @@
-;; -*- emacs-lisp -*- <26/09/01 12:49:03 ~/.emacs.d/tramp>
-;; Tramp connection history.  Don't change this file.
-;; Run `M-x tramp-cleanup-all-connections' instead.
-
-(((tramp-file-name "cache" nil nil nil nil nil nil) ("tramp-version" "2.7.3.30.2"))
- ((tramp-file-name "rclone" nil nil "GoogleDrive-Documentos_Ubuntu_Fayfer" nil nil nil) ("uid-integer" 1000)
-  ("gid-integer" 1000) ("uid-string" "fayfer") ("gid-string" "fayfer") ("case-insensitive" nil)))

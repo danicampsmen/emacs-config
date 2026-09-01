@@ -13,10 +13,36 @@
 /.cache/
 /url/
 
-# Exportaciones temporales
+# Exportaciones temporales y chats
 emacs-config-completa.txt
+chat_export.txt
 *.code-workspace
+
+# Emacs runtime state
+/history
+/places
+/recentf
+/tramp
+/projectile-bookmarks.eld
+/texput.log
+
+# LaTeX auxiliary files
+*.aux
+*.bbl
+*.bcf
+*.blg
+*.fdb_latexmk
+*.fls
+*.idx
+*.ilg
+*.ind
+*.log
+*.out
+*.run.xml
+*.synctex.gz
+*.toc
 
 # Misc
 *~
 \#*\#
+

@@ -20,11 +20,7 @@
   :config
   (setq TeX-auto-save t)
   (setq TeX-parse-self t)
-  (setq-default TeX-master nil)
-
-  ;; Do not force a TeX engine here; respect the document's \documentclass
-  ;; and local file variables. AUCTeX/kpses will find the correct engine
-  ;; based on the document or user's TeX configuration (TEXMF tree).
+  (setq-default TeX-engine 'luatex)
 
   ;; Configure PDF viewer for forward search (Zathura)
   (setq TeX-view-program-list '(("zathura" "zathura --synctex-forward %l:1:%f %o")))
@@ -113,18 +109,20 @@
   "Abre o actualiza el PDF en el visor y salta a la línea actual con SyncTeX."
   (interactive)
   (let* ((tex-file (buffer-file-name))
-          (pdf-file (and tex-file (concat (file-name-sans-extension tex-file) ".pdf")))
-          (line (line-number-at-pos)))
-     (cond
-      ((not tex-file)
-       (message "Buffer no asociado a fichero."))
-      ((not (and pdf-file (file-exists-p pdf-file)))
-       (message "PDF no encontrado: %s. Compila primero." pdf-file))
-      ((executable-find my/latex-pdf-viewer)
-       (start-process (format "%s-focus" my/latex-pdf-viewer) nil my/latex-pdf-viewer
-                      "--synctex-forward" (format "%d:1:%s" line tex-file) pdf-file)
-       (message "📄 %s: saltando a línea %d..." (capitalize my/latex-pdf-viewer) line))
-      (t (message "Visor de PDF '%s' no encontrado." my/latex-pdf-viewer)))))
+         (master-pdf (ignore-errors (TeX-master-file "pdf")))
+         (pdf-file (or (and master-pdf (file-exists-p master-pdf) master-pdf)
+                       (and tex-file (concat (file-name-sans-extension tex-file) ".pdf"))))
+         (line (line-number-at-pos)))
+    (cond
+     ((not tex-file)
+      (message "Buffer no asociado a fichero."))
+     ((not (and pdf-file (file-exists-p pdf-file)))
+      (message "PDF no encontrado: %s. Compila primero." pdf-file))
+     ((executable-find my/latex-pdf-viewer)
+      (start-process (format "%s-focus" my/latex-pdf-viewer) nil my/latex-pdf-viewer
+                     "--synctex-forward" (format "%d:1:%s" line tex-file) pdf-file)
+      (message "📄 %s: saltando a línea %d..." (capitalize my/latex-pdf-viewer) line))
+     (t (message "Visor de PDF '%s' no encontrado." my/latex-pdf-viewer)))))
 
 (with-eval-after-load 'texmathp
   (dolist (env '("mini" "mini*" "maxi" "maxi*" "argmini" "argmini*" "argmaxi" "argmaxi*"))
