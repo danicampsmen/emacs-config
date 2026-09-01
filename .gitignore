@@ -1,45 +1,22 @@
-# Archivos temporales y de auto-guardado de Emacs
-/#*#
-/.#*
-*~
+# Archivos sensibles
+*.json
+*.secret
+*client_secret*
+
+# Emacs generados
+/auto/
 *.elc
-#!*
-
-# Archivos de estado e historial personal
-history
-places
-recentf
-tramp
-projectile-bookmarks.eld
-custom.el
-
-# Caché compilada y paquetes instalados
+*.eln
 /eln-cache/
 /elpa/
-/tree-sitter/
 /transient/
-/.local/
+/.cache/
+/url/
 
-# Cachés de herramientas IA
-.aider*
-.agent/
+# Exportaciones temporales
+emacs-config-completa.txt
+*.code-workspace
 
-# Archivos compilados de LaTeX / Documentos
-*.pdf
-*.odt
-*.aux
-*.log
-*.fls
-*.fdb_latexmk
-*.synctex.gz
-
-# Secretos
-my-secrets.el
-lisp/my-secrets.el
-txt-export/.aider*
-.aider*
-txt-export/
-my-secrets.el
-lisp/my-secrets.el
-.aider*
-.aider*
+# Misc
+*~
+\#*\#
