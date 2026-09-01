@@ -1,7 +1,11 @@
 ;;; -*- coding: utf-8; mode: lisp-data -*-
-(("/home/fayfer/Documentos/05_Proyectos_LaTeX/Tesis_Bachiller_Brillith/main.tex" . 4504)
+(("/home/fayfer/Documentos/02_Universidad/Cursos-2026-I/Monografia/monografia_practicas_pre-profesionales.tex" . 456)
+ ("/home/fayfer/Documentos/02_Universidad/Cursos-2026-I/Monografia/tesis-uni.cls" . 2052)
+ ("/home/fayfer/Documentos/02_Universidad/Cursos-2026-I/Monografia/capitulos/01_anillos_ideales.tex" . 12253)
+ ("/home/fayfer/Documentos/02_Universidad/Cursos-2026-I/Monografia/capitulos/02_modulos.tex" . 27358)
+ ("/home/fayfer/Documentos/05_Proyectos_LaTeX/Tesis_Bachiller_Brillith/main.tex" . 4504)
  ("/home/fayfer/Documentos/Segundo-Cerebro/10-Matematicas/Programa_Investigacion/"
-  (dired-filename . "/home/fayfer/Documentos/Segundo-Cerebro/10-Matematicas/Programa_Investigacion/."))
+  (dired-filename . "/home/fayfer/Documentos/Segundo-Cerebro/10-Matematicas/Programa_Investigacion"))
  ("/home/fayfer/Documentos/Segundo-Cerebro/10-Matematicas/Programa_Investigacion/Mes_01_Algebra_Multilineal_y_Variedades/"
   (dired-filename
    . "/home/fayfer/Documentos/Segundo-Cerebro/10-Matematicas/Programa_Investigacion/Mes_01_Algebra_Multilineal_y_Variedades/main.tex"))
