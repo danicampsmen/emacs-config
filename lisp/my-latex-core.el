@@ -113,19 +113,19 @@
 (defun my/tex-view-with-focus ()
   "Abre o actualiza el PDF en el visor y salta a la línea actual con SyncTeX."
   (interactive)
-  (if-let ((master-pdf (TeX-master-file "pdf"))
-           (pdf-file (expand-file-name master-pdf)))
-       (if (file-exists-p pdf-file)
-           (let ((tex-file (expand-file-name (buffer-file-name)))
-                 (line (line-number-at-pos)))
-             (if (executable-find my/latex-pdf-viewer)
-                 (progn
-                   (start-process (format "%s-focus" my/latex-pdf-viewer) nil my/latex-pdf-viewer "--synctex-forward"
-                                  (format "%d:1:%s" line tex-file) pdf-file)
-                   (message "%s: Saltando a línea %d..." (capitalize my/latex-pdf-viewer) line))
-               (message "Visor de PDF '%s' no encontrado." my/latex-pdf-viewer)))
-         (message "El archivo PDF no existe: %s. ¡Compila primero!" pdf-file))
-     (message "Error: No se encontró el archivo maestro PDF.")))
+  (let* ((tex-file (buffer-file-name))
+          (pdf-file (and tex-file (concat (file-name-sans-extension tex-file) ".pdf")))
+          (line (line-number-at-pos)))
+     (cond
+      ((not tex-file)
+       (message "Buffer no asociado a fichero."))
+      ((not (and pdf-file (file-exists-p pdf-file)))
+       (message "PDF no encontrado: %s. Compila primero." pdf-file))
+      ((executable-find my/latex-pdf-viewer)
+       (start-process (format "%s-focus" my/latex-pdf-viewer) nil my/latex-pdf-viewer
+                      "--synctex-forward" (format "%d:1:%s" line tex-file) pdf-file)
+       (message "📄 %s: saltando a línea %d..." (capitalize my/latex-pdf-viewer) line))
+      (t (message "Visor de PDF '%s' no encontrado." my/latex-pdf-viewer)))))
 
 (with-eval-after-load 'texmathp
   (dolist (env '("mini" "mini*" "maxi" "maxi*" "argmini" "argmini*" "argmaxi" "argmaxi*"))

@@ -30,5 +30,11 @@
 ;; fallos en early-init.el cuando use-package no está disponible.
 
 
+(add-hook 'emacs-startup-hook
+          (lambda ()
+            ;; Restore a reasonable GC threshold after startup to avoid memory bloat.
+            (setq gc-cons-threshold (* 20 1024 1024))
+            (message "GC threshold restored to %s" gc-cons-threshold)))
+
 (provide 'early-init)
 ;;; early-init.el ends here
