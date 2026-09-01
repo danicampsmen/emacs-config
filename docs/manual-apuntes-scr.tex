@@ -1,4 +1,12 @@
-\documentclass[spanish,alphabetic]{apuntes-scr}
+%%% Local Variables:
+%%% mode: LaTeX
+%%% TeX-engine: luatex
+%%% TeX-master: t
+%%% TeX-backend: "biber"
+%%% End:
+\documentclass[book,spanish,alphabetic]{apuntes-scr}
+
+\subject{Manual de Referencia Oficial}
 
 \usepackage{tabularx}
 \usepackage{booktabs}
@@ -6,7 +14,12 @@
 \title{Manual de Referencia Oficial e Integral de la Clase \texttt{apuntes-scr.cls}}
 \subtitle{Guía Definitiva de Arquitectura Tipográfica, Estructura Bourbaki / IHÉS y Redacción Científica}
 \author{Campos Mendoza, D. Daniel}
-\date{\today}
+\date{%
+    \vspace{2em}
+    \textbf{Ecosistema GNU Emacs 30 / Sway / Wayland} \\
+    \vspace{0.5em}\normalsize
+    \textbf{Fecha:} \today \quad \textbf{Hora:} \DTMcurrenttime
+}
 
 \begin{document}
 
@@ -62,12 +75,19 @@ se pueden especificar las siguientes opciones:
 
 \section{Plantilla Mínima para un Libro de Investigación}
 \begin{lstlisting}[language=TeX, basicstyle=\ttfamily\footnotesize, frame=single, backgroundcolor=\color{gray!5}]
-\documentclass[spanish,alphabetic]{apuntes-scr}
+\documentclass[book,spanish,alphabetic]{apuntes-scr}
+
+\subject{Manual de Referencia Oficial}
 
 \title{Geometría Algebraica y Esquemas}
 \subtitle{Notas de Posgrado}
 \author{Campos Mendoza, D. Daniel}
-\date{\today}
+\date{%
+    \vspace{2em}
+    \textbf{Ecosistema GNU Emacs 30 / Sway / Wayland} \\
+    \vspace{0.5em}\normalsize
+    \textbf{Fecha:} \today \quad \textbf{Hora:} \DTMcurrenttime
+}
 
 \begin{document}
 
@@ -92,7 +112,12 @@ se pueden especificar las siguientes opciones:
 
 \title{Práctica Calificada 1: Teoría de Probabilidad}
 \author{Campos Mendoza, D. Daniel}
-\date{\today}
+\date{%
+    \vspace{2em}
+    \textbf{Ecosistema GNU Emacs 30 / Sway / Wayland} \\
+    \vspace{0.5em}\normalsize
+    \textbf{Fecha:} \today \quad \textbf{Hora:} \DTMcurrenttime
+}
 
 \begin{document}
 \maketitle

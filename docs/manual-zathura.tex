@@ -1,16 +1,32 @@
+%%% Local Variables:
+%%% mode: LaTeX
+%%% TeX-engine: luatex
+%%% TeX-master: t
+%%% TeX-backend: "biber"
+%%% End:
 \documentclass[article,spanish]{apuntes-scr}
 
 \subject{Manual de Referencia Oficial}
 \title{Guía Completa de Uso y Configuración de Zathura}
 \subtitle{Visor de PDF Minimalista con Integración SyncTeX y Wayland}
 \author{Campos Mendoza, D. Daniel}
-\date{
+\date{%
+    \vspace{2em}
     \textbf{Ecosistema GNU Emacs 30 / Sway / Wayland} \\
-    \vspace{0.4em}\normalsize
+    \vspace{0.5em}\normalsize
     \textbf{Fecha:} \today \quad \textbf{Hora:} \DTMcurrenttime
 }
 
+% =========================================================
+% BIBLIOGRAFÍA
+% =========================================================
+% \addbibresource{references.bib}
+
 \begin{document}
+
+\maketitle
+\tableofcontents
+\vspace{1.5em}\hrule\vspace{1.5em}
 
 \section{Introducción y Filosofía de Zathura}
 \textbf{Zathura} es un visor de documentos altamente eficiente, modular y minimalista diseñado bajo la filosofía Unix y la ergonomía modal de Vim. Utiliza el motor de renderizado de alta fidelidad (\texttt{mupdf} o \texttt{poppler}) y está completamente integrado con el servidor gráfico Wayland y el editor GNU Emacs mediante el protocolo \textbf{SyncTeX}.
@@ -31,8 +47,8 @@ Toda la interacción en Zathura se realiza mediante el teclado:
 
 \subsection{Visualización, Modos y Zoom}
 \begin{itemize}[leftmargin=*]
-    \item \textbf{\texttt{i}} (\texttt{recolor}): Alterna instantáneamente entre el **Modo Claro** (hoja blanca real) y el **Modo Oscuro** (fondo \#111111 con texto en contraste). Gracias a \texttt{recolor-keephue true}, los colores de fórmulas, gráficos y enlaces se preservan intactos.
-    \item \textbf{\texttt{d}} (\texttt{toggle\_page\_mode}): Alterna entre vista de **1 página** y **2 páginas por fila** (modo lectura de libro abierto).
+    \item \textbf{\texttt{i}} (\texttt{recolor}): Alterna instantáneamente entre el \textbf{Modo Claro} (hoja blanca real) y el \textbf{Modo Oscuro} (fondo \#111111 con texto en contraste). Gracias a \texttt{recolor-keephue true}, los colores de fórmulas, gráficos y enlaces se preservan intactos.
+    \item \textbf{\texttt{d}} (\texttt{toggle\_page\_mode}): Alterna entre vista de \textbf{1 página} y \textbf{2 páginas por fila} (modo lectura de libro abierto).
     \item \textbf{\texttt{a}} / \textbf{\texttt{s}}: Ajustar automáticamente la página al ancho de la ventana (\textit{fit to width}) o al tamaño completo de la pantalla.
     \item \textbf{\texttt{+}} / \textbf{\texttt{-}} / \textbf{\texttt{=}}: Aumentar zoom, disminuir zoom o restablecer zoom al 100\%.
     \item \textbf{\texttt{r}} / \textbf{\texttt{R}}: Rotar la página 90 grados / Forzar recarga manual del archivo PDF.

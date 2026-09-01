@@ -1,16 +1,32 @@
+%%% Local Variables:
+%%% mode: LaTeX
+%%% TeX-engine: luatex
+%%% TeX-master: t
+%%% TeX-backend: "biber"
+%%% End:
 \documentclass[article,spanish]{apuntes-scr}
 
 \subject{Manual de Referencia Oficial}
 \title{Guía Completa de Uso y Configuración de Kitty}
 \subtitle{Emulador de Terminal Acelerado por GPU con Modus Vivendi Deuteranopia}
 \author{Campos Mendoza, D. Daniel}
-\date{
+\date{%
+    \vspace{2em}
     \textbf{Ecosistema GNU Emacs 30 / Sway / Wayland} \\
-    \vspace{0.4em}\normalsize
+    \vspace{0.5em}\normalsize
     \textbf{Fecha:} \today \quad \textbf{Hora:} \DTMcurrenttime
 }
 
+% =========================================================
+% BIBLIOGRAFÍA
+% =========================================================
+% \addbibresource{references.bib}
+
 \begin{document}
+
+\maketitle
+\tableofcontents
+\vspace{1.5em}\hrule\vspace{1.5em}
 
 \section{Arquitectura y Características de Kitty}
 \textbf{Kitty} es un emulador de terminal moderno diseñado para un rendimiento extremo. Traslada el renderizado de texto y glifos a la tarjeta gráfica mediante OpenGL, soporta el protocolo extendido de teclado de Emacs, renderizado tipográfico complejo y gestión nativa de paneles (\textit{splits}) y pestañas sin sobrecarga de multiplexores como tmux.
@@ -27,8 +43,8 @@ Tu configuración tiene habilitado el motor \texttt{enabled\_layouts splits,stac
 
 \subsection{Creación y Cierre de Paneles}
 \begin{itemize}[leftmargin=*]
-    \item \textbf{\texttt{Ctrl + Shift + E}}: Dividir la ventana actual **verticalmente** (\textit{vsplit}), abriendo la nueva sesión en el mismo directorio de trabajo (\texttt{cwd=current}).
-    \item \textbf{\texttt{Ctrl + Shift + D}}: Dividir la ventana actual **horizontalmente** (\textit{hsplit}).
+    \item \textbf{\texttt{Ctrl + Shift + E}}: Dividir la ventana actual \textbf{verticalmente} (\textit{vsplit}), abriendo la nueva sesión en el mismo directorio de trabajo (\texttt{cwd=current}).
+    \item \textbf{\texttt{Ctrl + Shift + D}}: Dividir la ventana actual \textbf{horizontalmente} (\textit{hsplit}).
     \item \textbf{\texttt{Ctrl + Shift + W}}: Cerrar el panel enfocado.
 \end{itemize}
 
@@ -48,7 +64,7 @@ Tu configuración tiene habilitado el motor \texttt{enabled\_layouts splits,stac
 \end{itemize}
 
 \section{Historial y Scrollback de 30,000 Líneas}
-Kitty almacena hasta **30,000 líneas** de historial en memoria RAM:
+Kitty almacena hasta \textbf{30,000 líneas} de historial en memoria RAM:
 \begin{itemize}[leftmargin=*]
     \item \textbf{\texttt{Shift + RePág}} / \textbf{\texttt{Shift + AvPág}}: Desplazamiento rápido por el historial.
     \item \textbf{\texttt{Shift + $\uparrow$}} / \textbf{\texttt{Shift + $\downarrow$}}: Desplazamiento línea a línea.

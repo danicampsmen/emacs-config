@@ -1,21 +1,37 @@
+%%% Local Variables:
+%%% mode: LaTeX
+%%% TeX-engine: luatex
+%%% TeX-master: t
+%%% TeX-backend: "biber"
+%%% End:
 \documentclass[article,spanish]{apuntes-scr}
 
 \subject{Manual de Referencia Oficial}
 \title{Guía Completa de Uso y Manejo de Sway y Waybar}
 \subtitle{Gestor de Ventanas en Mosaico (Tiling) y Barra de Estado para Wayland}
 \author{Campos Mendoza, D. Daniel}
-\date{
+\date{%
+    \vspace{2em}
     \textbf{Ecosistema GNU Emacs 30 / Sway / Wayland} \\
-    \vspace{0.4em}\normalsize
+    \vspace{0.5em}\normalsize
     \textbf{Fecha:} \today \quad \textbf{Hora:} \DTMcurrenttime
 }
 
+% =========================================================
+% BIBLIOGRAFÍA
+% =========================================================
+% \addbibresource{references.bib}
+
 \begin{document}
+
+\maketitle
+\tableofcontents
+\vspace{1.5em}\hrule\vspace{1.5em}
 
 \section{Arquitectura del Sistema Sway}
 \textbf{Sway} es un compositor y gestor de ventanas en mosaico (\textit{Tiling Window Manager}) nativo para Wayland, 100\% compatible con la sintaxis de i3 pero optimizado para el servidor gráfico moderno de Linux sin dependencia de X11/XWayland. Opera bajo el principio de teclado-primero (\textit{keyboard-centric}) eliminando la necesidad del ratón.
 
-El modificador maestro del sistema es la tecla **Super / Windows**:
+El modificador maestro del sistema es la tecla \textbf{Super / Windows}:
 $$\mathbf{\$mod = \text{Mod4}}$$
 
 \section{Atajos de Teclado del Ecosistema}
@@ -24,7 +40,7 @@ $$\mathbf{\$mod = \text{Mod4}}$$
 \begin{itemize}[leftmargin=*]
     \item \textbf{\texttt{\$mod + Return}}: Abre el emulador de terminal \textbf{Kitty}.
     \item \textbf{\texttt{\$mod + d}}: Lanza el menú interactivo \textbf{Wofi} para buscar aplicaciones.
-    \item \textbf{\texttt{\$mod + b}}: Lanza el navegador web **Firefox** (dirigido automáticamente al Workspace 4).
+    \item \textbf{\texttt{\$mod + b}}: Lanza el navegador web \textbf{Firefox} (dirigido automáticamente al Workspace 4).
     \item \textbf{\texttt{\$mod + q}}: Cierra de forma ordenada la ventana activa (\textit{kill}).
     \item \textbf{\texttt{\$mod + Shift + c}}: Recarga la configuración de Sway en caliente sin cerrar ninguna aplicación.
     \item \textbf{\texttt{\$mod + Shift + e}}: Cierra la sesión de Sway y regresa al gestor de acceso.
@@ -32,10 +48,10 @@ $$\mathbf{\$mod = \text{Mod4}}$$
 
 \subsection{Navegación y Foco de Ventanas (Estilo Vim)}
 \begin{itemize}[leftmargin=*]
-    \item \textbf{\texttt{\$mod + h}} o \textbf{\texttt{\$mod + $\leftarrow$}}: Enfocar ventana a la **izquierda**.
-    \item \textbf{\texttt{\$mod + j}} o \textbf{\texttt{\$mod + $\downarrow$}}: Enfocar ventana **inferior**.
-    \item \textbf{\texttt{\$mod + k}} o \textbf{\texttt{\$mod + $\uparrow$}}: Enfocar ventana **superior**.
-    \item \textbf{\texttt{\$mod + l}} o \textbf{\texttt{\$mod + $\rightarrow$}}: Enfocar ventana a la **derecha**.
+    \item \textbf{\texttt{\$mod + h}} o \textbf{\texttt{\$mod + $\leftarrow$}}: Enfocar ventana a la \textbf{izquierda}.
+    \item \textbf{\texttt{\$mod + j}} o \textbf{\texttt{\$mod + $\downarrow$}}: Enfocar ventana \textbf{inferior}.
+    \item \textbf{\texttt{\$mod + k}} o \textbf{\texttt{\$mod + $\uparrow$}}: Enfocar ventana \textbf{superior}.
+    \item \textbf{\texttt{\$mod + l}} o \textbf{\texttt{\$mod + $\rightarrow$}}: Enfocar ventana a la \textbf{derecha}.
 \end{itemize}
 
 \subsection{Mover y Reorganizar Ventanas}
@@ -47,10 +63,10 @@ $$\mathbf{\$mod = \text{Mod4}}$$
 \begin{itemize}[leftmargin=*]
     \item \textbf{\texttt{\$mod + e}}: Alterna la dirección del split para la próxima ventana (\textit{toggle split}).
     \item \textbf{\texttt{\$mod + h}} / \textbf{\texttt{\$mod + v}}: Pre-fija división horizontal / vertical.
-    \item \textbf{\texttt{\$mod + w}} (\textit{Tabbed}): Agrupa todas las ventanas en **pestañas superiores**.
+    \item \textbf{\texttt{\$mod + w}} (\textit{Tabbed}): Agrupa todas las ventanas en \textbf{pestañas superiores}.
     \item \textbf{\texttt{\$mod + s}} (\textit{Stacking}): Apila las ventanas mostrando sus barras de título verticalmente.
-    \item \textbf{\texttt{\$mod + f}}: Alterna el modo **Pantalla Completa** (\textit{Fullscreen}).
-    \item \textbf{\texttt{\$mod + Shift + Espacio}}: Alterna la ventana entre modo **Flotante** y modo **Mosaico**.
+    \item \textbf{\texttt{\$mod + f}}: Alterna el modo \textbf{Pantalla Completa} (\textit{Fullscreen}).
+    \item \textbf{\texttt{\$mod + Shift + Espacio}}: Alterna la ventana entre modo \textbf{Flotante} y modo \textbf{Mosaico}.
     \item \textbf{\texttt{\$mod + Espacio}}: Alterna el foco entre las ventanas flotantes y el mosaico.
 \end{itemize}
 
