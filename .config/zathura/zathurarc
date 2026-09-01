@@ -1,36 +1,54 @@
-# Zathura config - SyncTeX integration with Emacs
+# ==================================================================
+# --- 1. INTEGRACIÓN CON EMACS (SYNCTEX Y WAYLAND) ---
+# ==================================================================
 set synctex true
-set synctex-editor-command "emacsclient -nw +%{line} %{input}"
+set synctex-editor-command "emacsclient -n +%{line} %{input}"
 
+# Vital en Wayland: Permite copiar texto del PDF (con Ctrl+C o la tecla 'y')
+# y poder pegarlo en Emacs o el navegador sin problemas.
 set selection-clipboard clipboard
 
-# Minimalist UI
+# ==================================================================
+# --- 2. APARIENCIA ZEN (Basado en tus preferencias de EAF) ---
+# ==================================================================
+# Abrir siempre el PDF ajustado al ancho de la ventana (fit_to_width)
+set adjust-open "width"
+
+# Ocultar las barras de desplazamiento para un look más limpio
 set guioptions ""
-set statusbar-h-padding 0
-set statusbar-v-padding 0
 
-# Increase page padding so page boundaries are clearer
-set page-padding 12
+# Mostrar solo el nombre del archivo en la barra de título (sin rutas largas)
 set window-title-basename true
-set statusbar-home-tilde true
 
-# Dark palette and recolor settings - use a subtle, dark window background
-set default-bg "#0b0b0b"
-set default-fg "#dfdfdf"
-set statusbar-bg "#121212"
-set statusbar-fg "#dfdfdf"
+# Suavizar el desplazamiento de página (scroll-step similar a tu EAF)
+set scroll-step 40
 
-# Recolor options: recolor the PDF content to improve contrast with the window.
-# Toggle at runtime with ": set recolor true" / ": set recolor false" if needed.
-set recolor true
-set recolor-keephue false
-set recolor-lightcolor "#ffffff"
-set recolor-darkcolor "#e0e0e0"
+# ==================================================================
+# --- 3. MODO OSCURO (Estilo Modus Vivendi) ---
+# ==================================================================
+# Descomenta la siguiente línea si quieres que los PDFs se abran en modo oscuro por defecto:
+# set recolor true
 
-# If the recolor plugin is not available in your build of zathura, disable
-# recolor or compile zathura with the recolor plugin enabled. To quickly
-# diagnose: open a PDF and run in zathura command mode:
-#   :set recolor false
-# then
-#   :set default-bg #ffffff
-# to see the original rendering.
+# Colores del Modo Oscuro (Fondo gris muy oscuro, texto blanco/gris claro)
+# Esto invierte los PDFs blancos para que no te cansen la vista de noche.
+set recolor-lightcolor "#111111"  # Color de fondo de la hoja
+set recolor-darkcolor  "#e0e0e0"  # Color de la tinta/texto
+
+# Colores de la barra de estado y comandos para que combine con Emacs
+set statusbar-bg       "#1e1e1e"
+set statusbar-fg       "#ffffff"
+set inputbar-bg        "#1e1e1e"
+set inputbar-fg        "#ffffff"
+set notification-bg    "#d3869b"  # Violeta suave (basado en tu font-latex)
+set notification-fg    "#ffffff"
+set notification-error-bg "#ff0000"
+set notification-error-fg "#ffffff"
+
+# ==================================================================
+# --- 4. ATAJOS DE TECLADO EXTRA ---
+# ==================================================================
+# Tecla 'i' para invertir los colores (Modo claro/oscuro)
+map i recolor
+
+# Recargar el PDF manualmente con 'R' (aunque Zathura lo hace automático)
+map R reload
