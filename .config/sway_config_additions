@@ -1,0 +1,27 @@
+# --- Additional rules and helpers inserted by automation ---
+# Floating/dialog rules for common apps
+for_window [app_id="pavucontrol"] floating enable
+for_window [app_id="blueman-manager"] floating enable
+for_window [window_role="pop-up"] floating enable
+for_window [window_role="dialog"] floating enable
+for_window [app_id="zathura"] border pixel 1
+
+# Quick move to output example (use `swaymsg -t get_outputs` to list outputs)
+# bindsym $mod+Shift+o move container to output right
+
+# Example: open a terminal on the same workspace but on the focused output
+bindsym $mod+Return exec kitty
+
+# Screenshot helper - ensure grim/slurp/wl-copy are installed
+bindsym Print exec grim -g "$(slurp)" - | wl-copy && notify-send "Captura" "Área copiada al portapapeles"
+
+# Handy scratchpad example (toggle a floating kitty terminal)
+for_window [title="scratchpad"] floating enable, move position center
+bindsym $mod+grave scratchpad show
+bindsym $mod+Shift+grave exec kitty --title scratchpad
+
+# Workspace rules example: send Firefox to workspace 2
+for_window [app_id="firefox"] move container to workspace number 2
+
+# Example: make dialog-like windows borderless and centered
+for_window [window_role="dialog"] floating enable, border pixel 0
