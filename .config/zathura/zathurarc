@@ -1,17 +1,4 @@
 # Zathura config - SyncTeX integration with Emacs
 set synctex true
 set synctex-editor-command "emacsclient -nw +%{line} %{input}"
-
 set selection-clipboard clipboard
-
-# Minimalist GUI
-set guioptions ""
-set statusbar-h-padding 0
-set statusbar-v-padding 0
-
-# Light mode (white background, black text, no recolor)
-set default-bg "#ffffff"
-set default-fg "#000000"
-set recolor false
-set statusbar-bg "#f5f5f5"
-set statusbar-fg "#000000"
