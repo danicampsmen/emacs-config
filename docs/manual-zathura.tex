@@ -1,0 +1,65 @@
+\documentclass[article,spanish]{apuntes-scr}
+
+\subject{Manual de Referencia Oficial}
+\title{Guía Completa de Uso y Configuración de Zathura}
+\subtitle{Visor de PDF Minimalista con Integración SyncTeX y Wayland}
+\author{Campos Mendoza, D. Daniel}
+\date{
+    \textbf{Ecosistema GNU Emacs 30 / Sway / Wayland} \\
+    \vspace{0.4em}\normalsize
+    \textbf{Fecha:} \today \quad \textbf{Hora:} \DTMcurrenttime
+}
+
+\begin{document}
+
+\section{Introducción y Filosofía de Zathura}
+\textbf{Zathura} es un visor de documentos altamente eficiente, modular y minimalista diseñado bajo la filosofía Unix y la ergonomía modal de Vim. Utiliza el motor de renderizado de alta fidelidad (\texttt{mupdf} o \texttt{poppler}) y está completamente integrado con el servidor gráfico Wayland y el editor GNU Emacs mediante el protocolo \textbf{SyncTeX}.
+
+\section{Navegación y Atajos de Teclado Esenciales}
+Toda la interacción en Zathura se realiza mediante el teclado:
+
+\subsection{Movimiento y Desplazamiento (Scroll)}
+\begin{itemize}[leftmargin=*]
+    \item \textbf{\texttt{j}} / \textbf{\texttt{k}} o \textbf{$\downarrow$} / \textbf{$\uparrow$}: Desplazamiento vertical continuo por líneas.
+    \item \textbf{\texttt{h}} / \textbf{\texttt{l}} o \textbf{$\leftarrow$} / \textbf{$\rightarrow$}: Desplazamiento horizontal.
+    \item \textbf{\texttt{Ctrl + d}} / \textbf{\texttt{Ctrl + u}}: Avanzar / Retroceder media pantalla.
+    \item \textbf{\texttt{Ctrl + f}} / \textbf{\texttt{Ctrl + b}}: Avanzar / Retroceder una página completa.
+    \item \textbf{\texttt{J}} / \textbf{\texttt{K}}: Saltar directamente a la página siguiente / anterior.
+    \item \textbf{\texttt{gg}} / \textbf{\texttt{G}}: Ir a la primera / última página del documento.
+    \item \textbf{\texttt{[número]G}} (ej. \texttt{45G}): Saltar directamente a la página número 45.
+\end{itemize}
+
+\subsection{Visualización, Modos y Zoom}
+\begin{itemize}[leftmargin=*]
+    \item \textbf{\texttt{i}} (\texttt{recolor}): Alterna instantáneamente entre el **Modo Claro** (hoja blanca real) y el **Modo Oscuro** (fondo \#111111 con texto en contraste). Gracias a \texttt{recolor-keephue true}, los colores de fórmulas, gráficos y enlaces se preservan intactos.
+    \item \textbf{\texttt{d}} (\texttt{toggle\_page\_mode}): Alterna entre vista de **1 página** y **2 páginas por fila** (modo lectura de libro abierto).
+    \item \textbf{\texttt{a}} / \textbf{\texttt{s}}: Ajustar automáticamente la página al ancho de la ventana (\textit{fit to width}) o al tamaño completo de la pantalla.
+    \item \textbf{\texttt{+}} / \textbf{\texttt{-}} / \textbf{\texttt{=}}: Aumentar zoom, disminuir zoom o restablecer zoom al 100\%.
+    \item \textbf{\texttt{r}} / \textbf{\texttt{R}}: Rotar la página 90 grados / Forzar recarga manual del archivo PDF.
+\end{itemize}
+
+\subsection{Búsqueda y Marcadores (Bookmarks)}
+\begin{itemize}[leftmargin=*]
+    \item \textbf{\texttt{/ [texto] + Enter}}: Búsqueda difusa de palabras o expresiones en el PDF.
+    \item \textbf{\texttt{n}} / \textbf{\texttt{N}}: Saltar al siguiente / anterior resultado encontrado.
+    \item \textbf{\texttt{m[a-z]}} (ej. \texttt{ma}): Crear una marca rápida asociada a la letra 'a'.
+    \item \textbf{\texttt{'[a-z]}} (ej. \texttt{'a}): Saltar de inmediato a la marca 'a'.
+    \item \textbf{\texttt{Tab}}: Desplegar el índice del documento (Table of Contents / Bookmarks).
+    \item \textbf{\texttt{y}}: Copiar el texto seleccionado directamente al portapapeles del sistema (Wayland).
+\end{itemize}
+
+\section{Sincronización Bidireccional SyncTeX con Emacs}
+La integración permite una interacción simbiótica entre el código fuente \LaTeX{} y el PDF generado:
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{Forward Search (Emacs $\to$ Zathura)}: Al presionar \texttt{; k c} o \texttt{C-c C-a} en Emacs, tras compilar exitosamente, Zathura salta automáticamente a la página y resalta en color cian (\texttt{\#00d3d0}) la línea exacta donde está el cursor.
+    \item \textbf{Inverse Search (Zathura $\to$ Emacs)}: Al hacer \textbf{\texttt{Ctrl + Clic Izquierdo}} sobre cualquier párrafo, ecuación o teorema en Zathura, el foco regresa a Emacs abriendo el archivo fuente en la línea precisa correspondiente.
+\end{enumerate}
+
+\section{Estructura del Archivo de Configuración}
+El archivo reside en \texttt{\textasciitilde/.config/zathura/zathurarc}:
+\begin{itemize}[leftmargin=*]
+    \item \textbf{\texttt{set synctex true}} y \textbf{\texttt{set synctex-editor-command "emacsclient -n +\%\{line\} \%\{input\}"}}: Activa la comunicación por socket.
+    \item \textbf{\texttt{set default-bg "\#1e1e1e"}} y \textbf{\texttt{set page-padding 8}}: Proporciona un marco perimetral oscuro para distinguir los límites de la hoja de papel blanca.
+\end{itemize}
+
+\end{document}

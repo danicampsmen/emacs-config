@@ -1,0 +1,96 @@
+\documentclass[article,spanish]{apuntes-scr}
+\usepackage{multicol}
+
+\begin{document}
+\begin{center}
+  {\LARGE\bfseries D. Daniel Campos Mendoza — Cheat Sheet del Ecosistema} \\[0.3em]
+  {\large\textcolor{MidnightBlue}{\textbf{Sway (Wayland) + Kitty + Zathura + GNU Emacs 30 (Modus Vivendi Deuteranopia)}}}
+\end{center}
+\vspace{0.4em}
+\hrule
+\vspace{0.6em}
+
+\begin{multicols*}{2}
+
+  \section*{1. Sway (Gestor de Ventanas — \$mod = Super)}
+  \begin{itemize}[leftmargin=*]
+    \item \textbf{\$mod + Return}: Abrir terminal Kitty.
+    \item \textbf{\$mod + d}: Lanzador de aplicaciones (\texttt{wofi}).
+    \item \textbf{\$mod + b}: Navegador web (\texttt{firefox} $\to$ WS 4).
+    \item \textbf{\$mod + q}: Cerrar ventana enfocada (\texttt{kill}).
+    \item \textbf{\$mod + h / j / k / l}: Foco izquierda / abajo / arriba / derecha.
+    \item \textbf{\$mod + Shift + h / j / k / l}: Mover ventana.
+    \item \textbf{\$mod + h} / \textbf{\$mod + v}: Pre-dividir horizontal / vertical.
+    \item \textbf{\$mod + e}: Alternar orientación de división (\texttt{toggle split}).
+    \item \textbf{\$mod + w}: Modo pestañas (\texttt{tabbed layout}).
+    \item \textbf{\$mod + s}: Modo apilado (\texttt{stacking layout}).
+    \item \textbf{\$mod + f}: Pantalla completa (\texttt{fullscreen toggle}).
+    \item \textbf{\$mod + Shift + Espacio}: Alternar ventana flotante / mosaico.
+    \item \textbf{\$mod + Espacio}: Alternar foco entre flotantes y mosaico.
+    \item \textbf{\$mod + 1..5}: Cambiar a Workspace 1..5.
+    \item \textbf{\$mod + Shift + 1..5}: Mover ventana a Workspace 1..5.
+    \item \textbf{\$mod + \`{}} (Grave): Abrir / invocar terminal Scratchpad.
+    \item \textbf{\$mod + -} / \textbf{Shift + -}: Mostrar / Enviar a Scratchpad.
+    \item \textbf{Print}: Captura de área con \texttt{grim} + \texttt{slurp} $\to$ Portapapeles.
+    \item \textbf{Win + Espacio}: Alternar teclado (\texttt{latam}, \texttt{es}, \texttt{us}).
+    \item \textbf{Bloq Mayús}: Actúa por hardware como tecla \textbf{Escape}.
+    \item \textbf{\$mod + Shift + c}: Recargar configuración en caliente.
+    \item \textbf{\$mod + Shift + e}: Salir de la sesión de Sway.
+  \end{itemize}
+
+  \section*{2. Kitty (Terminal GPU Acelerada)}
+  \begin{itemize}[leftmargin=*]
+    \item \textbf{Fuente}: Iosevka Term 12.5pt + STIX Two Math.
+    \item \textbf{Tema}: Modus Vivendi Deuteranopia (\#000000 / \#00d3d0).
+    \item \textbf{Ctrl + Shift + E}: Dividir panel verticalmente (\texttt{vsplit}).
+    \item \textbf{Ctrl + Shift + D}: Dividir panel horizontalmente (\texttt{hsplit}).
+    \item \textbf{Ctrl + Shift + W}: Cerrar panel actual.
+    \item \textbf{Ctrl + Shift + h / j / k / l}: Navegar entre paneles Kitty.
+    \item \textbf{Ctrl + Shift + C} / \textbf{V}: Copiar / Pegar al portapapeles.
+    \item \textbf{Ctrl + Shift + T} / \textbf{Q}: Nueva pestaña / Cerrar pestaña.
+    \item \textbf{Scrollback}: 30,000 líneas con historial fluido.
+  \end{itemize}
+
+  \section*{3. Zathura (Visor PDF + SyncTeX)}
+  \begin{itemize}[leftmargin=*]
+    \item \textbf{Ctrl + Clic}: \textit{Inverse search} SyncTeX $\to$ salta al \texttt{.tex} en Emacs.
+    \item \textbf{i}: Alternar Modo Oscuro / Modo Claro (\texttt{recolor}).
+    \item \textbf{d}: Alternar vista de 1 página / 2 páginas (modo libro).
+    \item \textbf{r} / \textbf{R}: Rotar orientación / Recargar archivo PDF.
+    \item \textbf{Delimitación}: Lienzo \#1e1e1e con margen de 8px para ver bordes de hojas reales.
+    \item \textbf{y}: Copiar texto seleccionado al portapapeles de Wayland.
+  \end{itemize}
+
+  \section*{4. GNU Emacs 30 (Tecla Líder ; y Atajos)}
+  \begin{itemize}[leftmargin=*]
+    \item \textbf{; k c}: Compilar documento actual (\texttt{my/smart-compile}).
+    \item \textbf{; k C}: Limpieza y compilación del libro maestro \texttt{main.tex}.
+    \item \textbf{; t z}: Modo Visual Zen (\texttt{TeX-Fold} + Line Focus).
+    \item \textbf{; f f} / \textbf{; f e}: Abrir archivo / Modo WDired.
+    \item \textbf{; p p} / \textbf{; p r}: Abrir proyecto / Búsqueda con ripgrep.
+    \item \textbf{; h a} / \textbf{; h 1..4}: Añadir / Saltar a marcadores Harpoon.
+    \item \textbf{; w w} / \textbf{; w v} / \textbf{; w s}: Cambiar ventana / Split V / Split H.
+    \item \textbf{; a a} / \textbf{; A l}: Menú Antigravity AI / Live Output logs.
+    \item \textbf{; d d} / \textbf{; d b}: Sincronizar Google Drive (rclone / bisync).
+    \item \textbf{AAS/LAAS}: Superíndices \texttt{x`2}, subíndices \texttt{xii}, fracciones \texttt{/}, acentos \texttt{'b 'i 'v 'H '~}, griegas \texttt{;a ;b ;g}, entornos \texttt{,cases ,prf}.
+    \item \textbf{Evil-TeX}: Objetos \texttt{ie/ae} (entornos), \texttt{im/am} (matemáticas), \texttt{[[ ]]} (secciones).
+  \end{itemize}
+
+  \section*{5. Workspaces Temáticos}
+  \begin{itemize}[leftmargin=*]
+    \item \textbf{1: Term}: Terminales de trabajo Kitty.
+    \item \textbf{2: Code}: GNU Emacs 30 (GUI / TUI).
+    \item \textbf{3: Doc}: Zathura (Lectura y apuntes).
+    \item \textbf{4: Web}: Firefox (Navegación web).
+    \item \textbf{5: Media}: Multimedia y mensajería.
+  \end{itemize}
+
+\end{multicols*}
+
+\vfill
+\begin{center}
+  \footnotesize\color{gray}
+  Configuración integral de producción para Arch Linux / Ubuntu Wayland — Actualizado: \today
+\end{center}
+
+\end{document}

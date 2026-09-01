@@ -1,0 +1,472 @@
+\documentclass[spanish,alphabetic]{apuntes-scr}
+
+\usepackage{tabularx}
+\usepackage{booktabs}
+\usepackage{makeidx}
+\makeindex
+
+\title{Manual Definitivo e Integral de Usuario: GNU Emacs 30}
+\subtitle{Guía Operativa Exhaustiva: Ergonomía Modal, Ecosistema LaTeX, Snippets AAS/LAAS, TeX-Fold, Segundo Cerebro e IA}
+\author{Campos Mendoza, D. Daniel}
+\date{\today}
+
+\begin{document}
+
+\frontmatter
+\maketitle
+\tableofcontents
+
+\mainmatter
+
+\chapter{Arquitectura, Filosofía y Fundamentos del Sistema}
+
+Tu estación de trabajo en \textbf{GNU Emacs 30} ha sido diseñada a medida como un entorno de alta productividad para la investigación matemática pura, la redacción científica en \LaTeX\ y el desarrollo de software.
+
+\section{Pilares de Interacción}
+\begin{enumerate}[label=\bfseries\arabic*., leftmargin=10mm]
+    \item \textbf{Control Total por Teclado (\textit{No-Mouse Mode}):} Todas las operaciones de edición, navegación de buffers, compilación, visualización de PDFs y control de versiones se realizan exclusivamente desde el teclado, eliminando la latencia del ratón.
+    \item \textbf{Modalidad Ergonómica Evil (Vim) + Tecla Líder (Prefijo \texttt{;}):} Combina los movimientos y operadores de Vim (\texttt{d}, \texttt{c}, \texttt{y}, \texttt{w}, \texttt{b}) con un menú estructurado bajo la tecla líder \texttt{;} (punto y coma) gestionado por \texttt{general.el} y \texttt{which-key}.
+    \item \textbf{Completado Inteligente Vertical:} Sistema ultrarrápido compuesto por \texttt{Vertico} (lista vertical), \texttt{Orderless} (búsqueda difusa no posicional) y \texttt{Marginalia} (descripciones contextuales en el minibuffer).
+    \item \textbf{Estética Modus Vivendi Deuteranopia:} Tema oficial de alto contraste sobre fondo negro puro (\#000000) adaptado a la tipografía \texttt{Iosevka Term} con altura de línea al 110\% e iconos vectoriales \texttt{Nerd Fonts}.
+\end{enumerate}
+
+\chapter{Atajos Globales de Sistema y Ergonomía Base}
+
+\section{Atajos de Edición y Selección Global}
+\begin{center}
+\small
+\begin{tabularx}{\linewidth}{p{2.5cm} p{4.2cm} X}
+\toprule
+\textbf{Atajo Global} & \textbf{Función de Emacs Lisp} & \textbf{Acción y Descripción Operativa} \\
+\midrule
+\texttt{C-.} & \texttt{embark-act} & \textbf{Embark Act:} Despliega un menú contextual inteligente de acciones sobre la palabra, símbolo, URL o archivo bajo el cursor. \\
+\texttt{C-;} & \texttt{embark-dwim} & \textbf{Embark DWIM:} Ejecuta la acción más lógica y probable sobre el elemento bajo el cursor (Do What I Mean). \\
+\texttt{C-=} & \texttt{er/expand-region} & \textbf{Expand Region:} Expande semánticamente la selección visual (palabra $\to$ entrecomillado $\to$ paréntesis $\to$ entorno \LaTeX\ $\to$ sección). \\
+\texttt{M-y} & \texttt{consult-yank-pop} & \textbf{Historial Visual de Portapapeles:} Muestra el historial completo del \textit{kill-ring} con búsqueda difusa para pegar cualquier copia previa. \\
+\texttt{M-'} & \texttt{jinx-correct} & \textbf{Corrector Ortográfico Jinx:} Abre la corrección ortográfica interactiva multilingüe (español, inglés, francés, alemán) en la palabra actual. \\
+\texttt{C-M-'} & \texttt{jinx-languages} & \textbf{Cambio de Idioma Jinx:} Selecciona los diccionarios ortográficos activos. \\
+\texttt{C-c h} & \texttt{my/select-all-buffer} & \textbf{Seleccionar Todo:} Selecciona el buffer completo y activa el modo visual de Evil. \\
+\texttt{C-z} & \texttt{undo-fu-only-undo} & \textbf{Deshacer (Undo):} Deshacer lineal seguro tanto en modo Normal como en Insert. \\
+\texttt{C-S-z} & \texttt{undo-fu-only-redo} & \textbf{Rehacer (Redo):} Rehacer lineal seguro en modo Normal e Insert. \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\section{Movimiento Dinámico de Líneas y Bloques (Drag-Stuff)}
+Con \texttt{drag-stuff-global-mode} puedes mover texto sin cortar ni pegar:
+\begin{itemize}[leftmargin=8mm]
+    \item \texttt{M-\string\uparrow}: Desplaza la línea actual o bloque seleccionado una línea hacia arriba.
+    \item \texttt{M-\string\downarrow}: Desplaza la línea actual o bloque seleccionado una línea hacia abajo.
+    \item \texttt{M-\string\leftarrow} / \texttt{M-\string\rightarrow}: Mueve palabras o regiones horizontalmente.
+\end{itemize}
+
+\section{Saltos de Precisión con Avy y Consult}
+\begin{itemize}[leftmargin=8mm]
+    \item \texttt{; j j} (\texttt{avy-goto-char-timer}): Escribe una o dos letras y aparecerá un árbol de saltos en pantalla para posicionar el cursor en 1 pulsación.
+    \item \texttt{; j l} (\texttt{avy-goto-line}): Salto directo a cualquier línea visible en el marco.
+    \item \texttt{; s s} (\texttt{consult-line}): Búsqueda interactiva en tiempo real en las líneas del buffer actual.
+\end{itemize}
+
+\chapter{Navegación Modal, Tecla Líder (;) y Ventanas}
+
+\section{La Tecla Líder (\texttt{;})}
+En modo Normal de Evil, al presionar \texttt{;} (punto y coma), \textbf{Which-Key} despliega el menú interactivo con las ramas maestras:
+
+\begin{center}
+\small
+\begin{tabularx}{\linewidth}{p{2.2cm} p{3.5cm} X}
+\toprule
+\textbf{Prefijo} & \textbf{Área / Submenú} & \textbf{Acción Principal} \\
+\midrule
+\texttt{; SPC} & Comando Global & Ejecuta \texttt{M-x} con autocompletado vertical (\texttt{execute-extended-command}). \\
+\texttt{; sa}  & Buffer & Seleccionar todo el contenido en modo visual (\texttt{my/select-all-buffer}). \\
+\texttt{; f}   & Archivos & Búsqueda, guardado y edición de directorios estilo Oil. \\
+\texttt{; p}   & Proyectos & Projectile: proyectos, ripgrep global y cambio de contexto. \\
+\texttt{; g}   & Git & Magit Status interactivo (\texttt{; g s}). \\
+\texttt{; t}   & \LaTeX\ \& Texto & Compilación Smart, SyncTeX Zathura, Tree-Sitter, TeX-Fold y matrices. \\
+\texttt{; k}   & Segundo Cerebro & Selector de materias, notas diarias, grafo de conocimiento. \\
+\texttt{; a} / \texttt{; A} & Agente IA & Google Antigravity, logs en vivo, Aider y GPTel. \\
+\texttt{; d}   & Google Drive & Menú Transient GDrive, sincronización bisync y FUSE. \\
+\texttt{; v}   & Terminal & Toggle vterm inteligente y gestión de pestañas. \\
+\texttt{; b}   & Zotero / Bib & Biblioteca digital, notas bibliográficas y enlaces mágicos a PDF. \\
+\texttt{; h}   & Harpoon & Marcadores rápidos de archivos clave del proyecto actual. \\
+\texttt{; w}   & Ventanas & Salto Ace-Window y layouts dedicados de tesis. \\
+\texttt{; o}   & Org / Agenda & Agenda interactiva, captura rápida y \texttt{vida.org}. \\
+\texttt{; e}   & Configuración Emacs & Selector difuso de los 22 archivos de configuración y reinicio. \\
+\texttt{; i}   & Inserción & Snippets, pegado limpio, rutas de archivos y figuras Inkscape. \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\section{Gestión de Ventanas y Paneles Divididos (\texttt{; w})}
+\begin{itemize}[leftmargin=8mm]
+    \item \texttt{; w w}: \textbf{Ace-Window.} Salto instantáneo entre paneles asignando una letra a cada ventana.
+    \item \texttt{; w d}: Cerrar la ventana actual (\texttt{delete-window}).
+    \item \texttt{; w o}: Saltar al siguiente frame gráfico (\texttt{other-frame}).
+    \item \texttt{; w l}: Activar el \textbf{Layout Tesis} (\texttt{tesis-layout-activate}).
+    \item \texttt{; w p}: Activar el \textbf{Layout Redacción con PDF} (\texttt{my/layout-writer}).
+    \item \texttt{; w r}: Activar el \textbf{Layout de Investigación} (\texttt{my/layout-researcher}).
+    \item \texttt{C-c \string\leftarrow} / \texttt{C-c \string\rightarrow}: Deshacer o rehacer cambios en la disposición de paneles (\texttt{winner-undo} / \texttt{winner-redo}).
+\end{itemize}
+
+\chapter{Búsqueda Difusa, Archivos y Proyectos}
+
+\section{Búsqueda y Edición de Archivos (\texttt{; f})}
+\begin{itemize}[leftmargin=8mm]
+    \item \texttt{; f f}: \textbf{Find File} con búsqueda difusa no posicional (\texttt{consult-find}).
+    \item \texttt{; f b}: Búsqueda y cambio interactivo de \textbf{Buffers} (\texttt{consult-buffer}).
+    \item \texttt{; f s}: Guardar el buffer actual (\texttt{save-buffer}).
+    \item \texttt{; f e}: \textbf{Editar Directorio como Texto (Estilo Oil.nvim):} Abre Dired en modo editable (\texttt{WDired}). Puedes renombrar archivos masivamente modificando el texto y guardando con \texttt{C-c C-c}.
+    \item \texttt{; f n}: Crear un \textbf{Nuevo Archivo Vacío} en el directorio actual (\texttt{my/create-empty-file}).
+\end{itemize}
+
+\section{Gestión de Proyectos con Projectile (\texttt{; p})}
+\begin{itemize}[leftmargin=8mm]
+    \item \texttt{; p p}: Cambiar de proyecto (\texttt{projectile-switch-project}).
+    \item \texttt{; p f}: Buscar archivos dentro del proyecto activo (\texttt{projectile-find-file}).
+    \item \texttt{; p r}: \textbf{Ripgrep Global:} Busca cualquier texto o fórmula matemática en todos los archivos del proyecto (\texttt{consult-ripgrep}).
+    \item \texttt{; p b}: Listar solo los buffers pertenecientes al proyecto actual.
+    \item \texttt{; p k}: Cerrar todos los buffers del proyecto actual para liberar memoria.
+\end{itemize}
+
+\section{Harpoon: Acceso Inmediato a 4 Archivos Clave (\texttt{; h})}
+Inspirado en el flujo de ThePrimeagen, Harpoon te permite fijar tus archivos de trabajo activo:
+\begin{itemize}[leftmargin=8mm]
+    \item \texttt{; h a}: Marcar el archivo actual en Harpoon (\texttt{harpoon-add-file}).
+    \item \texttt{; h h}: Abrir el menú interactivo de marcas (\texttt{harpoon-toggle-fileline}).
+    \item \texttt{; h 1}, \texttt{; h 2}, \texttt{; h 3}, \texttt{; h 4}: Saltar instantáneamente a los archivos fijados 1, 2, 3 o 4.
+\end{itemize}
+
+\chapter{Guía Definitiva de Snippets Matemáticos (AAS + LAAS)}
+
+Tu configuración contiene el motor más avanzado de expansiones automáticas en vivo (\textit{Auto Activating Snippets}) para \LaTeX.
+
+\section{1. Superíndices Ultrarrápidos con Comilla Invertida (\texttt{`})}
+En modo matemático, presiona la comilla invertida seguida del índice deseado:
+
+\begin{center}
+\small
+\begin{tabularx}{\linewidth}{p{2.2cm} p{2.5cm} X}
+\toprule
+\textbf{Disparador} & \textbf{Expansión} & \textbf{Ejemplo de Uso y Resultado} \\
+\midrule
+\texttt{x\string`2} & $x^2$ & Cuadrado instantáneo. \\
+\texttt{x\string`3} o \texttt{xcb} & $x^3$ & Cubo. \\
+\texttt{x\string`n} & $x^n$ & Potencia enésima. \\
+\texttt{x\string`ii} & $x^i$ & Superíndice $i$ (doble toque). \\
+\texttt{x\string`jj} & $x^j$ & Superíndice $j$. \\
+\texttt{x\string`kk} & $x^k$ & Superíndice $k$. \\
+\texttt{x\string`ip1} & $x^{i+1}$ & Superíndice algebraico incrementado. \\
+\texttt{x\string`im1} & $x^{i-1}$ & Superíndice algebraico decrementado. \\
+\texttt{x\string`np1} & $x^{n+1}$ & Superíndice $n+1$. \\
+\texttt{x\string`nm1} & $x^{n-1}$ & Superíndice $n-1$. \\
+\texttt{A\string`T} & $A^{\top}$ & Traspuesta de una matriz. \\
+\texttt{f\string`\string`} o \texttt{finv} & $f^{-1}$ & Función inversa o elemento inverso. \\
+\texttt{V\string`O} o \texttt{Vort} & $V^{\perp}$ & Complemento ortogonal. \\
+\texttt{x\string`+} / \texttt{x\string`-} & $x^+$ / $x^-$ & Parte positiva / negativa o signo. \\
+\texttt{x\string`*} & $x^*$ & Dual / conjugado. \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\section{2. Subíndices Automáticos Inteligentes}
+Al escribir una letra seguida de índices típicos, se convierte en subíndice automáticamente:
+\begin{itemize}[leftmargin=8mm]
+    \item \texttt{xii} $\to x_i$, \texttt{xjj} $\to x_j$, \texttt{xkk} $\to x_k$, \texttt{xnn} $\to x_n$, \texttt{xpp} $\to x_p$.
+    \item \texttt{x0} $\to x_0$, \texttt{x1} $\to x_1$, \texttt{x2} $\to x_2$, \dots, \texttt{x9} $\to x_9$.
+    \item \texttt{xip1} $\to x_{i+1}$, \texttt{xim1} $\to x_{i-1}$, \texttt{xnp1} $\to x_{n+1}$, \texttt{xnm1} $\to x_{n-1}$.
+\end{itemize}
+
+\section{3. Fracciones Inteligentes (\texttt{/})}
+\begin{itemize}[leftmargin=8mm]
+    \item \textbf{Fracción Vacía:} Escribe \texttt{//} $\to \frac{\Box}{\Box}$ y el cursor se posiciona en el numerador.
+    \item \textbf{Envoltura Automática:} Escribe \texttt{(a+b)/} $\to \frac{a+b}{\Box}$ (captura y envuelve el objeto anterior de forma automática).
+    \item \textbf{Funciones Compuestas:} Escribe \texttt{\string\sin(x)/} $\to \frac{\sin(x)}{\Box}$.
+    \item \textbf{Derivadas Parciales:} Escribe \texttt{part} $\to \frac{\partial \Box}{\partial \Box}$.
+\end{itemize}
+
+\section{4. Acentos Matemáticos y Tipografías con Comilla Simple (\texttt{'})}
+Escribe la variable y presiona comilla simple seguida del modificador para envolver el objeto a la izquierda:
+
+\begin{center}
+\small
+\begin{tabularx}{\linewidth}{p{2.2cm} p{2.5cm} X}
+\toprule
+\textbf{Disparador} & \textbf{Expansión} & \textbf{Descripción} \\
+\midrule
+\texttt{x'b} & $\symbf{x}$ & Negrita matemática / texto (\texttt{\string\symbf} / \texttt{\string\textbf}). \\
+\texttt{x'i} & $\symit{x}$ & Cursiva matemática (\texttt{\string\symit}). \\
+\texttt{x'B} & $\symbb{X}$ & Blackboard Bold ($\symbb{R}, \symbb{C}, \symbb{K}$). \\
+\texttt{x'F} & $\symfrak{g}$ & Fracturado ($\symfrak{g}, \symfrak{p}, \symfrak{m}$). \\
+\texttt{x'c} & $\symcal{F}$ & Caligráfico ($\symcal{F}, \symcal{O}_X, \symcal{L}$). \\
+\texttt{x'v} o \texttt{x,.} & $\vec{x}$ & Vector con flecha. \\
+\texttt{x'\string^} o \texttt{xhat} & $\hat{x}$ & Acento circunflejo (sombrero). \\
+\texttt{x'H} & $\widehat{x}$ & Sombrero ancho (\texttt{\string\widehat}). \\
+\texttt{x'-} o \texttt{xbar} & $\overline{x}$ & Barra superior (\texttt{\string\overline}). \\
+\texttt{x'\string~} & $\tilde{x}$ & Tilde (\texttt{\string\tilde}). \\
+\texttt{x'N} & $\widetilde{x}$ & Tilde ancha (\texttt{\string\widetilde}). \\
+\texttt{x'.} & $\dot{x}$ & Derivada temporal puntual (punto). \\
+\texttt{x':} & $\ddot{x}$ & Derivada segunda (dos puntos). \\
+\texttt{x'n} & $\|x\|$ & Norma matemática (\texttt{\string\norm}). \\
+\texttt{x'a} & $|x|$ & Valor absoluto (\texttt{\string\abs}). \\
+\texttt{x'q} & $\sqrt{x}$ & Raíz cuadrada del objeto anterior. \\
+\texttt{x|e} & $\left. x \right|_{\Box}$ & Barra de evaluación (\texttt{\string\eval}). \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\section{5. Letras Griegas y Operadores con Prefijo Punto y Coma (\texttt{;})}
+En modo matemático:
+
+\begin{center}
+\small
+\begin{tabularx}{\linewidth}{l l l l l l l l}
+\toprule
+\textbf{Atajo} & \textbf{Salida} & \textbf{Atajo} & \textbf{Salida} & \textbf{Atajo} & \textbf{Salida} & \textbf{Atajo} & \textbf{Salida} \\
+\midrule
+\texttt{;a} & $\alpha$ & \texttt{;b} & $\beta$ & \texttt{;g} & $\gamma$ & \texttt{;G} & $\Gamma$ \\
+\texttt{;d} & $\delta$ & \texttt{;D} & $\Delta$ & \texttt{;;d} & $\partial$ & \texttt{;;D} & $\nabla$ \\
+\texttt{;e} & $\epsilon$ & \texttt{;;e} & $\varepsilon$ & \texttt{;z} & $\zeta$ & \texttt{;h} & $\eta$ \\
+\texttt{;q} & $\theta$ & \texttt{;;q} & $\vartheta$ & \texttt{;Q} & $\Theta$ & \texttt{;i} & $\iota$ \\
+\texttt{;k} & $\kappa$ & \texttt{;l} & $\lambda$ & \texttt{;;l} & $\ell$ & \texttt{;L} & $\Lambda$ \\
+\texttt{;m} & $\mu$ & \texttt{;n} & $\nu$ & \texttt{;w} & $\xi$ & \texttt{;W} & $\Xi$ \\
+\texttt{;p} & $\pi$ & \texttt{;;p} & $\varpi$ & \texttt{;P} & $\Pi$ & \texttt{;r} & $\rho$ \\
+\texttt{;s} & $\sigma$ & \texttt{;;s} & $\varsigma$ & \texttt{;S} & $\Sigma$ & \texttt{;t} & $\tau$ \\
+\texttt{;u} & $\upsilon$ & \texttt{;U} & $\Upsilon$ & \texttt{;f} & $\phi$ & \texttt{;;f} & $\varphi$ \\
+\texttt{;F} & $\Phi$ & \texttt{;x} & $\chi$ & \texttt{;y} & $\psi$ & \texttt{;Y} & $\Psi$ \\
+\texttt{;o} & $\omega$ & \texttt{;O} & $\Omega$ & \texttt{;8} & $\infty$ & \texttt{;0} & $\emptyset$ \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\section{6. Operadores Lógicos y Relacionales Rápidos}
+\begin{itemize}[leftmargin=8mm]
+    \item \texttt{->} $\to \to$, \texttt{=>} $\to \implies$, \texttt{=<} $\to \impliedby$, \texttt{iff} $\to \iff$, \texttt{|->} $\to \mapsto$.
+    \item \texttt{inn} $\to \in$, \texttt{nin} $\to \notin$, \texttt{AA} $\to \forall$, \texttt{EE} $\to \exists$.
+    \item \texttt{!=} $\to \neq$, \texttt{<=} $\to \leq$, \texttt{>=} $\to \geq$, \texttt{<<} $\to \ll$, \texttt{>>} $\to \gg$, \texttt{\string~=} $\to \approx$, \texttt{==} $\to$ alineación \texttt{\&=}.
+    \item \texttt{**} $\to \cdot$, \texttt{xx} $\to \times$, \texttt{ox} $\to \otimes$, \texttt{op} $\to \oplus$, \texttt{+-} $\to \pm$, \texttt{-+} $\to \mp$.
+    \item \texttt{CC} $\to \C$, \texttt{RR} $\to \R$, \texttt{QQ} $\to \Q$, \texttt{ZZ} $\to \Z$, \texttt{NN} $\to \N$, \texttt{FF} $\to \F$, \texttt{HH} $\to \symbb{H}$.
+\end{itemize}
+
+\section{7. Snippets de Estructura con Prefijo Coma (\texttt{,})}
+\begin{itemize}[leftmargin=8mm]
+    \item \textbf{Delimitadores Automáticos:}
+    \begin{itemize}
+        \item \texttt{,,p} $\to ( \dots )$, \texttt{,,c} $\to [ \dots ]$, \texttt{,,l} $\to \{ \dots \}$, \texttt{,,b} $\to | \dots |$, \texttt{,,a} $\to \langle \dots \rangle$.
+        \item \texttt{,,P} $\to \left( \dots \right)$, \texttt{,,C} $\to \left[ \dots \right]$, \texttt{,,L} $\to \left\{ \dots \right\}$, \texttt{,,B} $\to \left| \dots \right|$, \texttt{,,A} $\to \left\langle \dots \right\rangle$.
+    \end{itemize}
+    \item \textbf{Entornos por Ramas:} \texttt{,cases} inserta automáticamente:
+    \[
+        \begin{cases}
+            \Box & \text{si } \Box \\
+            \Box & \text{si } \Box
+        \end{cases}
+    \]
+    \item \textbf{Teoremas y Pruebas:} \texttt{,thm}, \texttt{,pro}, \texttt{,lem}, \texttt{,cor}, \texttt{,def}, \texttt{,ejm}, \texttt{,exc}, \texttt{,prf} (expansión polimórfica: inserta \texttt{claimproof} si estás dentro de un teorema, \texttt{solution} si estás en un ejercicio, o \texttt{proof} general).
+\end{itemize}
+
+\chapter{Plegado Visual (TeX-Fold), Modo Zen y Evil-TeX}
+
+Tu configuración en \texttt{my-latex-visuals.el} implementa un sistema avanzado de renderizado tipográfico en vivo sobre el buffer de \LaTeX, sustituyendo la complejidad sintáctica por glifos Unicode elegantes y cabeceras limpias sin alterar el archivo fuente.
+
+\section{El Modo Visual Zen (\texttt{my/latex-visual-mode} con \texttt{; t z})}
+Al pulsar \texttt{; t z}, se activa el entorno Zen que incluye:
+\begin{enumerate}[label=\bfseries\arabic*., leftmargin=10mm]
+    \item \textbf{Foco de Línea Reactivo (\textit{Line Focus}):} A diferencia del comportamiento tradicional de AUCTeX que causaba saltos de cursor, tu sistema mantiene plegada toda la pantalla y **solo despliega en código crudo la línea donde se encuentra el cursor** de forma instantánea.
+    \item \textbf{Plegado de Títulos y Secciones:}
+    \begin{itemize}
+        \item \texttt{\string\part\{...\}} $\to$ \textbf{❖ Título} (tamaño destacado $1.6\times$).
+        \item \texttt{\string\chapter\{...\}} $\to$ \textbf{¶ Título} (tamaño $1.5\times$).
+        \item \texttt{\string\section\{...\}} $\to$ \textbf{§ Título} (tamaño $1.3\times$).
+        \item \texttt{\string\subsection\{...\}} $\to$ \textbf{§§ Título} (tamaño $1.15\times$).
+    \end{itemize}
+    \item \textbf{Plegado de Entornos Matemáticos y Teoremas:}
+    \begin{itemize}
+        \item \texttt{\string\begin\{theorem\}[Título]} $\to$ \texttt{--- Theorem [Título] ---} (en azul).
+        \item \texttt{\string\begin\{definition\}[Término]} $\to$ \texttt{--- Definition [Término] ---} (en dorado).
+        \item \texttt{\string\begin\{warningbox\}} $\to$ \texttt{--- Warningbox ---} (en rojo).
+        \item \texttt{\string\end\{...\}} $\to$ \texttt{--- Fin de Theorem ---}.
+    \end{itemize}
+    \item \textbf{Plegado de Referencias, Citas y Metadatos:}
+    \begin{itemize}
+        \item \texttt{\string\label\{thm:nakayama\}} $\to$ \texttt{[🏷️ thm:nakayama]}.
+        \item \texttt{\string\cref\{thm:nakayama\}} $\to$ \texttt{[🔗 thm:nakayama]}.
+        \item \texttt{\string\cite\{atiyah1994\}} $\to$ \texttt{[📚 atiyah1994]}.
+        \item \texttt{\string\TODO\{...\}} $\to$ \colorbox{red!20}{\textbf{🛑 TODO: ...}}
+        \item \texttt{\string\FIXME\{...\}} $\to$ \colorbox{red!30}{\textbf{🛠️ FIXME: ...}}
+        \item \texttt{\string\DEBUG\{...\}} $\to$ \colorbox{purple!20}{\textbf{🐞 DEBUG: ...}}
+        \item \texttt{\string\NOTE\{...\}} $\to$ \colorbox{blue!20}{\textbf{ℹ️ NOTE: ...}}
+    \end{itemize}
+    \item \textbf{Plegado de Aplicaciones y Morfismos (\texttt{\string\map}):}
+    El comando \texttt{\string\map\{f\}\{X\}\{Y\}\{x\}\{f(x)\}} se pliega automáticamente en una elegante estructura matemática de 2 líneas:
+    \[
+        f: X \longrightarrow Y, \quad x \longmapsto f(x)
+    \]
+    \item \textbf{Prettify Symbols Mode (\texttt{; t p}):} Reemplaza visualmente cientos de macros en tiempo real: \texttt{\string\alpha} $\to \alpha$, \texttt{\string\int} $\to \int$, \texttt{\string\sum} $\to \sum$, \texttt{\string\infty} $\to \infty$, \texttt{\string\R} $\to \R$, \texttt{\string\C} $\to \C$, \texttt{\string\symfrak\{g\}} $\to \symfrak{g}$.
+\end{enumerate}
+
+\section{Navegación Modal con Evil-TeX}
+Tu entorno incorpora \texttt{evil-tex} para manipular el código \LaTeX\ como objetos sintácticos:
+\begin{itemize}[leftmargin=8mm]
+    \item \texttt{]]} / \texttt{[[}: Saltar hacia adelante o hacia atrás al siguiente límite de sección (\texttt{\string\section}, \texttt{\string\chapter}).
+    \item \textbf{Objetos de Texto (Text Objects):}
+    \begin{itemize}
+        \item \texttt{v i e} / \texttt{d i e}: Seleccionar / borrar el contenido interno del entorno actual (\textit{inner environment}).
+        \item \texttt{v a e} / \texttt{d a e}: Seleccionar / borrar el entorno completo incluyendo \texttt{\string\begin} y \texttt{\string\end}.
+        \item \texttt{v i m} / \texttt{d i m}: Seleccionar / borrar dentro de la fórmula matemática (\textit{inner math} $\$$ o $\backslash[$).
+        \item \texttt{v a m} / \texttt{d a m}: Seleccionar / borrar la fórmula matemática con sus delimitadores.
+        \item \texttt{v i c} / \texttt{d i c}: Seleccionar / borrar el argumento de un comando \LaTeX\ (\textit{inner command}).
+    \end{itemize}
+    \item \texttt{t s}: Prefijo de transformación rápida de Evil-TeX (cambiar delimitadores, modificar envolturas de fórmulas).
+\end{itemize}
+
+\chapter{Segundo Cerebro Matemático (Estructura Bourbaki)}
+
+Tu Segundo Cerebro matemático está ubicado en \texttt{\string~/Documentos/06\_Notas\_SegundoCerebro/Segundo-Cerebro/}.
+
+\section{Comandos del Segundo Cerebro (\texttt{; k})}
+\begin{itemize}[leftmargin=8mm]
+    \item \texttt{; k s}: \textbf{Selector Rápido de Materias (\texttt{my/second-brain-select-subject}):} Abre el selector difuso para saltar de inmediato a cualquiera de las 34 materias canónicas (Álgebra Conmutativa, Variable Compleja, Probabilidad, Riemann, etc.).
+    \item \texttt{; k n}: Crear una nueva nota matemática estructurada (\texttt{my/brain-new-entry}).
+    \item \texttt{; k d}: Abrir la \textbf{Bitácora Diaria de Hoy} (\texttt{my/journal-today} $\to$ \texttt{00-Diario/YYYY/MM/YYYY-MM-DD.tex}).
+    \item \texttt{; k B}: Regenerar la bibliografía unificada de todo el Segundo Cerebro (\texttt{my/brain-generate-bib}).
+    \item \texttt{; k c}: Compilar el documento activo con el motor del Segundo Cerebro (\texttt{my/smart-compile}).
+    \item \texttt{; k C}: Limpiar archivos temporales y compilar desde cero el libro maestro \texttt{main.tex} (\texttt{my/brain-clean-and-compile}).
+    \item \texttt{; k p}: Abrir el PDF consolidado de más de 78 páginas de tu Segundo Cerebro (\texttt{my/brain-open-pdf}).
+    \item \texttt{; k F}: \textbf{Bibliotecario con IA (\texttt{my/brain-ai-librarian}):} Clasifica y etiqueta la nota actual automáticamente mediante modelos de lenguaje.
+    \item \texttt{; k G}: \textbf{Grafo Neuronal (\texttt{my/brain-generate-graph}):} Genera y visualiza el mapa interactivo de relaciones entre materias.
+    \item \texttt{; k P}: Crear un nuevo proyecto de investigación aislado (\texttt{my/project-new-isolated}).
+\end{itemize}
+
+\chapter{Bibliografía, Citas y Zotero}
+
+\section{Gestión de Referencias con Citar (\texttt{; b})}
+\begin{itemize}[leftmargin=8mm]
+    \item \texttt{; b b}: \textbf{Abrir Biblioteca Zotero:} Búsqueda difusa por autor, título o año de publicación (\texttt{citar-open}).
+    \item \texttt{; b n}: Abrir o crear las notas en \LaTeX\ asociadas a una referencia bibliográfica (\texttt{citar-open-notes}).
+    \item \texttt{; b p}: Vista previa de la cita bibliográfica bajo el cursor (\texttt{my/citar-preview-at-point}).
+    \item \texttt{; b e}: Exportar el archivo \texttt{.bib} local con las citas utilizadas en el documento actual (\texttt{my/brain-export-local-bib}).
+    \item \texttt{; b l}: \textbf{Insertar Magic Link a PDF (\texttt{my/insert-pdf-link}):} Inserta un enlace que permite abrir el libro de referencia en la página exacta desde el código \LaTeX.
+    \item \texttt{; b o}: Abrir el Magic Link bajo el cursor en el visor de PDFs en la página especificada (\texttt{my/open-pdf-link}).
+\end{itemize}
+
+\chapter{Asistencia con Inteligencia Artificial (Google Antigravity)}
+
+Tu configuración se conecta con el ecosistema de **Google Antigravity** mediante los módulos \texttt{my-ai.el} y el CLI nativo \texttt{agy}.
+
+\section{Menú de Inteligencia Artificial (\texttt{; a} y \texttt{; A})}
+\begin{itemize}[leftmargin=8mm]
+    \item \texttt{; a a} / \texttt{; A M}: \textbf{Menú Transient de Antigravity (\texttt{my/antigravity-menu}):} Despliega el panel de control completo con todas las opciones del asistente.
+    \item \texttt{; A l}: \textbf{Salida Terminal en Vivo (Live Logs - \texttt{my/antigravity-live-output}):} Abre un buffer inferior conectado al archivo de logs que transmite en tiempo real la salida de las tareas asíncronas de Antigravity.
+    \item \texttt{; A v}: Abre una terminal \texttt{vterm} dedicada para interactuar con los procesos de IA (\texttt{my/antigravity-live-vterm}).
+    \item \texttt{; a c}: Abrir sesión interactiva en terminal vterm (\texttt{my/antigravity-cli}).
+    \item \texttt{; a C}: Reanudar la última conversación o tarea activa (\texttt{my/antigravity-continue}).
+    \item \texttt{; a p}: Activar el **Modo Planificación** de Antigravity para diseño arquitectónico (\texttt{my/antigravity-plan}).
+    \item \texttt{; a q}: Consultar al agente sobre el código o documento actual (\texttt{my/antigravity-ask}).
+    \item \texttt{; a i}: \textbf{Edición Inline con Diff (\texttt{my/antigravity-inline-edit}):} Solicita modificaciones directas en el buffer con vista previa de cambios.
+    \item \texttt{; a r}: Refactorizar la región seleccionada (\texttt{my/antigravity-refactor-region}).
+    \item \texttt{; a e}: Explicar la fórmula matemática o bloque de código seleccionado (\texttt{my/antigravity-explain-region}).
+    \item \texttt{; a E}: Diagnosticar el último error ocurrido en la terminal (\texttt{my/antigravity-diagnose-terminal-error}).
+    \item \texttt{; a m}: Cambiar de modelo en caliente (Gemini 2.5 Pro / Flash) (\texttt{my/antigravity-switch-model}).
+    \item \texttt{; a x}: Ajustar el nivel de razonamiento / esfuerzo (\textit{Effort}) (\texttt{my/antigravity-switch-effort}).
+    \item \texttt{; a /}: Enviar un comando especial (*Slash Command*) al agente (\texttt{my/antigravity-send-slash-command}).
+    \item \texttt{; a g}: Generar mensaje de commit para Git según los cambios del área de preparación (\texttt{my/antigravity-git-commit-message}).
+    \item \texttt{; a A}: Desplegar el menú del agente Aider como alternativa (\texttt{aidermacs-transient-menu}).
+    \item \texttt{; A j}: Abrir sesión de chat dedicada con GPTel / Jarvis (\texttt{my/jarvis-chat-session}).
+    \item \texttt{; A c}: Ejecutar un comando puntual de IA sobre la región (\texttt{my/jarvis-oneshot-command}).
+    \item \texttt{; A e}: \textbf{Exportar Configuración Completa a TXT (\texttt{my/export-config-as-txt}):} Genera el archivo consolidado \texttt{emacs-config-completa.txt} con los 22 módulos de tu configuración.
+    \item \texttt{; A t}: Exportar todos los archivos \texttt{.tex} del proyecto actual a TXT (\texttt{my/export-project-tex-as-txt}).
+    \item \texttt{; A E}: Exportar archivos por extensión arbitraria a TXT (\texttt{my/export-files-by-extension}).
+\end{itemize}
+
+\chapter{Sincronización en la Nube con Google Drive}
+
+Tu configuración administra la sincronización espejo 1:1 con Google Drive a través de \texttt{gdrive-sync.el} y \texttt{syncclient.el}:
+
+\section{Comandos de Sincronización (\texttt{; d})}
+\begin{itemize}[leftmargin=8mm]
+    \item \texttt{; d d}: \textbf{Menú Transient de GDrive (\texttt{gdrive-sync-transient/body}):} Panel interactivo con todas las acciones de sincronización.
+    \item \texttt{; d n}: Navegar por Google Drive de forma remota mediante Dired + TRAMP (\texttt{gdrive-sync/browse-remote}).
+    \item \texttt{; d i}: Explorador interactivo de carpetas remotas (\texttt{gdrive-sync/navigate-remote}).
+    \item \texttt{; d m}: \textbf{Montaje FUSE Interactivo (\texttt{gdrive-sync/mount-remote}):} Monta tu Google Drive en \texttt{\string~/GoogleDrive/} para explorar archivos en Dired como una carpeta local.
+    \item \texttt{; d M}: Desmontar el sistema de archivos FUSE de forma segura (\texttt{gdrive-sync/unmount-remote}).
+    \item \texttt{; d b}: Sincronización bidireccional inmediata (\texttt{gdrive-sync/bisync-now}).
+    \item \texttt{; d s}: Sincronizar carpeta local hacia el almacenamiento remoto (\texttt{gdrive-sync/sync-local-to-remote}).
+    \item \texttt{; d S}: Descargar cambios desde Google Drive hacia el sistema local (\texttt{gdrive-sync/sync-remote-to-local}).
+    \item \texttt{; d f}: Subir el archivo actual a la nube (\texttt{gdrive-sync/upload-current-file}).
+    \item \texttt{; d F}: Descargar la versión remota del archivo actual (\texttt{gdrive-sync/download-remote-file}).
+    \item \texttt{; d u}: Subir todos los archivos modificados durante la sesión actual (\texttt{gdrive-sync/upload-modified}).
+    \item \texttt{; d r}: Forzar resincronización completa con \texttt{--resync} (\texttt{gdrive-sync/bisync-resync-global}).
+    \item \texttt{; d l}: Eliminar candados de bloqueo (\texttt{.lck}) si un proceso previo fue interrumpido (\texttt{gdrive-sync/force-unlock}).
+    \item \texttt{; d c}: \textbf{Resolver Conflictos con Ediff (\texttt{gdrive-sync/resolve-conflicts}):} Abre una sesión de comparación lado a lado para resolver discrepancias.
+    \item \texttt{; d R}: Refrescar la caché local de carpetas remotas (\texttt{gdrive-sync/refresh-folder-cache}).
+    \item \textbf{Submenú SyncClient (`; dy`):} Panel visual de pares sincronizados (`; dyS` ver estado, `; dyf` forzar sincronización, `; dyc` limpiar duplicados, `; dya` agregar par).
+\end{itemize}
+
+\chapter{Terminal Embebido (vterm), Org Mode y Configuración}
+
+\section{Terminal Embebido vterm (\texttt{; v})}
+\begin{itemize}[leftmargin=8mm]
+    \item \texttt{; v t}: \textbf{Toggle vterm (\texttt{my/toggle-term}):} Abre o minimiza instantáneamente una terminal en el panel inferior compartiendo directorio de trabajo.
+    \item \texttt{; v n}: Abrir una \textbf{Nueva Pestaña vterm} (\texttt{my/vterm-new}).
+    \item \texttt{; v k}: Recompilar el módulo nativo en C de libvterm (\texttt{vterm-module-compile}).
+\end{itemize}
+
+\section{Organización Personal con Org Mode y Agenda (\texttt{; o})}
+\begin{itemize}[leftmargin=8mm]
+    \item \texttt{; o a}: \textbf{Ver Agenda Global:} Muestra las tareas programadas, fechas límite y eventos del día (\texttt{org-agenda}).
+    \item \texttt{; o c}: \textbf{Captura Rápida (Org Capture):} Registra una idea, tarea pendiente o nota de investigación sin interrumpir tu trabajo actual.
+    \item \texttt{; o t}: Abrir directamente tu archivo maestro de organización \texttt{vida.org}.
+    \item \texttt{; o k}: Abrir el calendario gráfico interactivo (\texttt{my/open-calendar}).
+    \item \texttt{; o i}: Procesar la bandeja de entrada de notas móviles (\texttt{my/org-process-mobile-inbox}).
+\end{itemize}
+
+\section{Mantenimiento y Configuración de Emacs (\texttt{; e})}
+\begin{itemize}[leftmargin=8mm]
+    \item \texttt{; e c}: \textbf{Buscador Difuso de Configuración (\texttt{my/find-config-file}):} Salta instantáneamente a cualquiera de los 22 archivos \texttt{.el} de tu configuración.
+    \item \texttt{; e i}: Editar el archivo maestro \texttt{init.el} (\texttt{my/open-init-file}).
+    \item \texttt{; e r}: Reiniciar Emacs limpiamente (\texttt{restart-emacs}).
+    \item \texttt{; e t}: Conmutar el **Modo Terminal-GUI** (\texttt{my-terminal-gui-mode}).
+\end{itemize}
+
+\chapter{Cheat Sheet Resumen de Atajos de Teclado}
+
+\begin{center}
+\small
+\begin{tabularx}{\linewidth}{p{2.0cm} p{4.2cm} X}
+\toprule
+\textbf{Atajo} & \textbf{Función de Emacs Lisp} & \textbf{Acción} \\
+\midrule
+\texttt{; SPC} & \texttt{execute-extended-command} & Ejecutar comando (\texttt{M-x}) \\
+\texttt{; sa}  & \texttt{my/select-all-buffer} & Seleccionar todo el buffer \\
+\texttt{; f f} & \texttt{consult-find} & Buscar archivo de forma difusa \\
+\texttt{; f b} & \texttt{consult-buffer} & Cambiar de buffer \\
+\texttt{; f e} & \texttt{my/dired-edit-directory} & Editar directorio en texto (Oil) \\
+\texttt{; p p} & \texttt{projectile-switch-project} & Cambiar de proyecto \\
+\texttt{; p r} & \texttt{consult-ripgrep} & Búsqueda global ripgrep \\
+\texttt{; g s} & \texttt{magit-status} & Panel de control de Git \\
+\texttt{; t c} & \texttt{my/smart-compile} & Compilar \LaTeX\ con Lua\LaTeX \\
+\texttt{; t v} & \texttt{my/tex-view-with-focus} & Ver PDF en Zathura (SyncTeX) \\
+\texttt{; t f} & \texttt{my/ts-format-buffer} & Formatear AST con Tree-Sitter \\
+\texttt{; t i} & \texttt{tesis-tools-insert-inkscape-pdftex} & Crear figura de Inkscape \\
+\texttt{; t m} & \texttt{my/insert-matrix} & Insertar matriz dinámica \\
+\texttt{; t z} & \texttt{my/latex-visual-mode} & Modo Visual Zen / TeX-Fold \\
+\texttt{; k s} & \texttt{my/second-brain-select-subject} & Selector de materias Segundo Cerebro \\
+\texttt{; k d} & \texttt{my/journal-today} & Bitácora diaria de hoy \\
+\texttt{; A M} & \texttt{my/antigravity-menu} & Menú Antigravity IA \\
+\texttt{; A l} & \texttt{my/antigravity-live-output} & Ver salida de comandos en vivo \\
+\texttt{; d d} & \texttt{gdrive-sync-transient/body} & Menú Google Drive \\
+\texttt{; d m} & \texttt{gdrive-sync/mount-remote} & Montar Google Drive (FUSE) \\
+\texttt{; v t} & \texttt{my/toggle-term} & Abrir / Ocultar terminal vterm \\
+\texttt{; w w} & \texttt{ace-window} & Salto entre paneles divididos \\
+\texttt{; j j} & \texttt{avy-goto-char-timer} & Salto rápido Avy \\
+\texttt{; o a} & \texttt{org-agenda} & Ver Agenda de tareas \\
+\texttt{; o t} & \texttt{vida.org} & Abrir organizador \texttt{vida.org} \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\backmatter
+\printindex
+
+\end{document}
