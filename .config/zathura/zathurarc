@@ -12,10 +12,9 @@ set page-padding 2
 set window-title-basename true
 set statusbar-home-tilde true
 
-# Dark palette
-set default-bg "#000000"
-set default-fg "#ffffff"
-set recolor-lightcolor "#000000"
-set recolor-darkcolor "#dfdfdf"
-set recolor true
-set recolor-keephue false
+# Light mode (white background, black text, no recolor)
+set default-bg "#ffffff"
+set default-fg "#000000"
+set recolor false
+set statusbar-bg "#f5f5f5"
+set statusbar-fg "#000000"
