@@ -23,14 +23,6 @@
 
 (citar-embark-mode)
 
-;; (defun my/insert-citation-with-page ()
-;;   "Inserta cita de Citar preguntando por la página específica."
-;;   (interactive)
-;;   (let* ((page (read-string "Página: "))
-;;          (refs (citar-select-ref))
-;;          (keys (if (listp refs) (mapconcat #'identity refs ",") refs)))
-;;     (insert (format "\\cite[p.%s]{%s}" page keys))))
-
 (defun my/insert-pdf-link ()
   "Inserta un enlace mágico al PDF de la referencia seleccionada."
   (interactive)
@@ -68,6 +60,9 @@
               (message "📚 [Layout] Usando bibliografía local: %s" (mapconcat #'file-name-nondirectory bib-files ", ")))
           (message "🌐 [Layout] No hay .bib en el proyecto. Usando Global.")))
     (message "🌐 [Layout] Fuera de proyecto. Usando Global.")))
+
+;; Ejecuta la detección automáticamente cada vez que abres un buffer de LaTeX
+(add-hook 'LaTeX-mode-hook #'my/detect-project-bibliography)
 
 ;; ==================================================================
 ;; --- 2. ORG MODE, AGENDA Y CALENDARIO ---
@@ -338,15 +333,21 @@
     (my/brain-build-and-view)))
 
 (defun my/smart-compile ()
-  "Enruta la compilación según el contexto (Incremental vs Standalone)."
+  "Enruta la compilación según el contexto (Segundo Cerebro vs Proyecto Externo)."
   (interactive)
-  (if (not (buffer-file-name))
-      (message "⚠️ No se puede compilar: Este buffer no es un archivo guardado.")
-    (progn
-      (save-buffer)
-      (if (my/brain-is-root-file-p (buffer-file-name))
-          (my/brain-build-and-view) ;; <--- Usar Latexmk en lugar de TeX-command-run-all
-        (my/brain-compile-incremental)))))
+  (unless (buffer-file-name)
+    (user-error "⚠️ Este buffer no está guardado en disco"))
+  (save-buffer)
+  (let ((current-path (expand-file-name (buffer-file-name)))
+        (brain-root (expand-file-name my/second-brain-path)))
+    (if (string-prefix-p brain-root current-path)
+        ;; Dentro del Segundo Cerebro: usar la maquinaria asíncrona global
+        (if (my/brain-is-root-file-p current-path)
+            (my/brain-build-and-view)
+          (my/brain-compile-incremental))
+      ;; En cualquier otro proyecto (Tesis, Cursos UNI, Artículos): AUCTeX / latexmk local
+      (message "🚀 Compilando documento local: %s..." (file-name-nondirectory current-path))
+      (TeX-command-run-all nil))))
 
 ;; ==================================================================
 ;; --- 7. HERRAMIENTAS EXTRAS (VISUALIZACIÓN Y CREACIÓN) ---

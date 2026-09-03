@@ -1,5 +1,13 @@
 ;;; early-init.el --- Optimizaciones de pre-arranque -*- lexical-binding: t; -*-
 
+;; Desactivar file-name-handler temporalmente durante el arranque (reduce ~30-50% el tiempo)
+(defvar default-file-name-handler-alist file-name-handler-alist)
+(setq file-name-handler-alist nil)
+
+(add-hook 'emacs-startup-hook
+          (lambda ()
+            (setq file-name-handler-alist default-file-name-handler-alist)))
+
 ;; 1. Desactivar UI nativa antes de que se dibuje (ahorra tiempo y evita parpadeos)
 (push '(menu-bar-lines . 0) default-frame-alist)
 (push '(tool-bar-lines . 0) default-frame-alist)

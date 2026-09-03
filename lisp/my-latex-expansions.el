@@ -85,24 +85,24 @@
            (target-re (concat "\\(" open-re "\\)\\|\\(" close-re "\\)"))
            (orig-pos (point))
            next-pos)
-      (save-excursion
-        ;; Buscamos el siguiente límite estructural en el documento
-        (while (and (not next-pos)
-                    (re-search-forward target-re (point-max) t))
-          (let ((target (match-end 0)))
-            ;; Si el punto encontrado es exactamente donde ya estamos, seguimos buscando
-            (if (= target orig-pos)
-                t 
-              ;; Si encontramos una nueva frontera, saltamos DESPUÉS de ella
-              (goto-char target)
-              (skip-chars-forward " \t")
-              (setq next-pos (point))))))
-              
-      (when next-pos
-        (when (my/corfu-popup-visible-p) (corfu-quit))
-        (goto-char next-pos)
-        t)))
-        
+     (save-excursion
+       ;; Buscamos el siguiente límite estructural en el documento
+       (while (and (not next-pos)
+                   (re-search-forward target-re (point-max) t))
+         (let ((target (match-end 0)))
+           ;; Si el punto encontrado es exactamente donde ya estamos, seguimos buscando
+           (if (= target orig-pos)
+               t 
+             ;; Si encontramos una nueva frontera, saltamos DESPUÉS de ella
+             (goto-char target)
+             (skip-chars-forward " \t")
+             (setq next-pos (point))))))
+             
+     (when next-pos
+       (when (my/corfu-popup-visible-p) (corfu-quit))
+       (goto-char next-pos)
+       t)))
+       
    ;; 4. FALLBACK (Espaciado literal)
    (t
     (when (my/corfu-popup-visible-p) (corfu-quit))
@@ -123,23 +123,23 @@
            (target-re (concat "\\(" open-re "\\)\\|\\(" close-re "\\)"))
            (orig-pos (point))
            prev-pos)
-      (save-excursion
-        ;; Buscamos hacia atrás en todo el documento
-        (while (and (not prev-pos)
-                    (re-search-backward target-re (point-min) t))
-          ;; La simetría perfecta:
-          ;; Si encontramos una APERTURA (grupo 1), caemos DESPUÉS de ella (para entrar).
-          ;; Si encontramos un CIERRE (grupo 2), caemos ANTES de él (para re-entrar).
-          (let ((target (if (match-beginning 1) (match-end 1) (match-beginning 2))))
-            (if (= target orig-pos)
-                t 
-              (goto-char target)
-              (setq prev-pos (point))))))
-              
-      (when prev-pos
-        (when (my/corfu-popup-visible-p) (corfu-quit))
-        (goto-char prev-pos)
-        t)))
+     (save-excursion
+       ;; Buscamos hacia atrás en todo el documento
+       (while (and (not prev-pos)
+                   (re-search-backward target-re (point-min) t))
+           ;; La simetría perfecta:
+           ;; Si encontramos una APERTURA (grupo 1), caemos DESPUÉS de ella (para entrar).
+           ;; Si encontramos un CIERRE (grupo 2), caemos ANTES de él (para re-entrar).
+           (let ((target (if (match-beginning 1) (match-end 1) (match-beginning 2))))
+             (if (= target orig-pos)
+                 t 
+               (goto-char target)
+               (setq prev-pos (point))))))
+             
+     (when prev-pos
+       (when (my/corfu-popup-visible-p) (corfu-quit))
+       (goto-char prev-pos)
+       t)))
 
    ;; 3. FALLBACK
    (t nil)))
@@ -156,6 +156,10 @@
       corfu-quit-no-match t
       corfu-quit-at-boundary 'separator
       global-corfu-minibuffer nil)
+
+;; Activar expansión automática de Tempel al escribir (auto-expand en delimitadores)
+(add-hook 'LaTeX-mode-hook #'tempel-abbrev-mode)
+(add-hook 'latex-mode-hook #'tempel-abbrev-mode)
 
 (global-corfu-mode 1)
 (corfu-history-mode 1)
@@ -235,7 +239,7 @@ Compatible con Emacs 30+. Navega infinitamente por carpetas."
                     (when strip-ext
                       (let ((ext (file-name-extension str)))
                         (when ext
-                          (delete-char (- (1+ (length ext)))))))))))))))
+                          (delete-char (- (1+ (length ext))))))))))))))
 
 (defun my/setup-latex-capf ()
   "Alinea los motores de autocompletado para LaTeX."
@@ -243,31 +247,31 @@ Compatible con Emacs 30+. Navega infinitamente por carpetas."
     ;; Evita que Corfu colapse al teclear la barra '/' en rutas
     (setq-local corfu-quit-at-boundary nil)
     
-    (setq-local completion-at-point-functions
-                (list #'my/latex-path-capf
-                      #'tempel-complete
-                      #'eglot-completion-at-point
-                      #'cape-file
-                      #'cape-dabbrev))
-    ;; Usar cape-super-capf si está disponible (versiones nuevas de cape)
-    (when (fboundp 'cape-super-capf)
+    ;; Usar cape-super-capf si está disponible (Emacs 30+), si no la versión simple
+    (if (fboundp 'cape-super-capf)
+        (setq-local completion-at-point-functions
+                    (list (cape-super-capf
+                           #'my/latex-path-capf
+                           #'tempel-complete
+                           #'eglot-completion-at-point
+                           #'cape-file
+                           #'cape-dabbrev)))
       (setq-local completion-at-point-functions
-                  (list (cape-super-capf
-                         #'my/latex-path-capf
-                         #'tempel-complete
-                         #'eglot-completion-at-point
-                         #'cape-file
-                         #'cape-dabbrev))))))
+                  (list #'my/latex-path-capf
+                        #'tempel-complete
+                        #'eglot-completion-at-point
+                        #'cape-file
+                        #'cape-dabbrev)))))
 
-(add-hook 'eglot-managed-mode-hook #'my/setup-latex-capf)
+;; Activar siempre que se abra LaTeX, sin depender de eglot
+(add-hook 'LaTeX-mode-hook #'my/setup-latex-capf)
 
 ;; ==================================================================
 ;; --- 5. MICRO-SNIPPETS AUTOMÁTICOS (LAAS) ---
 ;; ==================================================================
 (setq laas-enable-auto-space t)
 
-(add-hook 'LaTeX-mode-hook #'laas-mode)
-
+;; 1. Registrar snippets de LAAS INMEDIATAMENTE al cargar (no esperar a hook)
 (with-eval-after-load 'laas
   (aas-set-snippets 'laas-mode
     :cond #'laas-mathp
@@ -303,6 +307,19 @@ Compatible con Emacs 30+. Navega infinitamente por carpetas."
     "Frac" "\\Frac"
     "Proj" "\\Proj"))
 
+;; 2. Activar laas-mode y aas-mode con diagnóstico
+(add-hook 'LaTeX-mode-hook
+          (lambda ()
+            (unless (bound-and-true-p laas-mode)
+              (laas-mode 1))
+            ;; Verificación: AAS debe estar activo
+            (when (and (bound-and-true-p laas-mode)
+                       (not (bound-and-true-p aas-mode)))
+              (aas-mode 1))
+            (message "🔧 LAAS+AAS activos: laas=%s aas=%s"
+                     (if (bound-and-true-p laas-mode) "ON" "OFF")
+                     (if (bound-and-true-p aas-mode) "ON" "OFF"))))
+
 ;; ==================================================================
 ;; --- 6. ACTIVACIÓN DEL TAB INTELIGENTE (EVIL MODE) ---
 ;; ==================================================================
@@ -313,13 +330,13 @@ Compatible con Emacs 30+. Navega infinitamente por carpetas."
             (local-set-key (kbd "<tab>") #'my/ide-tab-handler)
             (local-set-key (kbd "<backtab>") #'my/ide-backtab-handler)
             (local-set-key (kbd "S-TAB") #'my/ide-backtab-handler)
-            
+
             ;; 2. Asignar en el modo Inserción de Evil (Crucial)
             (when (bound-and-true-p evil-mode)
               (evil-local-set-key 'insert (kbd "TAB") #'my/ide-tab-handler)
               (evil-local-set-key 'insert (kbd "<tab>") #'my/ide-tab-handler)
               (evil-local-set-key 'insert (kbd "<backtab>") #'my/ide-backtab-handler)
-              (evil-local-set-key 'insert (kbd "S-TAB") #'my/ide-backtab-handler))))
+              (evil-local-set-key 'insert (kbd "S-TAB") #'my/ide-backtab-handler)))))
 
 (provide 'my-latex-expansions)
 ;;; my-latex-expansions.el ends here

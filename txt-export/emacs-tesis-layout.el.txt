@@ -28,11 +28,14 @@ El valor debe estar entre 0.1 y 0.9."
 ;; --- Funciones auxiliares internas
 
 (defun tesis--get-main-pdf-file ()
-  "Devuelve la ruta al archivo PDF principal asociado al buffer actual."
-  (when-let ((bfn (buffer-file-name)))
-    (let ((pdf-file (concat (file-name-sans-extension bfn) ".pdf")))
-      (when (file-exists-p pdf-file)
-        pdf-file))))
+  "Devuelve la ruta al PDF maestro de la tesis o documento actual."
+  (let* ((master (if (fboundp 'TeX-master-file)
+                     (TeX-master-file "pdf")
+                   (when-let ((bfn (buffer-file-name)))
+                     (concat (file-name-sans-extension bfn) ".pdf"))))
+         (full-path (when master (expand-file-name master))))
+    (when (and full-path (file-exists-p full-path))
+      full-path)))
 
 (defun tesis--save-window-config ()
   "Guarda la configuración de ventanas actual en el registro."

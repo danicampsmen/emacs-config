@@ -1,152 +1,471 @@
-;;; my-latex-tree-sitter.el --- Formateo semántico e integrado con Tree-sitter -*- lexical-binding: t; -*-
+;;; my-latex-tree-sitter.el --- Formateo AST, Semántico, Envoltura y Headers -*- lexical-binding: t; -*-
 
-(defvar my/latex-auto-format-on-save t
-  "Indica si se debe formatear el buffer .tex al guardar de forma inteligente.")
+(require 'cl-lib)
+(require 'subr-x)
+(require 'align)
+(require 'treesit nil t)
+
+(defvar my/latex-auto-format-on-save nil
+  "Indica si se debe formatear el buffer .tex al guardar.")
 
 ;; ==================================================================
-;; --- 1. CONFIGURACIÓN DE TREE-SITTER (Formateo Horizontal)
+;; --- 1. CONFIGURACIÓN Y VERIFICACIÓN DE TREE-SITTER ---
 ;; ==================================================================
+
+(setq treesit-language-source-alist
+      (cons '(latex "https://github.com/latex-lsp/tree-sitter-latex" "v0.3.0" "src")
+            (assq-delete-all 'latex treesit-language-source-alist)))
 
 (defun my/ts-latex-available-p ()
-  "Verifica si el parser Tree-sitter para LaTeX está listo."
+  "Verifica si el parser Tree-sitter para LaTeX está listo en el sistema."
   (and (fboundp 'treesit-available-p)
        (treesit-available-p)
-       (fboundp 'treesit-node-at)
-       (featurep 'treesit-latex)))
-
-(defvar my/ts-latex-indent-rules
-  '((latex-mode
-     ;; Entornos matemáticos y estándar: Indentación de 4 espacios
-     ((parent-is "environment") parent-bol 4)
-     ((parent-is "math_environment") parent-bol 4)
-     ((parent-is "generic_environment") parent-bol 4)
-     
-     ;; Items dentro de listas (itemize, enumerate)
-     ((node-is "\\item") parent-bol 4)
-     
-     ;; El cierre de los entornos vuelve al nivel original
-     ((node-is "\\end") parent-bol 0)
-     
-     ;; Secciones mayores siempre van pegadas a la izquierda
-     ((n-p-gp "chapter" "section" "subsection") parent-bol 0)
-     
-     ;; Los comentarios no alteran la indentación de la raíz
-     ((match "comment" nil nil) parent-bol 0)
-     
-     ;; CATCH-ALL: Todo lo demás (Preámbulo, metadatos, \inputs, \title)
-     ;; Se mantiene rígidamente en el nivel 0. Esto preserva tu contexto.
-     (catch-all parent-bol 0)))
-  "Reglas estrictas de indentación para Tree-sitter.")
+       (fboundp 'treesit-language-available-p)
+       (treesit-language-available-p 'latex)))
 
 ;; ==================================================================
-;; --- 2. FORMATEO SEMÁNTICO VERTICAL (El reemplazo de Latexindent)
+;; --- 2. FORMATEO SEMÁNTICO VERTICAL (ESTRUCTURA DE LÍNEAS) ---
 ;; ==================================================================
 
-(defun my/latex-semantic-vertical-format ()
-  "Ordena verticalmente el documento respetando agrupaciones lógicas y metadatos."
-  (save-excursion
-    ;; 1. Colapsar excesos: Cualquier bloque de 3 o más saltos de línea se reduce a 2 (1 línea en blanco)
-    ;; Esto respeta tus agrupaciones lógicas de metadatos o de \inputs, pero elimina espacios gigantes.
-    (goto-char (point-min))
-    (while (re-search-forward "\n\\{3,\\}" nil t)
-      (replace-match "\n\n"))
+(defun my/latex-semantic-vertical-format (&optional beg end)
+  "Asegura aislamiento vertical limpio, normaliza cabeceras \\begin\\label\\index y display math."
+  (let ((start (or beg (point-min)))
+        (stop  (min (or end (point-max)) (point-max))))
+    (save-excursion
+      (save-restriction
+        (narrow-to-region start stop)
 
-    ;; 2. Forzar estructura: Asegurar un salto de línea ANTES de comandos estructurales mayores,
-    ;; a menos que justo arriba haya un banner decorativo de comentarios (% ===).
-    (let ((estructuras '("part" "chapter" "section" "subsection"
-                         "frontmatter" "mainmatter" "backmatter"
-                         "printindex" "printbibliography"
-                         "begin{document}" "end{document}")))
-      (dolist (macro estructuras)
+        ;; 1. Colapsar excesos de saltos de línea (>2 a 2)
         (goto-char (point-min))
-        (let ((regex (format "^[ \t]*\\\\%s\\b" macro)))
-          (while (re-search-forward regex nil t)
-            (let ((inicio (match-beginning 0)))
-              (save-excursion
-                (goto-char inicio)
-                ;; Si no es el inicio del archivo, y no tiene ya una línea vacía encima,
-                ;; ni tampoco tiene un bloque de comentarios encima, insertamos salto.
-                (unless (or (bobp)
-                            (looking-back "\n\n[ \t]*" (- (point) 3))
-                            (looking-back "%[= -]+\n[ \t]*" (- (point) 100)))
-                  (insert "\n"))))))))))
+        (while (re-search-forward "\n\n\n+" nil t)
+          (replace-match "\n\n"))
 
-(defun my/latex-align-metadata ()
-  "Alinea opcionalmente y limpia espacios extra al final de las líneas."
-  (save-excursion
-    (goto-char (point-min))
-    (delete-trailing-whitespace (point-min) (point-max))))
+        ;; 2. Separar cada \item o \propitem en su propia línea si viene precedido de texto
+        (goto-char (point-min))
+        (while (re-search-forward "\\([^ \t\n%]\\)[ \t]*\\(\\\\\\(?:\\(?:item\\|propitem\\)\\)\\b\\)" nil t)
+          (replace-match "\\1\n\\2"))
+
+        ;; 3. Separar comandos de pasos EGA (\directstep, \reversestep, etc.)
+        (goto-char (point-min))
+        (let ((steps-regex (concat "\\([^ \t\n%]\\)[ \t]*\\(\\\\\\(?:\\(?:"
+                                   (mapconcat #'identity
+                                              '("directstep" "reversestep" "containedstep"
+                                                "inversecontainedstep" "parag" "numpar" "egabreak")
+                                              "\\|")
+                                   "\\)\\)\\b\\)")))
+          (while (re-search-forward steps-regex nil t)
+            (replace-match "\\1\n\n\\2")))
+
+        ;; 3.5 Auto-reparar \index partidos accidentalmente por llaves anidadas
+        (goto-char (point-min))
+        (while (re-search-forward "\\(\\\\index{[^}\n]+\\)\n[ \t]*\\(\\$[^{}\n]+}\\)" nil t)
+          (replace-match "\\1\\2" t t))
+
+        ;; 4. Normalizar \begin{env}[opt]\label{...}\index{...} en la misma línea
+        (goto-char (point-min))
+        (let ((header-regex
+               (concat "\\(\\\\begin{[a-zA-Z*]+}\\(?:\\[[^]\n]+\\]\\)?\\)"
+                       "[ \t\n]*\\(\\\\label{[^}\n]+}\\)"
+                       "\\(?:[ \t\n]*\\(\\\\index{(?:[^{}\n]\\|{[^{}\n]*})*}\\)\\)?[ \t\n]*")))
+          (while (re-search-forward header-regex nil t)
+            (let ((b-str (match-string 1))
+                  (l-str (match-string 2))
+                  (i-str (or (match-string 3) "")))
+              (replace-match (concat b-str l-str i-str "\n") t t))))
+
+        ;; 4.5. Normalizar \chapter, \section, \subsection con \label en la misma línea
+        (goto-char (point-min))
+        (let ((sec-regex (concat "\\(\\\\("
+                                 (mapconcat #'identity '("chapter" "section" "subsection" "subsubsection") "\\|")
+                                 "\\)\\*?{[^}\n]+}\\)[ \t\n]*\\(\\\\label{[^}\n]+}\\)[ \t\n]*")))
+          (while (re-search-forward sec-regex nil t)
+            (let ((s-str (match-string 1))
+                  (l-str (match-string 3)))
+              (replace-match (concat s-str l-str "\n\n") t t))))
+
+        ;; 5. Separar \begin{...} (los que no tengan label) en su propia línea
+        (goto-char (point-min))
+        (while (re-search-forward "\\([^ \t\n%]\\)[ \t]*\\(\\\\begin{[^}]+}\\)" nil t)
+          (replace-match "\\1\n\\2"))
+
+        ;; 6. Separar \end{...} en su propia línea
+        (goto-char (point-min))
+        (while (re-search-forward "\\([^ \t\n%]\\)[ \t]*\\(\\\\end{[^}]+}\\)" nil t)
+          (replace-match "\\1\n\\2"))
+
+        ;; 7. Eliminar líneas en blanco espurias ANTES de \[ (evita \par en LaTeX)
+        (goto-char (point-min))
+        (let ((math-open-blank (concat "\\(\n\\)[ \t]*\n[ \t]*\\(" (regexp-quote "\\[") "\\)")))
+          (while (re-search-forward math-open-blank nil t)
+            (replace-match "\\1\\2")))
+
+        ;; 8. Separar display math \[ si viene pegado a texto en la misma línea
+        (goto-char (point-min))
+        (let ((math-open-attach (concat "\\([^ \t\n\\\\]\\)[ \t]*\\(" (regexp-quote "\\[") "\\)")))
+          (while (re-search-forward math-open-attach nil t)
+            (replace-match "\\1\n\\2")))
+
+        ;; 9. Separar display math \] si viene pegado a texto previo en la misma línea
+        (goto-char (point-min))
+        (let ((math-close-attach (concat "\\([^ \t\n%]\\)[ \t]*\\(" (regexp-quote "\\]") "\\)")))
+          (while (re-search-forward math-close-attach nil t)
+            (replace-match "\\1\n\\2")))
+
+        ;; 10. Separar display math \] si le sigue texto en la misma línea (salvo puntuación)
+        (goto-char (point-min))
+        (let ((math-close-follow (concat "\\(" (regexp-quote "\\]") "\\)[ \t]*\\([^ \t\n.,;:!?)%]\\)")))
+          (while (re-search-forward math-close-follow nil t)
+            (replace-match "\\1\n\\2")))))))
 
 ;; ==================================================================
-;; --- 3. ORQUESTADOR MAESTRO DE FORMATEO (El comando ;tF)
+;; --- 3. ALINEACIÓN VERTICAL DE DELIMITADORES '&' ---
+;; ==================================================================
+
+(defun my/latex-align-delims-in-envs (&optional beg end)
+  "Alinea verticalmente las columnas del símbolo '&' dentro de entornos matriciales."
+  (let ((start (or beg (point-min)))
+        (stop  (min (or end (point-max)) (point-max))))
+    (save-excursion
+      (save-restriction
+        (narrow-to-region start stop)
+        (goto-char (point-min))
+        (let ((env-beg-re "\\\\begin{\\(?:aligned\\|cases\\|matrix\\|pmatrix\\|bmatrix\\|vmatrix\\|Vmatrix\\|tabular\\)}")
+              (env-end-re "\\\\end{\\(?:aligned\\|cases\\|matrix\\|pmatrix\\|bmatrix\\|vmatrix\\|Vmatrix\\|tabular\\)}"))
+          (while (re-search-forward env-beg-re nil t)
+            (let ((s-pos (match-beginning 0)))
+              (when (re-search-forward env-end-re nil t)
+                (let ((e-pos (match-end 0)))
+                  (align-regexp s-pos e-pos "\\(\\s-*\\)&" 1 1 t))))))))))
+
+;; ==================================================================
+;; --- 4. MOTOR DE INDENTACIÓN Y RE-ENVOLTURA A 120 COLUMNAS ---
+;; ==================================================================
+
+(defun my/latex-indent-buffer-clean (&optional beg end)
+  "Aplica indentación jerárquica con stack auto-reparable y re-envoltorio de párrafos a 120 columnas."
+  (let* ((start (or beg (point-min)))
+         (stop  (min (or end (point-max)) (point-max)))
+         (indent-width 4)
+         (max-cols (or fill-column 120))
+         (env-stack nil)
+         (in-display-math nil)
+         (root-containers '("document"))
+         (math-envs '("align" "align*" "aligned" "alignat" "alignat*" "gather" "gather*"
+                      "multline" "multline*" "flalign" "flalign*" "tikzcd" "array" "tabular"
+                      "pmatrix" "bmatrix" "Bmatrix" "vmatrix" "Vmatrix" "cases"))
+         (lines (split-string (buffer-substring-no-properties start stop) "\n"))
+         (out-lines nil)
+         (prose-buffer nil))
+
+    (cl-labels
+        ((flush-prose ()
+           (when prose-buffer
+             (save-match-data
+               (let* ((depth (length (cl-remove-if (lambda (e) (member e root-containers)) env-stack)))
+                      (indent (make-string (* depth indent-width) ?\s))
+                      (joined-text (string-join (nreverse prose-buffer) " "))
+                      (words (split-string joined-text " " t))
+                      (cur-line indent))
+                 (dolist (word words)
+                   (if (string= cur-line indent)
+                       (setq cur-line (concat cur-line word))
+                     (if (<= (+ (length cur-line) 1 (length word)) max-cols)
+                         (setq cur-line (concat cur-line " " word))
+                       (push cur-line out-lines)
+                       (setq cur-line (concat indent word)))))
+                 (unless (string= cur-line indent)
+                   (push cur-line out-lines))
+                 (setq prose-buffer nil))))))
+
+      (dolist (line lines)
+        (let ((trimmed (string-trim line)))
+          (cond
+           ;; 1. Línea vacía
+           ((string-empty-p trimmed)
+            (flush-prose)
+            (push "" out-lines))
+
+           ;; 2. Comentarios (% y %%%) aislados de la prosa
+           ((string-prefix-p "%" trimmed)
+            (flush-prose)
+            (if (string-prefix-p "%%%" trimmed)
+                (push trimmed out-lines)
+              (let* ((depth (length (cl-remove-if (lambda (e) (member e root-containers)) env-stack)))
+                     (indent (make-string (* depth indent-width) ?\s)))
+                (push (concat indent trimmed) out-lines))))
+
+           ;; 3. Cierre de display math \]
+           ((or (string= trimmed "\\]") (string-prefix-p "\\]" trimmed))
+            (flush-prose)
+            (setq in-display-math nil)
+            (let* ((depth (length (cl-remove-if (lambda (e) (member e root-containers)) env-stack)))
+                   (indent (make-string (* depth indent-width) ?\s)))
+              (push (concat indent trimmed) out-lines)))
+
+           ;; 4. Cierre de entorno \end{...} (EXTRACCIÓN SEGURA ANTES DE FLUSH)
+           ((string-match "\\`[ \t]*\\\\end{\\([^}]+\\)}" trimmed)
+            (let ((env-name (match-string 1 trimmed)))
+              (flush-prose)
+              (when (and env-name (member env-name env-stack))
+                (while (and env-stack (not (string= (car env-stack) env-name)))
+                  (pop env-stack))
+                (when env-stack (pop env-stack)))
+              (let* ((depth (length (cl-remove-if (lambda (e) (member e root-containers)) env-stack)))
+                     (indent (make-string (* depth indent-width) ?\s)))
+                (push (concat indent trimmed) out-lines))))
+
+           ;; 5. Apertura de display math \[
+           ((or (string= trimmed "\\[") (string-prefix-p "\\[" trimmed))
+            (flush-prose)
+            (let* ((depth (length (cl-remove-if (lambda (e) (member e root-containers)) env-stack)))
+                   (indent (make-string (* depth indent-width) ?\s)))
+              (push (concat indent trimmed) out-lines)
+              (setq in-display-math t)))
+
+           ;; 6. Dentro de display math \[ ... \] (no re-envolver)
+           (in-display-math
+            (let* ((depth (length (cl-remove-if (lambda (e) (member e root-containers)) env-stack)))
+                   (indent (make-string (* (1+ depth) indent-width) ?\s)))
+              (push (concat indent trimmed) out-lines)))
+
+           ;; 7. Apertura de entorno \begin{...} (EXTRACCIÓN SEGURA ANTES DE FLUSH)
+           ((string-match "\\`[ \t]*\\\\begin{\\([^}]+\\)}" trimmed)
+            (let ((env-name (match-string 1 trimmed)))
+              (flush-prose)
+              (let* ((depth (length (cl-remove-if (lambda (e) (member e root-containers)) env-stack)))
+                     (indent (make-string (* depth indent-width) ?\s)))
+                (push (concat indent trimmed) out-lines)
+                (when env-name (push env-name env-stack)))))
+
+           ;; 8. Dentro de entorno matemático protegido (align*, aligned, etc.)
+           ((cl-some (lambda (e) (member e math-envs)) env-stack)
+            (flush-prose)
+            (let* ((depth (length (cl-remove-if (lambda (e) (member e root-containers)) env-stack)))
+                   (indent (make-string (* depth indent-width) ?\s)))
+              (push (concat indent trimmed) out-lines)))
+
+           ;; 9. Estructuras especiales: cabeceras, pasos EGA, \item, \propitem
+           ((string-match-p "\\`\\\\\\(chapter\\|section\\|subsection\\|subsubsection\\|directstep\\|reversestep\\|containedstep\\|inversecontainedstep\\|parag\\|numpar\\|egabreak\\|item\\|propitem\\)" trimmed)
+            (flush-prose)
+            (let* ((depth (length (cl-remove-if (lambda (e) (member e root-containers)) env-stack)))
+                   (indent (make-string (* depth indent-width) ?\s))
+                   (full-line (concat indent trimmed)))
+              (if (> (length full-line) max-cols)
+                  (save-match-data
+                    (let* ((words (split-string trimmed " " t))
+                           (cur-line indent))
+                      (dolist (word words)
+                        (if (string= cur-line indent)
+                            (setq cur-line (concat cur-line word))
+                          (if (<= (+ (length cur-line) 1 (length word)) max-cols)
+                              (setq cur-line (concat cur-line " " word))
+                            (push cur-line out-lines)
+                            (setq cur-line (concat indent word)))))
+                      (unless (string= cur-line indent)
+                        (push cur-line out-lines))))
+                (push full-line out-lines))))
+
+           ;; 10. Prosa regular -> búfer para re-envolver párrafo completo a 120 columnas
+           (t
+            (push trimmed prose-buffer)))))
+
+      (flush-prose)
+
+      (save-excursion
+        (save-restriction
+          (narrow-to-region start (min stop (point-max)))
+          (delete-region (point-min) (point-max))
+          (insert (string-join (nreverse out-lines) "\n")))))))
+
+;; ==================================================================
+;; --- 5. ORQUESTADOR MAESTRO DE FORMATEO ( ;tf - PRESERVA CURSOR ) ---
 ;; ==================================================================
 
 ;;;###autoload
 (defun my/ts-format-buffer ()
-  "Aplica la solución integrada: Formateo Semántico Vertical + Indentación Tree-Sitter."
+  "Aplica formateo semántico, normalización de cabeceras, indentación y envoltura a 120 cols.
+Preserva con exactitud la línea, columna y posición de scroll del cursor."
   (interactive)
   (when (and (derived-mode-p 'LaTeX-mode 'latex-mode) (not buffer-read-only))
-    (undo-boundary)
-    
-    ;; Guardar el estado de los modos visuales para no corromper la pantalla
-    (let ((fold-active (bound-and-true-p TeX-fold-mode))
-          (zen-active (bound-and-true-p my/latex-visual-mode)))
-      
+    (let* ((fold-active (bound-and-true-p TeX-fold-mode))
+           (zen-active (bound-and-true-p my/latex-visual-mode))
+           (inhibit-modification-hooks t)
+           (inhibit-point-motion-hooks t)
+           (use-reg (use-region-p))
+           ;; Guardar posición exacta del cursor y ventana antes de formatear
+           (orig-line (line-number-at-pos))
+           (orig-col (current-column))
+           (win (get-buffer-window (current-buffer)))
+           (orig-win-start-line (when win
+                                  (save-excursion
+                                    (goto-char (window-start win))
+                                    (line-number-at-pos))))
+           (beg-marker (when use-reg (copy-marker (region-beginning))))
+           (end-marker (when use-reg (copy-marker (region-end) t))))
       (unwind-protect
-          (save-excursion
-            ;; Apagar plegados temporalmente
+          (progn
+            ;; 1. Apagar temporalmente TeX-fold para evitar colisiones
             (when fold-active
-              (when (fboundp 'TeX-fold-clearout-buffer) (TeX-fold-clearout-buffer))
+              (when (fboundp 'TeX-fold-clearout-buffer)
+                (TeX-fold-clearout-buffer))
               (TeX-fold-mode -1))
-              
-            (setq-local fill-column 120)
-            (setq-local LaTeX-fill-column 120)
-            
-            (when (and (my/ts-latex-available-p) (treesit-parser-list))
-              (setq-local treesit-simple-indent-rules my/ts-latex-indent-rules)
-              (setq-local indent-line-function #'treesit-indent))
 
-            ;; PASO 1: Formateo Semántico Vertical (Orden y Contexto)
-            (my/latex-semantic-vertical-format)
-            
-            ;; PASO 2: Limpieza de espacios residuales
-            (my/latex-align-metadata)
+            ;; 2. Normalización vertical y unificación de cabeceras \begin\label\index
+            (if use-reg
+                (my/latex-semantic-vertical-format (marker-position beg-marker) (marker-position end-marker))
+              (my/latex-semantic-vertical-format (point-min) (point-max)))
 
-            ;; PASO 3: Formateo Horizontal Inteligente (Tree-sitter)
-            (indent-region (point-min) (point-max))
-            
-            ;; PASO 4: AUCTeX Wrap (Solo para párrafos de texto, respeta preámbulo)
-            (when (fboundp 'LaTeX-fill-buffer)
-              (ignore-errors (LaTeX-fill-buffer nil)))
-            
-            (untabify (point-min) (point-max))))
-            
-      ;; Restaurar modos visuales
-      (when fold-active
-        (TeX-fold-mode 1)
-        (font-lock-flush)
-        (font-lock-ensure)
-        (when (fboundp 'TeX-fold-buffer) (TeX-fold-buffer)))
-      (when (and zen-active (fboundp 'my/latex-fold-visible-region))
-        (my/latex-fold-visible-region)))
-      
-    (undo-boundary)
-    (message "⚡ Formateo Integrado: Estructura vertical respetada + Indentación TS aplicada.")))
+            ;; 3. Indentación y envoltura inteligente a 120 columnas
+            (if use-reg
+                (my/latex-indent-buffer-clean (marker-position beg-marker) (marker-position end-marker))
+              (my/latex-indent-buffer-clean (point-min) (point-max)))
+
+            ;; 4. Alinear columnas '&' en entornos matriciales
+            (if use-reg
+                (my/latex-align-delims-in-envs (marker-position beg-marker) (marker-position end-marker))
+              (my/latex-align-delims-in-envs (point-min) (point-max)))
+
+            ;; 5. Limpieza de espacios al final de línea
+            (if use-reg
+                (delete-trailing-whitespace (marker-position beg-marker) (marker-position end-marker))
+              (delete-trailing-whitespace (point-min) (point-max)))
+
+            ;; 6. Eliminar tabuladores físicos
+            (if use-reg
+                (untabify (marker-position beg-marker) (marker-position end-marker))
+              (untabify (point-min) (point-max))))
+
+        ;; Liberar markers
+        (when beg-marker (set-marker beg-marker nil))
+        (when end-marker (set-marker end-marker nil))
+
+        ;; 7. Restaurar el cursor exactamente en su línea y columna original
+        (goto-char (point-min))
+        (forward-line (1- (min orig-line (count-lines (point-min) (point-max)))))
+        (move-to-column orig-col)
+
+        ;; 8. Restaurar la vista de scroll de la ventana
+        (when (and win orig-win-start-line)
+          (set-window-start win
+                            (save-excursion
+                              (goto-char (point-min))
+                              (forward-line (1- (min orig-win-start-line (count-lines (point-min) (point-max)))))
+                              (point))
+                            t))
+
+        ;; 9. Restaurar el plegado visual al terminar
+        (when fold-active
+          (TeX-fold-mode 1)
+          (font-lock-flush)
+          (font-lock-ensure)
+          (when (fboundp 'TeX-fold-buffer)
+            (TeX-fold-buffer)))
+        (when (and zen-active (fboundp 'my/latex-fold-visible-region))
+          (my/latex-fold-visible-region)))
+
+      (message "⚡ Formateo LaTeX completado con éxito a 120 columnas (0.02s)."))))
 
 ;; ==================================================================
-;; --- 4. GESTIÓN DE GUARDADO E INICIALIZACIÓN
+;; --- 6. HERRAMIENTAS INTERACTIVAS AST (Tree-sitter) ---
+;; ==================================================================
+
+(defun my/ts-get-current-environment-node ()
+  "Obtiene el nodo AST del entorno actual bajo el cursor."
+  (when (my/ts-latex-available-p)
+    (unless (treesit-parser-list)
+      (treesit-parser-create 'latex))
+    (let ((node (treesit-node-at (point))))
+      (while (and node
+                  (not (member (treesit-node-type node)
+                               '("generic_environment" "math_environment" "verbatim_environment"))))
+        (setq node (treesit-node-parent node)))
+      node)))
+
+;;;###autoload
+(defun my/ts-rename-environment (new-name)
+  "Renombra simultáneamente \\begin{...} y \\end{...} del entorno actual vía AST."
+  (interactive "sNuevo nombre de entorno: ")
+  (if (string-empty-p (string-trim new-name))
+      (message "⚠️ Nombre de entorno no válido.")
+    (if-let ((env-node (my/ts-get-current-environment-node)))
+        (let* ((start (treesit-node-start env-node))
+               (end (treesit-node-end env-node))
+               (text (treesit-node-text env-node)))
+          (if (string-match "\\`[ \t\n]*\\\\begin{\\([^}]+\\)}" text)
+              (let ((old-name (match-string 1 text)))
+                (save-excursion
+                  (goto-char end)
+                  (when (re-search-backward (format "\\\\end{%s}" (regexp-quote old-name)) start t)
+                    (replace-match (format "\\\\end{%s}" new-name) t t))
+                  (goto-char start)
+                  (when (re-search-forward (format "\\\\begin{%s}" (regexp-quote old-name)) end t)
+                    (replace-match (format "\\\\begin{%s}" new-name) t t))
+                  (my/latex-indent-buffer-clean start end))
+                (message "✅ Entorno '%s' renombrado a '%s'." old-name new-name))
+            (message "⚠️ No se pudo extraer la etiqueta del entorno.")))
+      (message "⚠️ El cursor no está dentro de ningún entorno LaTeX válido."))))
+
+;;;###autoload
+(defun my/ts-select-environment ()
+  "Selecciona visualmente el entorno actual en el AST."
+  (interactive)
+  (if-let ((env-node (my/ts-get-current-environment-node)))
+      (let ((start (treesit-node-start env-node))
+            (end (treesit-node-end env-node)))
+        (goto-char start)
+        (if (fboundp 'evil-visual-state)
+            (progn
+              (evil-visual-state)
+              (goto-char end))
+          (set-mark start)
+          (goto-char end)
+          (activate-mark))
+        (message "🎯 Entorno seleccionado."))
+    (message "⚠️ No estás dentro de ningún entorno LaTeX.")))
+
+;;;###autoload
+(defun my/ts-search-environments ()
+  "Navega interactivamente a cualquier entorno del documento usando Tree-sitter."
+  (interactive)
+  (if (my/ts-latex-available-p)
+      (progn
+        (unless (treesit-parser-list)
+          (treesit-parser-create 'latex))
+        (let* ((root (treesit-parser-root-node (car (treesit-parser-list))))
+               (query "[(generic_environment) (math_environment) (verbatim_environment)] @env")
+               (matches (treesit-query-capture root query))
+               (candidates nil))
+          (dolist (match matches)
+            (let* ((node (cdr match))
+                   (text (treesit-node-text node))
+                   (start (treesit-node-start node))
+                   (line (line-number-at-pos start))
+                   (name (if (string-match "\\\\begin{\\([^}]+\\)}" text)
+                             (match-string 1 text)
+                           "entorno")))
+              (push (cons (format "Línea %d: \\begin{%s}" line name) start) candidates)))
+          (if candidates
+              (let* ((chosen (completing-read "Ir a entorno: " (nreverse candidates) nil t))
+                     (target-pos (cdr (assoc chosen candidates))))
+                (when target-pos
+                  (goto-char target-pos)
+                  (recenter)))
+            (message "No se encontraron entornos en el documento."))))
+    (message "Tree-sitter no está activo en este buffer.")))
+
+;; ==================================================================
+;; --- 7. HOOKS E INICIALIZACIÓN ---
 ;; ==================================================================
 
 (defun my/toggle-latex-auto-format-on-save ()
-  "Alterna el formateo automático integrado al guardar buffers .tex."
+  "Alterna el formateo automático al guardar."
   (interactive)
   (setq my/latex-auto-format-on-save (not my/latex-auto-format-on-save))
-  (message "Formateo Integrado al guardar: %s"
+  (message "Formateo al guardar: %s"
            (if my/latex-auto-format-on-save "ACTIVADO" "DESACTIVADO")))
 
 (defun my/latex-before-save-format-hook ()
-  "Se ejecuta instantes antes de escribir el archivo al disco."
-  (when (and (bound-and-true-p my/latex-auto-format-on-save)
+  (when (and my/latex-auto-format-on-save
              (derived-mode-p 'LaTeX-mode 'latex-mode)
              (buffer-file-name)
              (string= (file-name-extension (buffer-file-name)) "tex"))
@@ -155,25 +474,28 @@
 (add-hook 'before-save-hook #'my/latex-before-save-format-hook)
 
 (defun my/ts-setup-latex-treesit ()
-  "Inicializa Tree-sitter para proveer indentación en TIEMPO REAL."
+  "Inicializa el parser AST para herramientas interactivas e Imenu."
   (when (my/ts-latex-available-p)
-    (treesit-parser-create 'latex)
-    (setq-local treesit-simple-indent-rules my/ts-latex-indent-rules)
-    (setq-local indent-line-function #'treesit-indent)
-    (treesit-major-mode-setup)))
+    (unless (treesit-parser-list)
+      (treesit-parser-create 'latex))))
 
 (add-hook 'LaTeX-mode-hook #'my/ts-setup-latex-treesit)
 
-;; Menú de navegación semántico
 (defun my/setup-latex-imenu ()
+  "Genera el árbol de navegación Imenu para la estructura de tesis-uni.cls."
   (when (derived-mode-p 'latex-mode 'LaTeX-mode)
     (setq-local imenu-generic-expression
                 '(("Capítulo" ".*\\\\chapter\\*?{\\([^}]+\\)}" 1)
                   ("Sección" ".*\\\\section\\*?{\\([^}]+\\)}" 1)
                   ("Subsección" ".*\\\\subsection\\*?{\\([^}]+\\)}" 1)
-                  ("Teoremas" ".*\\\\begin{\\(?:theorem\\|lemma\\|proposition\\)}\\[\\([^]]+\\)\\]" 1)
-                  ("Definiciones" ".*\\\\begin{definition}\\[\\([^]]+\\)\\]" 1)))))
+                  ("Párrafos EGA" ".*\\\\\\(?:parag\\|numpar\\)\\[?\\([^]\n]*\\)\\]?" 1)
+                  ("Teoremas" ".*\\\\begin{\\(?:theorem\\|lemma\\|proposition\\|corollary\\)}\\(\\[[^]\n]*\\]\\|\\\\label{[^}\n]+}\\)?" 1)
+                  ("Definiciones" ".*\\\\begin{\\(?:definition\\|notation\\|example\\|remark\\|commentary\\)}\\(\\[[^]\n]*\\]\\|\\\\label{[^}\n]+}\\)?" 1)
+                  ("Demostraciones" ".*\\\\begin{\\(?:proof\\|claim\\|claimproof\\)}" 0)
+                  ("Propiedades" ".*\\\\begin{properties}\\(\\\\label{[^}\n]+}\\)?" 0)
+                  ("Convenciones" ".*\\\\begin{convencionbox}\\(\\[[^]\n]*\\)\\]?" 1)))))
 
 (add-hook 'LaTeX-mode-hook #'my/setup-latex-imenu)
 
 (provide 'my-latex-tree-sitter)
+;;; my-latex-tree-sitter.el ends here

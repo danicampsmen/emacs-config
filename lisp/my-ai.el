@@ -583,7 +583,7 @@
   "Alterna la auto-aprobación de permisos (`--dangerously-skip-permissions`)."
   (interactive)
   (setq my/antigravity-auto-approve (not my/antigravity-auto-approve))
-  (message "🛡️ Auto-aprobación de permisos: %s" (if my/antigravity-auto-approve "ACTIVADA (sin confirmaciones)" "DESACTIVADA (seguro)")))
+  (message "🛡️ Auto-aprobación de permisos: %s" (if my/antigravity-auto-approve "ACTIVADA (sin confirmaciones)" "DESACTIVADA (segura)")))
 
 ;;;###autoload
 (defun my/antigravity-toggle-sandbox ()

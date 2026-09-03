@@ -151,15 +151,22 @@ Si estás en Dired, actualiza el buffer automáticamente para mostrarlo."
   "SPC" '(execute-extended-command :which-key "M-x")
   "sa"  '(my/select-all-buffer :which-key "Seleccionar Todo")
 
-  ;; --- Inteligencia Artificial (Antigravity / Gemini) ---
-  "a"   '(:ignore t :which-key "Inteligencia Artificial")
-  "ac"  '(my/ai-chat :which-key "Chat Antigravity IA (Búfer)")
-  "aC"  '(my/ai-cli :which-key "Terminal CLI Antigravity")
-  "am"  '(my/ai-switch-model :which-key "Cambiar Modelo Gemini")
-  "ar"  '(my/ai-refactor-region :which-key "Refactorizar Región con IA")
-  "ae"  '(my/ai-explain-region :which-key "Explicar Código/Error con IA")
-  "aE"  '(my/ai-explain-last-terminal-error :which-key "Diagnosticar Error de Terminal")
-  "aa"  '(aidermacs-transient-menu :which-key "Agente Aider")
+  ;; --- Inteligencia Artificial (Google Antigravity) ---
+  "a"   '(:ignore t :which-key "Antigravity IA")
+  "aa"  '(my/antigravity-menu :which-key "Menú Transient Antigravity")
+  "ac"  '(my/antigravity-cli :which-key "Terminal Interactiva (vterm)")
+  "aC"  '(my/antigravity-continue :which-key "Reanudar Última Sesión (-c)")
+  "ap"  '(my/antigravity-plan :which-key "Modo Planificación")
+  "aq"  '(my/antigravity-ask :which-key "Preguntar / Consultar")
+  "ai"  '(my/antigravity-inline-edit :which-key "Edición Inline (Diff)")
+  "ar"  '(my/antigravity-refactor-region :which-key "Refactorizar Región")
+  "ae"  '(my/antigravity-explain-region :which-key "Explicar Selección / Fórmula")
+  "aE"  '(my/antigravity-diagnose-terminal-error :which-key "Diagnosticar Error Terminal")
+  "am"  '(my/antigravity-switch-model :which-key "Cambiar Modelo Antigravity")
+  "ax"  '(my/antigravity-switch-effort :which-key "Nivel Razonamiento (Effort)")
+  "a/"  '(my/antigravity-send-slash-command :which-key "Slash Commands")
+  "ag"  '(my/antigravity-git-commit-message :which-key "Generar Commit Git")
+  "aA"  '(aidermacs-transient-menu :which-key "Agente Aider (Fallback)")
 
   ;; --- Archivos e Inserción ---
   "i"   '(:ignore t :which-key "Insertar/Pegar") 
@@ -197,7 +204,7 @@ Si estás en Dired, actualiza el buffer automáticamente para mostrarlo."
   "h7"  '(harpoon-go-to-7 :which-key "Archivo 7")
   "h8"  '(harpoon-go-to-8 :which-key "Archivo 8")
   "h9"  '(harpoon-go-to-9 :which-key "Archivo 9")
-	
+  	
   ;; --- Proyecto (Projectile) ---
   "p"   '(:ignore t :which-key "Project")
   "pf"  '(projectile-find-file :which-key "Find File")
@@ -205,13 +212,37 @@ Si estás en Dired, actualiza el buffer automáticamente para mostrarlo."
   "pp"  '(projectile-switch-project :which-key "Switch Project")
   "pb"  '(projectile-switch-to-buffer :which-key "Project Buffers")
   "pk"  '(projectile-kill-buffers :which-key "Kill Buffers")
-  
+   
   ;; --- Git ---
   "g"   '(:ignore t :which-key "Git")
   "gs"  '(magit-status :which-key "Status")
-  
+   
   ;; --- Google Drive / Sync ---
-  "d"   '(gdrive-sync-transient/body :which-key "Sync (Transient)")  
+  "d"   '(:ignore t :which-key "Google Drive / Sync")
+  "dd"  '(gdrive-sync-transient/body :which-key "Menú Transient GDrive")
+  "dn"  '(gdrive-sync/browse-remote :which-key "Navegar GDrive (Dired TRAMP)")
+  "di"  '(gdrive-sync/navigate-remote :which-key "Explorador Interactivo")
+  "dm"  '(gdrive-sync/mount-remote :which-key "Montar GDrive (FUSE)")
+  "dM"  '(gdrive-sync/unmount-remote :which-key "Desmontar GDrive (FUSE)")
+  "db"  '(gdrive-sync/bisync-now :which-key "Sincronizar Todo (bisync)")
+  "ds"  '(gdrive-sync/sync-local-to-remote :which-key "Local ➔ Remoto (Carpeta)")
+  "dS"  '(gdrive-sync/sync-remote-to-local :which-key "Remoto ➔ Local (Carpeta)")
+  "df"  '(gdrive-sync/upload-current-file :which-key "Subir Archivo Actual")
+  "dF"  '(gdrive-sync/download-remote-file :which-key "Descargar Archivo Remoto")
+  "du"  '(gdrive-sync/upload-modified :which-key "Subir Modificados en Sesión")
+  "dr"  '(gdrive-sync/bisync-resync-global :which-key "Forzar Resincronización (--resync)")
+  "dl"  '(gdrive-sync/force-unlock :which-key "Eliminar Candados (.lck)")
+  "dc"  '(gdrive-sync/resolve-conflicts :which-key "Resolver Conflictos (Ediff)")
+  "dR"  '(gdrive-sync/refresh-folder-cache :which-key "Refrescar Caché de Carpetas")
+
+  "dy"  '(:ignore t :which-key "SyncClient")
+  "dyS" '(syncclient-status :which-key "Ver Estado")
+  "dyf" '(syncclient-force-sync-current :which-key "Forzar Sync Seleccionado")
+  "dyc" '(syncclient-clean-duplicates-current :which-key "Limpiar Duplicados Seleccionado")
+  "dya" '(syncclient-add-pair :which-key "Agregar Par")
+  "dyb" '(syncclient-browse-remote :which-key "Explorar Carpetas Remotas")
+  "dyi" '(syncclient-current-activity :which-key "Ver Actividad Actual")
+  "dyt" '(syncclient-transient-prefix :which-key "Menú Transient")
 
   ;; --- Ventanas / Frames ---
   "w"   '(:ignore t :which-key "Windows/Frames")
@@ -221,12 +252,12 @@ Si estás en Dired, actualiza el buffer automáticamente para mostrarlo."
   "wl"  '(tesis-layout-activate :which-key "Layout Tesis")
   "wp"  '(my/layout-writer :which-key "Layout Tesis (PDF)")
   "wr"  '(my/layout-researcher :which-key "Layout Referencia")
-  
-  ;; --- LaTeX / Texto ---
+   
+;; --- LaTeX / Texto ---
   "t"   '(:ignore t :which-key "TeX/Texto")
   "ta"  '(my/toggle-latex-auto-format-on-save :which-key "Toggle Auto-Format al Guardar")
   "tA"  '(my/open-apuntes-cls :which-key "Editar apuntes.cls")
-  "tb"  '(tesis-tools-insert-citation-advanced :which-key "Citar Avanzado (Tipo/Núm/Pág)")
+  "tb"  '(tesis-tools-insert-citation-advanced :which-key "Citar Avanzado")
   "tc"  '(my/smart-compile :which-key "Compilar (Smart)")
   "tC"  '(my/insert-cref :which-key "Citar con cref")
   "tp"  '(prettify-symbols-mode :which-key "Símbolos")
@@ -235,29 +266,38 @@ Si estás en Dired, actualiza el buffer automáticamente para mostrarlo."
   "te"  '(LaTeX-environment :which-key "Env")
   "tE"  '(tesis-tools-edit-inkscape-pdftex :which-key "Editar SVG en Inkscape")
   "ts"  '(LaTeX-section :which-key "Sec")
-  "tv"  '(my/tex-view-with-focus :which-key "Ver PDF (Foco)")
+  "tv"  '(my/tex-view-with-focus :which-key "Ver PDF (Zathura Sync)")
   "tz"  '(my/latex-visual-mode :which-key "Toggle Visual Zen")
   "ti"  '(citar-insert-citation :which-key "Citar")
   "to"  '(consult-imenu :which-key "Índice")
-  "tF"  '(my/ts-format-buffer :which-key "Format Tree-sitter (Instant)")
-  "tf"  '(my/format-buffer-native :which-key "Format NATIVO")
-  "tI"  '(my/format-buffer-latexindent :which-key "Format INDENT")
+  "tf"  '(my/ts-format-buffer :which-key "Formatear Buffer (Tree-sitter)") ;; <-- AQUÍ
   "tn"  '(my/quick-add-snippet :which-key "Nuevo Snippet")
   "tR"  '(my/reload-snippets :which-key "Recargar Snippets")
   "tm"  '(my/insert-matrix :which-key "Matriz Dinámica")
   "th"  '(my-latex-snippet-hydra/body :which-key "Hydra Snippets")
-  
-  ;; --- Tree-sitter LaTeX ---
-  "tr"  '(my/ts-rename-environment :which-key "TS Renombrar Entorno (Begin/End)")
-  "tV"  '(my/ts-select-environment :which-key "TS Seleccionar Entorno AST")
-  "tS"  '(my/ts-search-environments :which-key "TS Buscar Entornos AST")
-  
+  "tr"  '(my/ts-rename-environment :which-key "TS Renombrar Entorno")
+  "tV"  '(my/ts-select-environment :which-key "TS Seleccionar Entorno")
+  "tS"  '(my/ts-search-environments :which-key "TS Buscar Entornos")
+  "tT"  '(my/insert-apuntes-scr-template :which-key "Template apuntes-scr")
+
+  ;; --- IA JARVIS, Antigravity y Debugging ---
+  "A"   '(:ignore t :which-key "Agente IA / Debug")
+  "AM"  '(my/antigravity-menu :which-key "Menú Antigravity")
+  "Al"  '(my/antigravity-live-output :which-key "Salida Terminal en Vivo (Tail)")
+  "Av"  '(my/antigravity-live-vterm :which-key "Terminal vterm en Vivo")
+  "Aa"  '(aidermacs-transient-menu :which-key "Agente Aider (R1)")
+  "Aj"  '(my/jarvis-chat-session :which-key "Abrir Chat")
+  "Ac"  '(my/jarvis-oneshot-command :which-key "Comando Rápido")
+  "Ae"  '(my/export-config-as-txt :which-key "Exportar Config a TXT")
+  "AE"  '(my/export-files-by-extension :which-key "Exportar extensión general")
+  "At"  '(my/export-project-tex-as-txt :which-key "Exportar .tex a TXT")
+    
   ;; --- Terminal (Vterm) ---
   "v"   '(:ignore t :which-key "Terminal")
   "vt"  '(my/toggle-term :which-key "Toggle (Smart)")
   "vn"  '(my/vterm-new :which-key "Nueva Pestaña")
   "vk"  '(vterm-module-compile :which-key "Recompilar Módulo")
-  
+   
   ;; --- Bibliografía / Zotero ---
   "b"   '(:ignore t :which-key "Bib/Zotero")
   "bb"  '(citar-open :which-key "Abrir Biblioteca")
@@ -266,23 +306,13 @@ Si estás en Dired, actualiza el buffer automáticamente para mostrarlo."
   "be"  '(my/brain-export-local-bib :which-key "Exportar .bib Local")
   "bl"  '(my/insert-pdf-link :which-key "Insert Magic Link")
   "bo"  '(my/open-pdf-link :which-key "Open Magic Link")
-  
+   
   ;; --- Búsqueda / Avy ---
   "j"   '(:ignore t :which-key "Jump/Avy")
   "jj"  '(avy-goto-char-timer :which-key "Saltar a texto")
   "jl"  '(avy-goto-line :which-key "Saltar a línea")
   "ss"  '(consult-line :which-key "Buscar línea")
-  
-  ;; --- IA JARVIS y Debugging ---
-  "A"   '(:ignore t :which-key "Agente IA / Debug")
-  "Aa"  '(aidermacs-transient-menu :which-key "Agente Aider (R1)")
-  "Aj"  '(my/jarvis-chat-session :which-key "Abrir Chat")
-  "Ac"  '(my/jarvis-oneshot-command :which-key "Comando Rápido")
-  "Ae"  '(my/export-config-as-txt :which-key "Exportar Config a TXT")
-  "Ad"  '(my/debug-latexindent :which-key "Diagnóstico Latexindent")
-  "AE"  '(my/export-files-by-extension :which-key "Exportar extensión general")
-  "At"  '(my/export-project-tex-as-txt :which-key "Exportar .tex a TXT")
-  
+     
   ;; --- Segundo Cerebro ---
   "k"   '(:ignore t :which-key "Segundo Cerebro")
   "kn"  '(my/brain-new-entry :which-key "Nueva Nota")
@@ -295,7 +325,7 @@ Si estás en Dired, actualiza el buffer automáticamente para mostrarlo."
   "kG"  '(my/brain-generate-graph :which-key "Ver Mapa")
   "kP"  '(my/project-new-isolated :which-key "Nuevo Proyecto")
   "kd"  '(my/journal-today :which-key "Diario Hoy")
-  
+   
   ;; --- Org Mode / Agenda ---
   "o"   '(:ignore t :which-key "Org/Agenda")
   "oa"  '(org-agenda :which-key "Ver Agenda")

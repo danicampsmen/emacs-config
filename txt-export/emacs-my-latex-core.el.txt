@@ -3,7 +3,6 @@
 (require 'cl-lib)
 (require 'server)
 
-;; Asegurarnos de que el servidor de Emacs está corriendo para la búsqueda inversa
 (unless (server-running-p)
   (server-start))
 
@@ -21,51 +20,30 @@
   :config
   (setq TeX-auto-save t)
   (setq TeX-parse-self t)
-  (setq-default TeX-master nil)
   (setq-default TeX-engine 'luatex)
 
-  ;; --- ACELERACIÓN DE PARSEO ---
-  (setq-default TeX-auto-parse-length 4000)
-  (setq-default TeX-auto-regexp-list 'LaTeX-auto-minimal-regexp-list)
+  ;; Configuración de visor PDF con SyncTeX para Zathura y Okular
+  (setq TeX-view-program-list
+        '(("zathura" "zathura --synctex-forward %l:1:%f %o")
+          ("okular" "okular --unique %o#src:%l%b")))
+  (setq TeX-view-program-selection
+        `((output-pdf ,(if (string-equal my/latex-pdf-viewer "okular") "okular" "zathura"))))
 
-  ;; --- LIMITE DE BÚSQUEDA LOCAL ---
-  (setq-default TeX-arg-input-file-search nil)
-
-  ;; --- CONFIGURACIÓN DEL VISOR ---
-  (setq TeX-view-program-list `((,my/latex-pdf-viewer
-                                 (,my/latex-pdf-viewer " %o"))))
-  (setq TeX-view-program-selection '((output-pdf "Zathura")))
-
-  ;; Habilitar SyncTeX para búsqueda Inversa/Directa
   (setq TeX-source-correlate-mode t)
   (setq TeX-source-correlate-start-server t)
 
-  ;; ==================================================================
-  ;; FIX ARQUITECTÓNICO: BLINDAJE DE COMPILACIÓN SILENCIOSA
-  ;; ==================================================================
-  ;; Mantenemos el Zen Mode ocultando la consola de compilación por defecto
   (setq-default TeX-show-compilation nil)
 
-  ;; Hook dinámico: Este anclaje de AUCTeX SOLO se dispara si NO hubo errores.
-  ;; Lo aprovechamos para que Zathura se abra/actualice automáticamente.
   (add-hook 'TeX-after-compilation-finished-functions
-            (lambda (output-file)
-              ;; ⚠️ FIX: AUCTeX dispara este hook desde el buffer oculto del proceso.
-              ;; Usamos 'with-current-buffer' para volver al buffer de tu código (.tex)
-              ;; y así capturar la línea exacta del cursor para el SyncTeX.
+            (lambda (_output-file)
               (when (bound-and-true-p TeX-command-buffer)
                 (with-current-buffer TeX-command-buffer
                   (message "✅ Compilación exitosa. Sincronizando Zathura...")
                   (my/tex-view-with-focus)))))
 
-  ;; --- GESTIÓN NATIVA DE ERRORES ---
-  ;; 1. Forzar a AUCTeX a parsear todo el archivo .log en lugar de la terminal
   (setq TeX-parse-all-errors t)
-
-  ;; 2. Activar la interfaz de diagnóstico SOLO si ocurren errores reales 
   (setq TeX-error-overview-open-after-TeX-run t)
-  (setq TeX-error-overview-setup nil) ;; Mostrar dividiendo la ventana actual
-  )
+  (setq TeX-error-overview-setup nil))
 
 ;; ==================================================================
 ;; --- 2. PREPARACIÓN DEL ENTORNO DE EDICIÓN (.tex) ---
@@ -73,43 +51,40 @@
 (defun my/latex-mode-setup ()
   "Configuraciones fundamentales que se ejecutan al abrir un archivo LaTeX."
   (message "Configurando núcleo de LaTeX-mode...")
-  (abbrev-mode 1)
+  (abbrev-mode -1)  ;; Desactivado: interfiere con tempel-abbrev-mode
   (auto-save-mode 1)
-  ;; Desactivar auto-fill-mode para que no compita con tree-sitter
   (auto-fill-mode -1)
   (setq-local fill-column 120)
   (setq-local LaTeX-fill-column 120)
+  
+  ;; 1. Envoltura visual estricta (evita que la pantalla se desplace hacia los lados)
   (visual-line-mode 1)
+  (setq-local auto-hscroll-mode nil)          ;; <-- Desactiva el desplazamiento horizontal
+  (set-window-hscroll nil 0)                   ;; <-- Resetea la vista a la columna 0
+  (setq-local truncate-lines nil)
 
-  ;; --- ACTIVACIÓN DE REFTEX ---
   (turn-on-reftex)
   (setq reftex-plug-into-AUCTeX t)
 
-  ;; --- REGLAS DE INDENTACIÓN ---
-  (setq-local fill-indent-according-to-mode t)
-  (setq-local tab-width 4)
+  ;; 2. Reglas de sangría
   (setq-local indent-tabs-mode nil)
+  (setq-local tab-width 4)
   (setq-local LaTeX-indent-level 4)
   (setq-local LaTeX-item-indent 0)
-  (setq-local TeX-brace-indent-level 4)
-  (setq-local TeX-electric-math (cons "  $" "$  "))
-  (setq-local LaTeX-fill-break-at-separators '("\\}" "\\]"))
-
-  (make-local-variable 'LaTeX-indent-environment-list)
-  (add-to-list 'LaTeX-indent-environment-list '("equation" current-indentation))
-  (add-to-list 'LaTeX-indent-environment-list '("align" current-indentation))
-  (add-to-list 'LaTeX-indent-environment-list '("tikzcd" current-indentation))
-
-  ;; --- ACTIVAR SERVIDOR DE LENGUAJE (LSP) ---
+  (setq-local TeX-brace-indent-level 0)
+  
+  ;; Activar LAAS+AAS automáticamente (garantizado)
+  (unless (bound-and-true-p laas-mode)
+    (laas-mode 1))
+  (unless (bound-and-true-p aas-mode)
+    (aas-mode 1))
+  (message "🔧 LAAS+AAS activos desde core: laas=%s aas=%s"
+           (if (bound-and-true-p laas-mode) "ON" "OFF")
+           (if (bound-and-true-p aas-mode) "ON" "OFF"))
+  
   (eglot-ensure)
-
-  ;; --- SUPERÍNDICES Y SUBÍNDICES VISUALES ---
-  (setq font-latex-fontify-script t) ;; Oculta las llaves y sube/baja los caracteres
-  (setq font-latex-script-display '((raise -0.3) . (raise 0.3)))
-
-  ;; --- FORMATEO EN TIEMPO REAL CON TREE-SITTER ---
-  (when (fboundp 'my/ts-setup-latex-treesit)
-    (my/ts-setup-latex-treesit)))
+  (setq font-latex-fontify-script t)
+  (setq font-latex-script-display '((raise -0.3) . (raise 0.3))))
 
 ;; ==================================================================
 ;; --- 3. SERVIDOR DE LENGUAJE (EGLOT + TEXLAB) ---
@@ -119,70 +94,61 @@
                `((tex-mode LaTeX-mode) . ("texlab" :initializationOptions
                                           (:texlab (:chktex (:onOpenAndSave t)
                                                     :forwardSearch (:executable ,my/latex-pdf-viewer
-                                                                    :args ["--synctex-forward" "%l:1:%f" "%p"])))))))
+                                                                    :args ["--synctex-forward" "%l:1:%f" "%p"]))))))
+  ;; Desactivar formateo de TexLab para que Tree-sitter tenga el control total
+  (add-hook 'LaTeX-mode-hook
+            (lambda ()
+              (setq-local eglot-ignored-server-capabilities
+                          (append eglot-ignored-server-capabilities
+                                  '(:documentFormatting :documentRangeFormatting))))))
 
 ;; ==================================================================
-;; --- 4. FUNCIONES DE COMPILACIÓN Y VISUALIZACIÓN ---
+;; --- 4. RUTAS Y COMPILACIÓN ---
 ;; ==================================================================
-;; --- Asegurar que Emacs y LaTeX siempre encuentren latexminted y TeX Live ---
-;; ✅ CORRECCIÓN: Ruta de TeX Live ahora es dinámica mediante executable-find,
-;; con fallback configurable. Ya no depende del año instalado (2026, 2027, ...).
 (defcustom my/texlive-bin-path
-  (or (file-name-directory (executable-find "lualatex"))
+  (or (file-name-directory (or (executable-find "lualatex") ""))
       "/usr/local/texlive/bin/x86_64-linux")
-  "Ruta al binario de TeX Live. Se detecta automáticamente vía `executable-find`."
+  "Ruta al binario de TeX Live."
   :type 'directory
   :group 'my-latex)
 
-;; Asegurar que Emacs siempre encuentre executables de TeX Live y ~/.local/bin
 (let ((local-bin (expand-file-name "~/.local/bin")))
   (add-to-list 'exec-path local-bin)
   (add-to-list 'exec-path (file-name-as-directory my/texlive-bin-path))
-  ;; Establecer PATH para procesos externos
   (setenv "PATH" (concat local-bin ":" my/texlive-bin-path ":" (getenv "PATH"))))
-
-(defun my/latex-compile-and-view-on-save ()
-  "Compila con latexmk (LuaTeX). Solo se ejecuta si el archivo es .tex."
-  (interactive)
-  (when (and (derived-mode-p 'LaTeX-mode)
-             (buffer-file-name)
-             (string= (file-name-extension (buffer-file-name)) "tex"))
-    (save-restriction
-      (widen)
-      (let* ((master-file (TeX-master-file t))
-             (extra-opts (or TeX-command-extra-options ""))
-             ;; Compilación ultrarrápida SIN -shell-escape
-             (command (format "latexmk -pdflua %s -synctex=1 -interaction=nonstopmode %s"
-                              extra-opts
-                              (shell-quote-argument master-file))))
-        (compile command)))))
 
 (defun my/tex-view-with-focus ()
   "Abre o actualiza el PDF en el visor y salta a la línea actual con SyncTeX."
   (interactive)
-  (if-let ((master-pdf (TeX-master-file "pdf"))
-           (pdf-file (expand-file-name master-pdf)))
-      (if (file-exists-p pdf-file)
-          (let ((tex-file (expand-file-name (buffer-file-name)))
-                (line (line-number-at-pos)))
-            (if (executable-find my/latex-pdf-viewer)
-                (progn
-                  (start-process (format "%s-focus" my/latex-pdf-viewer) nil my/latex-pdf-viewer "--synctex-forward"
-                                 (format "%d:1:%s" line tex-file) pdf-file)
-                  (message "%s: Saltando a línea %d..." (capitalize my/latex-pdf-viewer) line))
-              (message "Visor de PDF '%s' no encontrado." my/latex-pdf-viewer)))
-        (message "El archivo PDF no existe: %s. ¡Compila primero!" pdf-file))
-    (message "Error: No se encontró el archivo maestro PDF. Revisa la configuración de AUCTeX.")))
+  (let* ((tex-file (buffer-file-name))
+         (master-pdf (ignore-errors (TeX-master-file "pdf")))
+         (pdf-file (or (and master-pdf (file-exists-p master-pdf) master-pdf)
+                       (and tex-file (concat (file-name-sans-extension tex-file) ".pdf"))))
+         (line (line-number-at-pos)))
+    (cond
+     ((not tex-file)
+      (message "Buffer no asociado a fichero."))
+     ((not (and pdf-file (file-exists-p pdf-file)))
+      (message "PDF no encontrado: %s. Compila primero." pdf-file))
+     ((string-equal my/latex-pdf-viewer "okular")
+      (start-process "okular-focus" nil "okular" "--unique" (format "%s#src:%d%s" pdf-file line tex-file))
+      (message "📄 Okular: saltando a línea %d..." line))
+     ((executable-find my/latex-pdf-viewer)
+      (start-process (format "%s-focus" my/latex-pdf-viewer) nil my/latex-pdf-viewer
+                     "--synctex-forward" (format "%d:1:%s" line tex-file) pdf-file)
+      (message "📄 %s: saltando a línea %d..." (capitalize my/latex-pdf-viewer) line))
+     (t (message "Visor de PDF '%s' no encontrado." my/latex-pdf-viewer)))))
 
-;; ==================================================================
-;; --- 5. HABILITAR MATEMÁTICAS EN ENTORNOS PERSONALIZADOS (OPTIDEF)
-;; ==================================================================
+(defun my/toggle-pdf-viewer ()
+  "Alterna entre Zathura y Okular como visor predeterminado de LaTeX."
+  (interactive)
+  (setq my/latex-pdf-viewer (if (string-equal my/latex-pdf-viewer "zathura") "okular" "zathura"))
+  (setq TeX-view-program-selection `((output-pdf ,my/latex-pdf-viewer)))
+  (message "Visor de PDF cambiado a: %s" (capitalize my/latex-pdf-viewer)))
+
 (with-eval-after-load 'texmathp
-  ;; Añadimos los entornos de optimización a la lista de matemáticas de AUCTeX
   (dolist (env '("mini" "mini*" "maxi" "maxi*" "argmini" "argmini*" "argmaxi" "argmaxi*"))
     (add-to-list 'texmathp-tex-commands (list env 'env-on)))
-
-  ;; Forzamos a AUCTeX a recompilar su base de datos interna de entornos
   (texmathp-compile))
 
 (provide 'my-latex-core)

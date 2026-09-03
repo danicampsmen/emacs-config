@@ -162,17 +162,20 @@
            (memq (char-before) '(?\s ?\n ?\t ?\{ ?\[ ?\( ?~)))))
 
 (defun my/aas-proof-context ()
+  "Determina el contexto de demostración según el entorno de tesis-uni.cls."
   (let ((current-env (if (fboundp 'LaTeX-current-environment) (LaTeX-current-environment) "document")))
     (cond
-     ((string= current-env "proof") 'afirmacion)
+     ;; Si estamos dentro de un proof, claim o claim*, el siguiente nivel es claimproof
+     ((member current-env '("proof" "claim" "claim*")) 'afirmacion)
      ((member current-env '("exercise" "problem" "question" "exc")) 'solucion)
      (t 'demostracion))))
 
 (defun my/aas-expand-proof-polymorphic ()
+  "Expande el entorno de prueba correcto según tesis-uni.cls."
   (interactive)
   (pcase (my/aas-proof-context)
-    ('afirmacion (tempel-insert '("\\begin{pruebaafirmacion}" n> p n> "\\end{pruebaafirmacion}" q)))
-    ('solucion   (tempel-insert '("\\begin{solution}" n> p n> "\\end{solution}" q)))
+    ('afirmacion   (tempel-insert '("\\begin{claimproof}" n> p n> "\\end{claimproof}" q)))
+    ('solucion     (tempel-insert '("\\begin{solution}" n> p n> "\\end{solution}" q)))
     ('demostracion (tempel-insert '("\\begin{proof}" n> p n> "\\end{proof}" q)))))
 
 (defun my/aas-polymorphic-cond ()
@@ -402,7 +405,7 @@
 	",mat" ,#'my/insert-matrix
     ",cases" (tempel "\\begin{cases}" n> p " & \\text{si } " p " \\\\" n> p " & \\text{si } " p n> "\\end{cases}" q)
     ",cas"   (tempel "\\begin{cases}" n> p " \\\\" n> p n> "\\end{cases}" q)
-  ))
+   ))
 
 (defun laas--no-backslash-before-point? ()
   (not (eq (char-before) ?\\)))
@@ -430,4 +433,4 @@
     (remove-hook 'aas-post-snippet-expand-hook #'laas-current-snippet-insert-post-space-if-wanted 'local)))
 
 (provide 'laas)
-;;; laas.el ends here	
+;;; laas.el ends here

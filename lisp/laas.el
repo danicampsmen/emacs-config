@@ -405,7 +405,7 @@
 	",mat" ,#'my/insert-matrix
     ",cases" (tempel "\\begin{cases}" n> p " & \\text{si } " p " \\\\" n> p " & \\text{si } " p n> "\\end{cases}" q)
     ",cas"   (tempel "\\begin{cases}" n> p " \\\\" n> p n> "\\end{cases}" q)
-  ))
+   ))
 
 (defun laas--no-backslash-before-point? ()
   (not (eq (char-before) ?\\)))
@@ -433,4 +433,4 @@
     (remove-hook 'aas-post-snippet-expand-hook #'laas-current-snippet-insert-post-space-if-wanted 'local)))
 
 (provide 'laas)
-;;; laas.el ends here	
+;;; laas.el ends here

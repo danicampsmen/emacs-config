@@ -268,12 +268,12 @@
   _mcal_: \\symcal  _comp_: R̂          _rstp_: (⇐)        	 _eref_: \\eref      			_ol_: \\overline{...}
   _mfr_: \\symfrak  _mad_: m-ádico     _cstp_: (⊆)        	 _cbox_: convencion  			_ts_: \\widetilde{...}
   _mbf_: \\mathbf   _anill_: (R,m,k)   _icstp_: (⊇)       	 _vd_: virage dang   			_ht_: \\widehat{...}
-  _mrm_: \\mathrm   ^^                 _parag_: parag     	 _eqr_: eqref        			_na_: \\nabla
-  _mit_: \\mathit   ^^                 _numpar_: numpar   	 _res_: resumen      			_dsty_: \\displaystyle
-  _msf_: \\mathsf   _dfr_: \\dfrac     _egab_: egabreak   	 _abst_: abstract    			_pmod_: \\pmod{...}
-  _ot_: \\otimes    _tfr_: \\tfrac     _pcs_: proofcases  	 _ded_: dedicatoria  			_bmat_: [matrix]
-  ^^                ^^                 _cpf_: claimproof  	 _agr_: agradecim.   			_pmat_: (matrix)
-  ^^                ^^                 _cmt_: commentary  	 _clm_: claim        			^^
+  _mrm_: \\mathrm   ^^                 _parag_: parag     	 _res_: resumen      			_na_: \\nabla
+  _mit_: \\mathit   ^^                 _numpar_: numpar   	 _abst_: abstract    			_dsty_: \\displaystyle
+  _msf_: \\mathsf   _dfr_: \\dfrac     _egab_: egabreak   	 _ded_: dedicatoria  			_pmod_: \\pmod{...}
+  _ot_: \\otimes    _tfr_: \\tfrac     _pcs_: proofcases  	 _agr_: agradecim.   			_bmat_: [matrix]
+  ^^                ^^                 _cpf_: claimproof  	 _clm_: claim        			_pmat_: (matrix)
+  ^^                ^^                 _cmt_: commentary  	 ^^                			^^
   "
   ;; Envolturas
   ("dpp"    (my-latex-snippet-hydra-insert "dpp")    :exit t)

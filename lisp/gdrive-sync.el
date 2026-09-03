@@ -85,7 +85,7 @@
                          ("cleanup" (append (list "cleanup" remote-full) base-flags args))
                          ((or "sync" "copy" "copyto") (append (list command-type) args sync-flags base-flags filter-flags))
                          (_ (append (list command-type) args))))
-                         
+                          
          (output-buffer (generate-new-buffer (format "*gdrive-%s-output*" command-type))))
 
     (unless silent

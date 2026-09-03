@@ -268,7 +268,7 @@ Return non-nil if that keymap actually exists and was added."
                                    aas-active-keymaps)))))
 
 (defun aas-deactivate-keymap (keymap-symbol)
-  "Remove KEYMAP-SYMBOL from the list of active keymaps."
+  "Remove KEYMAP_SYMBOL from the list of active keymaps."
   (cl-callf2 delq keymap-symbol aas-active-keymaps)
   (setq aas--prefix-map (make-composed-keymap
                          (mapcar (lambda (x) (gethash x aas-keymaps))

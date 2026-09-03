@@ -204,7 +204,7 @@ Si estás en Dired, actualiza el buffer automáticamente para mostrarlo."
   "h7"  '(harpoon-go-to-7 :which-key "Archivo 7")
   "h8"  '(harpoon-go-to-8 :which-key "Archivo 8")
   "h9"  '(harpoon-go-to-9 :which-key "Archivo 9")
-	
+  	
   ;; --- Proyecto (Projectile) ---
   "p"   '(:ignore t :which-key "Project")
   "pf"  '(projectile-find-file :which-key "Find File")
@@ -212,11 +212,11 @@ Si estás en Dired, actualiza el buffer automáticamente para mostrarlo."
   "pp"  '(projectile-switch-project :which-key "Switch Project")
   "pb"  '(projectile-switch-to-buffer :which-key "Project Buffers")
   "pk"  '(projectile-kill-buffers :which-key "Kill Buffers")
-  
+   
   ;; --- Git ---
   "g"   '(:ignore t :which-key "Git")
   "gs"  '(magit-status :which-key "Status")
-  
+   
   ;; --- Google Drive / Sync ---
   "d"   '(:ignore t :which-key "Google Drive / Sync")
   "dd"  '(gdrive-sync-transient/body :which-key "Menú Transient GDrive")
@@ -249,11 +249,13 @@ Si estás en Dired, actualiza el buffer automáticamente para mostrarlo."
   "ww"  '(ace-window :which-key "Saltar (Ace)")
   "wo"  '(other-frame :which-key "Siguiente Frame")
   "wd"  '(delete-window :which-key "Cerrar Ventana")
-  "wl"  '(tesis-layout-activate :which-key "Layout Tesis")
-  "wp"  '(my/layout-writer :which-key "Layout Tesis (PDF)")
-  "wr"  '(my/layout-researcher :which-key "Layout Referencia")
+  "wl"  '(tesis/set-layout :which-key "Menú Layouts Tesis")
+  "wp"  '(tesis/layout-writer :which-key "Layout Escritor (PDF)")
+  "wf"  '(tesis/layout-full :which-key "Layout Completo (Libro+Tesis)")
+  "wr"  '(tesis/layout-researcher :which-key "Layout Investigador (Zotero)")
+  "wR"  '(tesis/restore-layout :which-key "Restaurar Ventanas")   
   
-;; --- LaTeX / Texto ---
+  ;; --- LaTeX / Texto ---
   "t"   '(:ignore t :which-key "TeX/Texto")
   "ta"  '(my/toggle-latex-auto-format-on-save :which-key "Toggle Auto-Format al Guardar")
   "tA"  '(my/open-apuntes-cls :which-key "Editar apuntes.cls")
@@ -278,6 +280,7 @@ Si estás en Dired, actualiza el buffer automáticamente para mostrarlo."
   "tr"  '(my/ts-rename-environment :which-key "TS Renombrar Entorno")
   "tV"  '(my/ts-select-environment :which-key "TS Seleccionar Entorno")
   "tS"  '(my/ts-search-environments :which-key "TS Buscar Entornos")
+  "tT"  '(my/insert-apuntes-scr-template :which-key "Template apuntes-scr")
 
   ;; --- IA JARVIS, Antigravity y Debugging ---
   "A"   '(:ignore t :which-key "Agente IA / Debug")
@@ -296,7 +299,7 @@ Si estás en Dired, actualiza el buffer automáticamente para mostrarlo."
   "vt"  '(my/toggle-term :which-key "Toggle (Smart)")
   "vn"  '(my/vterm-new :which-key "Nueva Pestaña")
   "vk"  '(vterm-module-compile :which-key "Recompilar Módulo")
-  
+   
   ;; --- Bibliografía / Zotero ---
   "b"   '(:ignore t :which-key "Bib/Zotero")
   "bb"  '(citar-open :which-key "Abrir Biblioteca")
@@ -305,13 +308,13 @@ Si estás en Dired, actualiza el buffer automáticamente para mostrarlo."
   "be"  '(my/brain-export-local-bib :which-key "Exportar .bib Local")
   "bl"  '(my/insert-pdf-link :which-key "Insert Magic Link")
   "bo"  '(my/open-pdf-link :which-key "Open Magic Link")
-  
+   
   ;; --- Búsqueda / Avy ---
   "j"   '(:ignore t :which-key "Jump/Avy")
   "jj"  '(avy-goto-char-timer :which-key "Saltar a texto")
   "jl"  '(avy-goto-line :which-key "Saltar a línea")
   "ss"  '(consult-line :which-key "Buscar línea")
-    
+     
   ;; --- Segundo Cerebro ---
   "k"   '(:ignore t :which-key "Segundo Cerebro")
   "kn"  '(my/brain-new-entry :which-key "Nueva Nota")
@@ -324,7 +327,7 @@ Si estás en Dired, actualiza el buffer automáticamente para mostrarlo."
   "kG"  '(my/brain-generate-graph :which-key "Ver Mapa")
   "kP"  '(my/project-new-isolated :which-key "Nuevo Proyecto")
   "kd"  '(my/journal-today :which-key "Diario Hoy")
-  
+   
   ;; --- Org Mode / Agenda ---
   "o"   '(:ignore t :which-key "Org/Agenda")
   "oa"  '(org-agenda :which-key "Ver Agenda")

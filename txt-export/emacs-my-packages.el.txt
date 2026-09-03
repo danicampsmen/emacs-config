@@ -1,10 +1,20 @@
 ;;; my-packages.el --- Gestor de descargas -*- lexical-binding: t; -*-
 
+(require 'cl-lib)
 (require 'package)
 (setq package-archives '(("melpa"  . "https://melpa.org/packages/")
                          ("org"    . "https://orgmode.org/elpa/")
                          ("elpa"   . "https://elpa.gnu.org/packages/")))
 (package-initialize)
+
+;; Bootstrap use-package if it's not installed yet. This makes other files safe
+;; to use `use-package' without failing during first startup.
+(unless (package-installed-p 'use-package)
+  (message "Bootstrapping use-package...")
+  (package-refresh-contents)
+  (package-install 'use-package))
+(eval-when-compile (require 'use-package))
+(setq use-package-always-ensure t)
 
 (defvar my/packages
   '(modus-themes doom-modeline nerd-icons aggressive-indent which-key gptel

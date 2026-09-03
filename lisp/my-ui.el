@@ -104,21 +104,42 @@
 
 ;; --- TIPOGRAFÍAS ---
 
-;; 1. Fuente Principal: Iosevka Term para todo el texto (monoespaciada + matemáticas)
-(set-face-attribute 'default t
-                    :family "Iosevka Term"
+;; 1. Fuente Principal y Monoespaciada: Iosevka Term (14 pt = :height 140)
+(defvar my/monospace-font
+  (cond
+   ((member "Iosevka Term" (font-family-list)) "Iosevka Term")
+   ((member "DejaVu Sans Mono" (font-family-list)) "DejaVu Sans Mono")
+   (t "monospace"))
+  "Tipografía monoespaciada preferida para Emacs.")
+
+(set-face-attribute 'default nil
+                    :family my/monospace-font
                     :slant 'normal
-                    :weight 'light
-                    :height '150
+                    :weight 'normal
+                    :height 140
                     :width 'normal)
-;; Fallback monoespaciado del sistema si Iosevka no está disponible
-(unless (member "Iosevka Term" (font-family-list))
-  (set-face-attribute 'default t
-                      :family "DejaVu Sans Mono"
-                      :slant 'normal
-                      :weight 'normal
-                      :height '150
-                      :width 'normal))
+(set-face-attribute 'default t
+                    :family my/monospace-font
+                    :slant 'normal
+                    :weight 'normal
+                    :height 140
+                    :width 'normal)
+
+;; 2. Fuente para texto de ancho fijo / fixed-pitch
+(set-face-attribute 'fixed-pitch nil
+                    :family my/monospace-font
+                    :slant 'normal
+                    :weight 'normal
+                    :height 140
+                    :width 'normal)
+(set-face-attribute 'fixed-pitch t
+                    :family my/monospace-font
+                    :slant 'normal
+                    :weight 'normal
+                    :height 140
+                    :width 'normal)
+
+(add-to-list 'default-frame-alist `(font . ,(format "%s-14" my/monospace-font)))
 
 ;; 3. Fallback de Iconos (Evita cuadraditos en la modeline/nerd-icons)
 (when (member "Symbols Nerd Font Mono" (font-family-list))
@@ -132,9 +153,35 @@
 (load-theme 'modus-vivendi-deuteranopia t)
 
 (require 'doom-modeline)
-(setq doom-modeline-height 30)
-(setq doom-modeline-minor-modes t)
+(setq doom-modeline-height 28)                  ;; Altura óptima para evitar corte de iconos
+(setq doom-modeline-bar-width 3)                ;; Ancho de barra lateral izquierda
+(setq doom-modeline-icon t)                     ;; Activar iconos
+(setq doom-modeline-major-mode-icon t)          ;; Icono del modo principal
+(setq doom-modeline-major-mode-color-icon t)    ;; Color del icono según el modo
+(setq doom-modeline-buffer-state-icon t)        ;; Icono de estado del buffer (guardado, modificado)
+(setq doom-modeline-buffer-modification-icon t)
+(setq doom-modeline-minor-modes nil)            ;; Evita desbordar y recortar el lado derecho
+(setq doom-modeline-buffer-encoding nil)        ;; Oculta "LF UTF-8" innecesario que empuja el texto
+(setq doom-modeline-indent-info nil)
+;; En Emacs 30+, alinea contra el borde del fringe para evitar que se corte el texto a la derecha
+(setq mode-line-right-align-edge 'right-fringe)
+
 (doom-modeline-mode 1)
+
+;; Alineación precisa y tipografía homogénea en la barra inferior
+(set-face-attribute 'mode-line nil
+                    :family my/monospace-font
+                    :inherit 'default
+                    :height 120)
+(when (facep 'mode-line-active)
+  (set-face-attribute 'mode-line-active nil
+                      :family my/monospace-font
+                      :inherit 'default
+                      :height 120))
+(set-face-attribute 'mode-line-inactive nil
+                    :family my/monospace-font
+                    :inherit 'default
+                    :height 120)
 
 ;; --- HIGHLIGHT TODO ---
 (require 'hl-todo)
@@ -203,15 +250,15 @@
     (set-frame-parameter nil 'undecorated nil)
     (menu-bar-mode 1)
     (message "Modo GUI estándar restaurado.")))
-    
+     
 ;; ==================================================================
 ;; --- ADAPTACIÓN PARA EL REFRESCO DE BORDES EN EL GESTOR DE VENTANAS ---
 ;; ==================================================================
 ;(defun my/refresh-frame-decorations (frame param value)
 ;  "Refresca el marco si se oculta o muestra la barra de título en Wayland/GNOME."
- ; (when (eq param 'undecorated)
-  ;  (make-frame-invisible frame)
-   ; (make-frame-visible frame)))
+;  (when (eq param 'undecorated)
+;    (make-frame-invisible frame)
+;    (make-frame-visible frame)))
 
 ;(advice-add 'set-frame-parameter :after #'my/refresh-frame-decorations)
 

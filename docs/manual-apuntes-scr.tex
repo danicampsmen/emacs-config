@@ -188,9 +188,44 @@ La clase implementa un catálogo exhaustivo de entornos con numeración unificad
     Denotaremos por $k[X_1, \dots, X_n]$ el álgebra de polinomios sobre un cuerpo base $k$ y por $\symbb{A}_k^n = \Spec(k[X_1, \dots, X_n])$ el espacio afín de dimensión $n$.
 \end{notation}
 
+\section{Entornos Complementarios de Razonamiento}
+
+\subsection{Afirmaciones y Pruebas Locales (\texttt{claim} / \texttt{claimproof})}
+Para lemas auxiliares dentro de una demostración mayor:
+
+\begin{claim}[Restricción inyectiva]\label{clm:inyectividad}
+    La aplicación de restricción $\rho_{U, V} \colon \symcal{F}(U) \to \symcal{F}(V)$ es inyectiva para todo abierto conexo $V \subseteq U$.
+\end{claim}
+\begin{claimproof}
+    Sea $s \in \symcal{F}(U)$ tal que $s|_V = 0$. Dado que $\symcal{F}$ es un haz separable y $X$ es conexo, la sección se anula idénticamente en todo $U$.
+\end{claimproof}
+
+\subsection{Casos y Condiciones}
+Los entornos \texttt{caso} y \texttt{condicion} permiten estructurar demostraciones por análisis de casos con numeración automática:
+
+\begin{conditions}[Continuidad]
+    \conditem $f$ es continua en $x_0$.
+    \conditem $g$ es derivable en $x_0$.
+    \conditem $\lim_{x \to x_0} g(x) \neq 0$.
+\end{conditions}
+
+\subsection{Objetivos, Escolios y Recordatorios}
+\begin{itemize}[leftmargin=8mm]
+    \item \textbf{\texttt{objetive}}: Marca el objetivo de una sección o demostración.
+    \item \textbf{\texttt{scholium} / \texttt{scholie}}: Notas marginales al estilo Bourbaki sobre implicaciones más profundas.
+    \item \textbf{\texttt{rappel}}: Recordatorio de un resultado previo que se usará en la demostración.
+\end{itemize}
+
+\subsection{Convenciones}
+El entorno \texttt{convenciones} marca supuestos globales del texto:
+
+\begin{convencionbox}[Notación]
+  Todos los anillos considerados son conmutativos con identidad salvo mención expresa.
+\end{convencionbox}
+
 \section{Afirmaciones y Demostraciones Locales}
 
-\begin{claim}[Inyectividad de la Restricción]\label{clm:inyectividad}
+\begin{claim}[Restricción inyectiva]\label{clm:inyectividad}
     La aplicación de restricción $\rho_{U, V} \colon \symcal{F}(U) \to \symcal{F}(V)$ es inyectiva para todo abierto conexo $V \subseteq U$.
 \end{claim}
 \begin{claimproof}
@@ -209,6 +244,22 @@ La clase implementa un catálogo exhaustivo de entornos con numeración unificad
     \]
     Los generadores canónicos corresponden a los lazos meridianos y paralelos que rodean cada factor del producto.
 \end{solution}
+
+\subsection{Ejercicios Estilo Bourbaki (\texttt{exercices})}
+El entorno \texttt{exercices} genera una sección formal con enumeración alfabética en itálica:
+
+\begin{exercices}[Ejercicios del Capítulo]
+    \exer Calcular $\Spec(\Z)$ y describir sus puntos cerrados.
+    \exerpro Probar que todo dominio PID es un dominio de ideales principales.
+    \exerdif Sea $A$ un anillo noetheriano. Probar que $A[x]$ es noetheriano.
+\end{exercices}
+
+\subsection{Notas Históricas (\texttt{notehistorique})}
+El entorno \texttt{notehistorique} permite insertar contextos históricos con estilo editorial Bourbaki:
+
+\begin{notehistorique}[Origen de la noción de esquema]
+  La teoría de esquemas fue desarrollada por Alexander Grothendieck entre 1957 y 1967 en el Institut des Hautes Études Scientifiques, sustituyendo la noción clásica de variedad por un objeto localmente anillado más general.
+\end{notehistorique}
 
 \chapter{Estructuras de Razonamiento Lógico e Inducción}
 
@@ -235,7 +286,68 @@ La clase provee directivas semánticas para pruebas por inducción:
 \[
     \sum_{i=1}^{k+1} i = \left(\sum_{i=1}^k i\right) + (k+1) = \frac{k(k+1)}{2} + (k+1) = \frac{(k+1)(k+2)}{2}.
 \]
-Esto concluye el paso inductivo.
+ Esto concluye el paso inductivo.
+
+\section{Optimización con \texttt{optidef}}
+La clase integra el paquete \texttt{optidef} para escribir problemas de optimización de forma semántica:
+
+\begin{center}
+\small
+\begin{tabularx}{\linewidth}{l X}
+\toprule
+\textbf{Macro} & \textbf{Uso} \\
+\midrule
+\texttt{\string\optmin} & minimizar \\
+\texttt{\string\optmax} & maximizar \\
+\texttt{\string\optst} & sujeto a \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\begin{lstlisting}[language=TeX, basicstyle=\ttfamily\footnotesize, frame=single, backgroundcolor=\color{gray!5}]
+\begin{mini!}|s|
+    {\ell(x)}{x \in \R^n}
+    {}
+    \addconstraint{g_i(x) \leq 0,\quad i=1,\dots,m}
+    \addconstraint{h_j(x) = 0,\quad j=1,\dots,p}
+\end{mini!}
+\end{lstlisting}
+
+\section{Diagramas de Transición entre Cartas}
+La macro \texttt{\string\transitiondiagram} genera diagramas de transición de variedades con dos cartas superpuestas:
+
+\begin{center}
+\transitiondiagram{U}{V}{W}{\phi}{\psi}{\varphi}{\theta}
+\end{center}
+
+\section{Mapas y Morfismos Estructurados}
+Para describir aplicaciones entre espacios de forma tipográfica elegante:
+
+\begin{itemize}[leftmargin=8mm]
+    \item \texttt{\string\map\{f\}\{X\}\{Y\}\{x\}\{f(x)\}\{&\}}: genera el mapa $f: X \to Y$ con $x \mapsto f(x)$.
+    \item \texttt{\string\inmap\{f\}\{X\}\{Y\}}: generación inline $f: X \to Y$.
+    \item \texttt{\string\Fobj\{F\}\{X\}\{f\}\{Y\}\{F(x)\}}: describe el objeto $F = \{ f: X \to Y \mid x \mapsto F(x) \}$.
+\end{itemize}
+
+\section{Código Ejecutable: Python y Pseudocódigo}
+La clase soporta bloques de código con \texttt{minted}:
+
+\begin{itemize}[leftmargin=8mm]
+    \item \textbf{\texttt{pythoncode}}: Bloque de código Python con syntax highlighting.
+    \item \textbf{\texttt{pythonlib}}: Librería Python importada desde archivo externo.
+    \item \textbf{\texttt{pythonexec}}: Código Python ejecutable que muestra stdout automáticamente.
+    \item \textbf{\texttt{pseudocodigo}}: Pseudocódigo genérico en el lenguaje especificado.
+\end{itemize}
+
+\begin{warningbox}[Advertencia]
+  Los entornos ejecutables requieren \texttt{-shell-escape} en LuaLaTeX y Python 3 instalado. Úsalos solo en borradores.
+\end{warningbox}
+
+\section{Listas de Propiedades y Condiciones}
+\begin{itemize}[leftmargin=8mm]
+    \item \textbf{\texttt{properties}}: Lista con viñetas y etiqueta \texttt{\string\propitem}.
+    \item \textbf{\texttt{conditions}}: Sistema de ecuaciones condicionales con numeración automática vía \texttt{\string\conditem}.
+\end{itemize}
 
 \section{Párrafos Numerados Estilo EGA (\textit{Éléments de Géométrie Algébrique})}
 Para organizar tratados monumentales mediante artículos numerados de forma compacta:
@@ -260,12 +372,54 @@ Para organizar tratados monumentales mediante artículos numerados de forma comp
   ¿Por qué el lema de Nakayama exige que el módulo $M$ sea finitamente generado? ¿Qué contraejemplo surge considerando $M = \Q$ sobre $A = \Z_{(p)}$?
 \end{controlbox}
 
+\begin{egabox}[Filosofía Bourbaki]
+  El rigor no es un obstáculo para la claridad. Cada definición, cada teorema y cada demostración debe encajar en una arquitectura lógica donde la tipografía sirve al pensamiento matemático, no al revés.
+\end{egabox}
+
+\begin{notabox}[Consejo de Estudio]
+  Para asimilar los conceptos de álgebra homológica, es recomendable verificar cada propiedad universal dibujando explícitamente el diagrama conmutativo correspondiente antes de iniciar el cálculo algebraico.
+\end{notabox}
+
+\section{Convenciones y Supuestos Globales}
+El entorno \texttt{convencionbox} marca supuestos que aplican a toda la sección:
+
+\begin{convencionbox}[Notación]
+  Todos los anillos considerados son conmutativos con identidad salvo mención expresa.
+\end{convencionbox}
+
+\section{Tournants Dangereux y Marcadores Marginales}
+La clase incluye signos marginales al estilo EGA para marcar pasajes difíciles:
+
+\begin{itemize}[leftmargin=8mm]
+    \item \texttt{\string\tournantdangereux}: Curva de advertencia simple en el margen.
+    \item \texttt{\string\doubletournantdangereux}: Curva doble para pasajes especialmente delicados.
+    \item \texttt{\string\oldpage[EGA~I]{\{1.1.1\}}}: Marca marginal con referencia a obra clásica.
+\end{itemize}
+
+\section{Metadatos de Investigación}
+Para documentar el estado de avance de un texto científico:
+
+\begin{itemize}[leftmargin=8mm]
+    \item \texttt{\string\dependencias\{Hilbert, Noether\}}: Lista de resultados previos requeridos.
+    \item \texttt{\string\blueprint\{Localizar haz estructural\}}: Idea fuerza del capítulo.
+\end{itemize}
+
+\section{Referencias Clásicas (\texttt{\string\ega}, \texttt{\string\sga}, \texttt{\string\fac}, \texttt{\string\fga})}
+Macros para citar las grandes obras del siglo XX directamente en el margen:
+
+\begin{itemize}[leftmargin=8mm]
+    \item \texttt{\string\ega\{I\}\{1.1.1\}}: Referencia a EGA I, página 1.1.1.
+    \item \texttt{\string\sga\{3\}\{II.1.1\}}: Referencia a SGA 3, página II.1.1.
+    \item \texttt{\string\fac\{1970\}}: Referencia a Foundations of Algebraic Geometry.
+    \item \texttt{\string\fga\{1960\}}: Referencia a Fondements de la Géométrie Algébrique.
+\end{itemize}
+
 \section{Marcadores de Estado en la Investigación}
 \begin{itemize}[leftmargin=8mm]
     \item \texttt{\string\deftech\{Variedad afín\}}: Resalta el concepto e indexa automáticamente en el índice analítico.
-    \item \texttt{\string\TODO\{Completar demostración del lema 3\}}: \TODO{Completar demostración del lema 3}.
-    \item \texttt{\string\DEBUG\{Verificar compatibilidad de signos\}}: \DEBUG{Verificar compatibilidad de signos}.
-    \item \texttt{\string\NOTE\{Revisar versión de Hartshorne Cap. II\}}: \NOTE{Revisar versión de Hartshorne Cap. II}.
+    \item \texttt{\string\TODO\{Completar\}}: \TODO{Completar demostración del lema 3}.
+    \item \texttt{\string\DEBUG\{Signos\}}: \DEBUG{Verificar compatibilidad de signos}.
+    \item \texttt{\string\NOTE\{Hartshorne\}}: \NOTE{Revisar versión de Hartshorne Cap. II}.
 \end{itemize}
 
 \chapter{Diccionario Canónico de Operadores Matemáticos}
@@ -361,6 +515,17 @@ Para enunciar teoremas con condiciones equivalentes:
 
 \section{Entorno Editorial de Algoritmos}
 
+La clase define macros auxiliares semánticas para estructurar algoritmos de forma clara:
+
+\begin{itemize}[leftmargin=8mm]
+    \item \texttt{\string\alginput\{...\}}: Especifica la entrada del algoritmo.
+    \item \texttt{\string\algoutput\{...\}}: Especifica la salida esperada.
+    \item \texttt{\string\alginit\{...\}}: Describe la inicialización de variables.
+    \item \texttt{\string\algparams\{...\}}: Lista parámetros formales.
+    \item \texttt{\string\algstop\{...\}}: Define el criterio de parada.
+    \item \texttt{\string\algstep\{N\}}: Etiqueta un paso numerado dentro de \texttt{algsteps}.
+\end{itemize}
+
 \begin{algorithm}[Algoritmo de Euclides Extendido]\label{alg:euclides}
     \alginput{Dos enteros positivos $a, b \in \Z$ con $a \ge b$.}
     \algoutput{El máximo común divisor $d = \gcd(a, b)$ y los coeficientes de Bézout $x, y \in \Z$ tales que $a x + b y = d$.}
@@ -379,7 +544,7 @@ Para enunciar teoremas con condiciones equivalentes:
     \end{algsteps}
 \end{algorithm}
 
-\chapter{Gráficos Vectoriales, Diagramas y Código}
+\section{Listas de Equivalencia Lógica (\texttt{tfae})}
 
 \section{Diagramas Conmutativos con TikZ-CD}
 La clase incluye soporte preconfigurado para álgebra homológica:
@@ -391,6 +556,18 @@ La clase incluye soporte preconfigurado para álgebra homológica:
 \end{tikzcd}
 \end{center}
 
+\section{Gráficos Metapost con \texttt{luamplib}}
+La clase carga \texttt{luamplib} para incluir gráficos Metapost directamente en el documento:
+
+\begin{lstlisting}[language=TeX, basicstyle=\ttfamily\footnotesize, frame=single, backgroundcolor=\color{gray!5}]
+\begin{mplibcode}
+beginfig(1);
+  draw fullcircle scaled 3cm;
+  label.top(btex $C$ etex, origin);
+endfig;
+\end{mplibcode}
+\end{lstlisting}
+
 \section{Inserción de Figuras Inkscape (\texttt{pdf\_tex})}
 Para garantizar que las figuras conserven exactamente la misma tipografía matemática que el texto del documento:
 
@@ -399,10 +576,26 @@ Para garantizar que las figuras conserven exactamente la misma tipografía matem
     \centering
     \def\svgwidth{0.75\linewidth}
     \subimport*{figuras/}{esfera-riemann.pdf_tex}
-    \caption{Proyección estereográfica de la Esfera de Riemann $\symbb{P}^1(\symbb{C})$.}
+    \caption{Esfera de Riemann $\symbb{P}^1(\symbb{C})$.}
     \label{fig:esfera_riemann}
 \end{figure}
 \end{lstlisting}
+
+La macro auxiliar \texttt{\string\incfig} busca automáticamente en \texttt{./figuras/} y \texttt{../figuras/}:
+
+\begin{lstlisting}[language=TeX, basicstyle=\ttfamily\footnotesize, frame=single, backgroundcolor=\color{gray!5}]
+\incfig[0.8]{diagrama-haces}
+\end{lstlisting}
+
+\section{Estilos TikZ Predefinidos}
+La clase define estilos listos para geometría algebraica y programación no lineal:
+
+\begin{itemize}[leftmargin=8mm]
+    \item \texttt{feasible set}, \texttt{infeasible set}, \texttt{contour}: Conjuntos en optimización.
+    \item \texttt{vector}, \texttt{tangent vector}, \texttt{descent vector}: Campos de direcciones.
+    \item \texttt{point}, \texttt{neighborhood}, \texttt{hyperplane}: Elementos geométricos básicos.
+    \item \texttt{pnldiagram}: Estilo maestro para diagramas de programación no lineal.
+\end{itemize}
 
 \chapter{Referencias Cruzadas, Índices y Segundo Cerebro}
 
@@ -414,12 +607,23 @@ La clase tiene configuradas todas las declinaciones en español. No es necesario
     \item \texttt{\string\cref\{alg:euclides\}} genera: \cref{alg:euclides}.
 \end{itemize}
 
+\section{Suite de Referencias Bourbaki / IHÉS}
+Además de \texttt{cleveref}, la clase provee macros semánticas para citas cruzadas avanzadas:
+
+\begin{itemize}[leftmargin=8mm]
+    \item \texttt{\string\sref[autor]{label}}: Referencia con prefijo opcional \textbf{(autor, label)}.
+    \item \texttt{\string\eref\{label\}}: Referencia inline simple \textbf{(label)}.
+    \item \texttt{\string\csref\{label\}}: Nombre del entorno + número \textbf{Teorema (1.1)}.
+    \item \texttt{\string\autonamedsref\{label\}}: Nombre automático + título del label.
+    \item \texttt{\string\titref\{label\}\{Título personalizado\}}: Referencia con título customizado.
+\end{itemize}
+
 \section{Arquitectura Modular del Segundo Cerebro}
 Para integrar apuntes independientes en un libro unificado:
 \begin{enumerate}[label=\bfseries\arabic*., leftmargin=10mm]
     \item Cada tema matemático (ej. Álgebra Conmutativa, Superficies de Riemann) mantiene su propio archivo \texttt{.tex} autónomo con \texttt{\string\documentclass\{apuntes-scr\}}.
     \item En el archivo maestro \texttt{Segundo-Cerebro/main.tex}, se carga la clase y se incluyen los archivos con:
-    \begin{lstlisting}[language=TeX, basicstyle=\ttfamily\footnotesize, frame=single, backgroundcolor=\color{gray!5}]
+    \begin{lstlisting}[language=TeX, basicstyle=\ttfamily\scriptsize, frame=single, backgroundcolor=\color{gray!5}, breaklines=true, columns=fullflexible]
 \import{10-Matematicas/Apuntes-Algebra-Conmutativa/}{Apuntes-Algebra-Conmutativa.tex}
     \end{lstlisting}
     \item El paquete \texttt{docmute} gestiona de forma transparente los preámbulos para que el libro compile como una sola obra armónica de cientos de páginas con índice general e índice analítico unificados.

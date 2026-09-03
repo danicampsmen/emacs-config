@@ -292,8 +292,8 @@
       (set-face-attribute face nil :foreground unified-color :weight unified-weight :height unified-height)))
    ;; Usar la fuente default (Iosevka Term, monoespaciada) para matemáticas
    ;; para mantener la alineación visual de & en entornos align*
-   (set-face-attribute 'font-latex-math-face nil :family "Iosevka Term" :weight 'light)
-   (set-face-attribute 'font-latex-script-char-face nil :family "Iosevka Term" :weight 'light))
+  (set-face-attribute 'font-latex-math-face nil :family "Iosevka Term" :weight 'light)
+  (set-face-attribute 'font-latex-script-char-face nil :family "Iosevka Term" :weight 'light))
 
 (with-eval-after-load 'tex-fold
   (set-face-attribute 'TeX-fold-folded-face nil :foreground "#a6accd" :weight 'normal))

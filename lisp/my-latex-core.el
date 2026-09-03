@@ -22,9 +22,12 @@
   (setq TeX-parse-self t)
   (setq-default TeX-engine 'luatex)
 
-  ;; Configure PDF viewer for forward search (Zathura)
-  (setq TeX-view-program-list '(("zathura" "zathura --synctex-forward %l:1:%f %o")))
-  (setq TeX-view-program-selection '((output-pdf "zathura")))
+  ;; Configuración de visor PDF con SyncTeX para Zathura y Okular
+  (setq TeX-view-program-list
+        '(("zathura" "zathura --synctex-forward %l:1:%f %o")
+          ("okular" "okular --unique %o#src:%l%b")))
+  (setq TeX-view-program-selection
+        `((output-pdf ,(if (string-equal my/latex-pdf-viewer "okular") "okular" "zathura"))))
 
   (setq TeX-source-correlate-mode t)
   (setq TeX-source-correlate-start-server t)
@@ -48,7 +51,7 @@
 (defun my/latex-mode-setup ()
   "Configuraciones fundamentales que se ejecutan al abrir un archivo LaTeX."
   (message "Configurando núcleo de LaTeX-mode...")
-  (abbrev-mode 1)
+  (abbrev-mode -1)  ;; Desactivado: interfiere con tempel-abbrev-mode
   (auto-save-mode 1)
   (auto-fill-mode -1)
   (setq-local fill-column 120)
@@ -69,6 +72,15 @@
   (setq-local LaTeX-indent-level 4)
   (setq-local LaTeX-item-indent 0)
   (setq-local TeX-brace-indent-level 0)
+  
+  ;; Activar LAAS+AAS automáticamente (garantizado)
+  (unless (bound-and-true-p laas-mode)
+    (laas-mode 1))
+  (unless (bound-and-true-p aas-mode)
+    (aas-mode 1))
+  (message "🔧 LAAS+AAS activos desde core: laas=%s aas=%s"
+           (if (bound-and-true-p laas-mode) "ON" "OFF")
+           (if (bound-and-true-p aas-mode) "ON" "OFF"))
   
   (eglot-ensure)
   (setq font-latex-fontify-script t)
@@ -118,11 +130,21 @@
       (message "Buffer no asociado a fichero."))
      ((not (and pdf-file (file-exists-p pdf-file)))
       (message "PDF no encontrado: %s. Compila primero." pdf-file))
+     ((string-equal my/latex-pdf-viewer "okular")
+      (start-process "okular-focus" nil "okular" "--unique" (format "%s#src:%d%s" pdf-file line tex-file))
+      (message "📄 Okular: saltando a línea %d..." line))
      ((executable-find my/latex-pdf-viewer)
       (start-process (format "%s-focus" my/latex-pdf-viewer) nil my/latex-pdf-viewer
                      "--synctex-forward" (format "%d:1:%s" line tex-file) pdf-file)
       (message "📄 %s: saltando a línea %d..." (capitalize my/latex-pdf-viewer) line))
      (t (message "Visor de PDF '%s' no encontrado." my/latex-pdf-viewer)))))
+
+(defun my/toggle-pdf-viewer ()
+  "Alterna entre Zathura y Okular como visor predeterminado de LaTeX."
+  (interactive)
+  (setq my/latex-pdf-viewer (if (string-equal my/latex-pdf-viewer "zathura") "okular" "zathura"))
+  (setq TeX-view-program-selection `((output-pdf ,my/latex-pdf-viewer)))
+  (message "Visor de PDF cambiado a: %s" (capitalize my/latex-pdf-viewer)))
 
 (with-eval-after-load 'texmathp
   (dolist (env '("mini" "mini*" "maxi" "maxi*" "argmini" "argmini*" "argmaxi" "argmaxi*"))

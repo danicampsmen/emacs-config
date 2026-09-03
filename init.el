@@ -33,7 +33,8 @@
 (require 'my-latex-tree-sitter)   ;; <-- Cargado antes de snippets/expansiones
 (require 'my-latex-snippets)     
 (require 'my-latex-expansions)   
-(require 'my-latex-visuals)  
+(require 'my-latex-visuals)
+(require 'my-latex-template)  
 
 ;; 4. Herramientas del Segundo Cerebro	
 (require 'tesis-tools)           

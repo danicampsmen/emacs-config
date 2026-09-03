@@ -269,7 +269,7 @@
   "Envía la región seleccionada o un prompt a JARVIS sin abrir chat."
   (interactive)
   (call-interactively #'gptel-send))
-  
+   
 (defun my/export-config-as-txt ()
   "Copia tus archivos .el a txt-export ignorando archivos de secretos."
   (interactive)
@@ -296,6 +296,25 @@
           (setq count (1+ count)))))
 
     (message "✅ Exportación completada: %d archivos copiados en %s" count dest-dir)))
+
+(defun my/export-project-tex-as-txt ()
+  "Exporta todos los archivos .tex del proyecto actual a la carpeta txt-export."
+  (interactive)
+  (let* ((root (if (and (bound-and-true-p projectile-mode) (projectile-project-p))
+                   (projectile-project-root)
+                 default-directory))
+         (dest-dir (expand-file-name "txt-export" root))
+         (tex-files (directory-files-recursively root "\\.tex$"))
+         (count 0))
+    (unless (file-exists-p dest-dir) (make-directory dest-dir t))
+    (dolist (file tex-files)
+      (unless (string-match-p "/txt-export/" file)
+        (let* ((base (file-name-sans-extension (file-relative-name file root)))
+               (safe-name (replace-regexp-in-string "/" "__" base))
+               (dest (expand-file-name (concat safe-name ".txt") dest-dir)))
+          (copy-file file dest t)
+          (setq count (1+ count)))))
+    (message "✅ %d archivos .tex exportados como .txt a %s" count dest-dir)))
 
 ;; ==================================================================
 ;; --- 8. PROJECTILE Y PARES ---
