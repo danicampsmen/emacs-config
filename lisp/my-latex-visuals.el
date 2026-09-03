@@ -119,6 +119,10 @@
 
 (defun my/fold-highlightgreen-format (text &rest _args)
   (my/merge-face (or text "") '(:foreground "#98be65" :weight bold)))
+
+(defun my/fold-emph-format (text &rest _args)
+  "Pliega \\emph con cursiva y un tono dorado sutil."
+  (my/merge-face (or text "") '(:slant italic :foreground "#e5c07b")))
   
 (defvar my/latex-macros-word nil "Caché de regex para palabras.")
 (defvar my/latex-macros-sym nil "Caché de regex para símbolos.")
@@ -214,7 +218,16 @@
 
 (defun my/fold-norm-format (text &rest _) (my/merge-face (format "‖ %s ‖" (my/latex-clean-folded-text (or text ""))) 'font-latex-math-face))
 (defun my/fold-abs-format (text &rest _) (my/merge-face (format "| %s |" (my/latex-clean-folded-text (or text ""))) 'font-latex-math-face))
-(defun my/fold-interno-format (t1 t2 &rest _) (my/merge-face (format "〈 %s , %s 〉" (my/latex-clean-folded-text (or t1 "")) (my/latex-clean-folded-text (or t2 ""))) 'font-latex-math-face))
+;; ✅ AHORA (soporta 1 argumento {x, y} o 2 argumentos {x}{y}):
+(defun my/fold-interno-format (t1 &optional t2 &rest _)
+  (let ((clean-t1 (my/latex-clean-folded-text (or t1 "")))
+        (clean-t2 (when (and t2 (not (string-empty-p t2)))
+                    (my/latex-clean-folded-text t2))))
+    (my/merge-face
+     (if clean-t2
+         (format "〈 %s , %s 〉" clean-t1 clean-t2)
+       (format "〈 %s 〉" clean-t1))
+     'font-latex-math-face)))
 (defun my/fold-math-accent-format (accent text) (my/merge-face (format "%s%s" accent (my/latex-clean-folded-text (or text ""))) 'font-latex-math-face))
 
 (defun my/fold-overline-format (t1 &rest _) (my/fold-math-accent-format "‾‾" t1))
@@ -352,7 +365,15 @@
     ;;; ("\\[" . ?┏) ("\\]" . ?┗)
     ("\\coloneq" . ?\u2254 ) ("\\colon" . ?: ) ("\\therefore" . ?∴ ) ("\\because" . ?∵ )
     ("^2" . ?² ) ("^3" . ?³ ) ("\\diff" . ?\u2146) ("\\E" . ?\u2147) ("\\Imath" . ?\u2148) ("\\syss" . ?\u27FA) ("\\ent" . ?\u21D2)
-    ("\\episum" . ?#) ("\\epimult" . ?⋆)))
+    ("\\episum" . ?#) ("\\epimult" . ?⋆)
+;; Operadores relacionales y de conjuntos de optimización
+("\\coloneqq" . ?\u2254)   ;; ≔
+("\\mid"      . ?│)        ;; │ en conjuntos { x │ f(x) ≤ λ }
+("\\succ"     . ?\u227B)   ;; ≻ en Q ≻ 0 (Hessiano definido positivo)
+("\\prec"     . ?\u227A)   ;; ≺
+("\\succeq"   . ?\u2AB0)   ;; ⪰ (Semidefinida positiva)
+("\\preceq"   . ?\u2AAF)   ;; ⪯
+))
 
 ;; ==================================================================
 ;; --- 5. VISUAL ZEN MODE (INTERRUPTOR Y FOCUS LINE) ---
@@ -416,7 +437,7 @@
    '("map" t t t t t t) '("inmap" t t t) '("mapchain" t t t t t t t)
    '("chart" t t) '("chartcoords" t t) '("rest" t t) '("transmap" t t)
    '("morf" t t t) '("TODO" t) '("FIXME" t) '("DEBUG" t) '("NOTE" t)
-   '("deftech" t) '("usual" t) '("highlightgreen" t)
+   '("deftech" t) '("usual" t) '("highlightgreen" t) '("emph" t) '("inner" t)
    '("dependencias" t) '("blueprint" t) '("casobase" t))
 
   (setq-local TeX-fold-macro-spec-list
@@ -433,6 +454,7 @@
 					(my/fold-debug-format ("DEBUG"))
 					(my/fold-note-format ("NOTE"))
 
+                    (my/fold-emph-format ("emph"))
 					(my/fold-deftech-format ("deftech"))
 					(my/fold-usual-format ("usual"))
 					(my/fold-highlightgreen-format ("highlightgreen"))
@@ -462,11 +484,14 @@
 					("[§ {1}]" ("sref"))
 					("({1})" ("eref"))
 					(" ⚙️ Convención: {1} " ("convencionbox"))
+                    ;; Resumen de capítulo de apuntes-scr.cls
+                    ("[ 📖 Resumen del Capítulo ]" ("chaptersummary"))
 
 					("📝 {1}" ("caption"))
 					("[ 🖼️ {1} ]" ("includegraphics"))
 					("[ 🖼️ {2} ]" ("import"))
 					(" ↔️ Centrado " ("centering"))
+
 
 					("Supp" ("Supp"))
 					("dim" ("dim"))
@@ -481,6 +506,7 @@
 					("({1}, ({2}¹, …, {2}ⁿ))" ("chartcoords"))
 					("{1}|_{2}" ("rest"))
 					("{2} ∘ {1}⁻¹" ("transmap"))
+                    ("({1})" ("tag"))
 					("𝓒({2}, {3})" ("morf"))
 					("ℜ({1})" ("re"))
 					("ℑ({1})" ("im"))
@@ -488,11 +514,13 @@
 					("Var({1})" ("variance"))
 					("({1}ₙ)ₙ₌₀^∞" ("serie"))
 					("ℝⁿ" ("Rn"))
+                    ;; Plegar notas al pie largas
+                    ("[※ {1}]" ("footnote"))
 
 					(my/fold-map-format ("map"))
 
 					(my/fold-norm-format ("norm"))
-					(my/fold-interno-format ("interno"))
+					(my/fold-interno-format ("inner" "interno"))
 					(my/fold-abs-format ("abs" "absolute"))
 					(my/fold-overline-format ("overline"))
 					(my/fold-hat-format ("hat"))
@@ -503,7 +531,7 @@
 					(my/fold-index-format ("index" "idx"))
 
 					(my/fold-textbf-format ("textbf" "symbf" "mathbf"))
-					(my/fold-textit-format ("textit" "symit" "mathit"))
+					(my/fold-textit-format ("textit" "symit" "mathit" "emph"))
 					(my/fold-textcolor-red-format ("textcolor"))
 					(my/latex-fold-begin-format ("begin"))
 					(my/latex-fold-end-format ("end"))))

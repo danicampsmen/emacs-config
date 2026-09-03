@@ -1,396 +1,275 @@
-;;; my-latex-snippets.el --- Snippets de LaTeX para Tempel y tesis-uni.cls -*- lexical-binding: t; -*-
+;;; my-latex-snippets.el --- Snippets de Tempel para apuntes-scr.cls (Bourbaki Edition) -*- lexical-binding: t; -*-
 
 (require 'hydra)
+(require 'tempel)
 
-;; ------------------------------------------------------------------
-;; --- 1. SNIPPETS DE ENVOLTURA Y TEXTO (Evil Visual Mode 'r') ---
-;; ------------------------------------------------------------------
-(defvar my-latex-common-snippets nil)
-(setq my-latex-common-snippets
-      '(
-        ;; Envolturas Matemáticas Clásicas
-        (dpp   . ("\\left( " r p " \\right)" p))
-        (pcc   . ("\\left[ " r p " \\right]" p))
-        (dll   . ("\\left\\{ " r p " \\right\\}" p))
-        (dbb   . ("\\left| \\, " r p " \\, \\right|" p))
-        (mk    . ("\\( " r p " \\)"))
-        (dm    . ("\n\\[\n" r p "\n\\]" q))
+;; ==================================================================
+;; --- 1. ENVOLTURAS Y TEXTO (Modo Visual Evil / Tempel 'r') ---
+;; ==================================================================
+(defvar my-latex-common-snippets
+  '(
+    ;; Delimitadores y Envolturas
+    (dpp   . ("\\left( " r p " \\right)" q))
+    (pcc   . ("\\left[ " r p " \\right]" q))
+    (dll   . ("\\left\\{ " r p " \\right\\}" q))
+    (dbb   . ("\\left| " r p " \\right|" q))
+    (mk    . ("\\( " r p " \\)"))
+    (dm    . ("\n\\[\n" r p "\n\\]" q))
 
-        ;; Modificadores de Texto
-        (bf    . ("\\textbf{" r p "}"))      ;; Negrita
-        (it    . ("\\textit{" r p "}"))      ;; Cursiva
-        (ul    . ("\\underline{" r p "}"))   ;; Subrayado
-        (em    . ("\\emph{" r p "}"))        ;; Énfasis
-        (tt    . ("\\texttt{" r p "}"))      ;; Monoespaciado
-        (sc    . ("\\textsc{" r p "}"))      ;; Versalitas
-        (sf    . ("\\textsf{" r p "}"))      ;; Sans Serif
-        (sl    . ("\\textsl{" r p "}"))      ;; Inclinada
-        ))
+    ;; Modificadores de Texto
+    (bf    . ("\\textbf{" r p "}"))
+    (it    . ("\\textit{" r p "}"))
+    (ul    . ("\\underline{" r p "}"))
+    (em    . ("\\emph{" r p "}"))
+    (tt    . ("\\texttt{" r p "}"))
+    (sc    . ("\\textsc{" r p "}"))
+    (sf    . ("\\textsf{" r p "}"))
+    (sl    . ("\\textsl{" r p "}"))
+    )
+  "Snippets de envoltura para texto y delimitadores.")
 
-;; ------------------------------------------------------------------
-;; --- 2. MACROESTRUCTURAS Y ENTORNOS GENERALES ---
-;; ------------------------------------------------------------------
-(defvar my-latex-general-snippets nil)
-(setq my-latex-general-snippets
-      '(
-        ;; Listas Estándar y EGA
-        (enu   . ("\\begin{enumerate}" n> "\\item " r q n> "\\end{enumerate}"))
-        (itm   . ("\\begin{itemize}" n> "\\item " r q n> "\\end{itemize}"))
-        (egal  . ("\\begin{egalist}" n> "\\item " r q n> "\\end{egalist}"))
-        (ega   . ("\\begin{egalist}" n> "\\item " r q n> "\\end{egalist}"))
-        (tfae  . ("\\begin{tfae}" n> "\\item " r q n> "\\end{tfae}"))
-        (props . ("\\begin{properties}" n> "\\propitem{" (p "Propiedad") "} " r q n> "\\end{properties}"))
-        (pit   . ("\\propitem{" (p "Propiedad") "} "))
+;; ==================================================================
+;; --- 2. TEOREMAS Y ENTORNOS BOURBAKI / IHÉS (apuntes-scr.cls) ---
+;; ==================================================================
+(defvar my-latex-general-snippets
+  '(
+    ;; --- Teoremas y Proposiciones (con etiqueta canónica) ---
+    (thm   . ("\\begin{theorem}[" (p "") "]\\label{thm:" (p "etiqueta") "}" n> p n> "\\end{theorem}" q))
+    (prp   . ("\\begin{properties}" n> "\\propitem{" (p "Propiedad") "} " p n> "\\end{properties}" q))
+    (lem   . ("\\begin{lemma}[" (p "") "]\\label{lem:" (p "etiqueta") "}" n> p n> "\\end{lemma}" q))
+    (cor   . ("\\begin{corollary}[" (p "") "]\\label{cor:" (p "etiqueta") "}" n> p n> "\\end{corollary}" q))
+    (def   . ("\\begin{definition}[" (p "") "]\\label{def:" (p "etiqueta") "}" n> p n> "\\end{definition}" q))
+    (ejm   . ("\\begin{example}[" (p "") "]\\label{ejm:" (p "etiqueta") "}" n> p n> "\\end{example}" q))
+    (exc   . ("\\begin{exercise}[" (p "") "]" n> p n> "\\end{exercise}" q))
+    (sol   . ("\\begin{solution}" n> p n> "\\end{solution}" q))
+    (prf   . ("\\begin{proof}" n> p n> "\\end{proof}" q))
+    (obs   . ("\\begin{remark}[" (p "") "]" n> p n> "\\end{remark}" q))
+    (nta   . ("\\begin{notation}[" (p "") "]" n> p n> "\\end{notation}" q))
+    (obj   . ("\\begin{objective}[" (p "") "]" n> p n> "\\end{objective}" q))
+    (clm   . ("\\begin{claim}[" (p "") "]\\label{clm:" (p "etiqueta") "}" n> p n> "\\end{claim}" q))
+    (clms  . ("\\begin{claim*}[" (p "") "]" n> p n> "\\end{claim*}" q))
 
-        ;; Teoremas y Estructuras amsthm
-        (thm   . ("\\begin{theorem}[" p "] \\label{thm:" (p "etiqueta") "}" n> r q n> "\\end{theorem}"))
-        (pro   . ("\\begin{proposition}[" p "] \\label{prop:" (p "etiqueta") "}" n> r q n> "\\end{proposition}"))
-        (lem   . ("\\begin{lemma}[" p "] \\label{lem:" (p "etiqueta") "}" n> r q n> "\\end{lemma}"))
-        (cor   . ("\\begin{corollary}[" p "] \\label{cor:" (p "etiqueta") "}" n> r q n> "\\end{corollary}"))
-        (def   . ("\\begin{definition}[" p "] \\label{def:" (p "etiqueta") "}" n> r q n> "\\end{definition}"))
-        (ejm   . ("\\begin{example}[" p "] \\label{ejm:" (p "etiqueta") "}" n> r q n> "\\end{example}"))
-        (exc   . ("\\begin{exercise}[" p "]" n> r q n> "\\end{exercise}"))
-        (sol   . ("\\begin{solution}" n> r q n> "\\end{solution}"))
-        (prf   . ("\\begin{proof}" n> r q n> "\\end{proof}"))
-        (obs   . ("\\begin{remark}[" p "]" n> r q n> "\\end{remark}"))
-        (nta   . ("\\begin{notation}[" p "]" n> r q n> "\\end{notation}"))
-        (obj   . ("\\begin{objective}[" p "]" n> r q n> "\\end{objective}"))
-        (eq    . ("\\begin{equation}[" p "]" n> r q n> "\\end{equation}"))
-        (clm   . ("\\begin{claim}[" p "]" n> r q n> "\\end{claim}"))
-        (clms  . ("\\begin{claim*}[" p "]" n> r q n> "\\end{claim*}"))
+    ;; --- Entornos Específicos de apuntes-scr.cls ---
+    (sch   . ("\\begin{scholium}[" (p "") "]\\label{sch:" (p "etiqueta") "}" n> p n> "\\end{scholium}" q))
+    (rap   . ("\\begin{rappel}[" (p "") "]\\label{rap:" (p "etiqueta") "}" n> p n> "\\end{rappel}" q))
+    (cnt   . ("\\begin{counterexample}[" (p "") "]" n> p n> "\\end{counterexample}" q))
+    (cbox  . ("\\begin{convencionbox}[" (p "") "]" n> p n> "\\end{convencionbox}" q))
+    (egab  . ("\\begin{egabox}[" (p "") "]" n> p n> "\\end{egabox}" q))
+    (ihesb . ("\\begin{ihesbox}[" (p "") "]" n> p n> "\\end{ihesbox}" q))
+    (ntb   . ("\\begin{notabox}[" (p "") "]" n> p n> "\\end{notabox}" q))
+    (wnb   . ("\\begin{warningbox}[" (p "") "]" n> p n> "\\end{warningbox}" q))
+    (ctrl  . ("\\begin{controlbox}[" (p "") "]" n> p n> "\\end{controlbox}" q))
+    (exs   . ("\\begin{exercices}" n> "\\exer " p n> "\\end{exercices}" q))
+    (nth   . ("\\begin{notehistorique}" n> p n> "\\end{notehistorique}" q))
+    (env   . ("\\begin{" (s env) "}[" (p "") "]" n> p n> "\\end{" (s env) "}" q))
 
-        ;; Cajas y Preliminares tesis-uni.cls
-        (cbox  . ("\\begin{convencionbox}[" p "]" n> r q n> "\\end{convencionbox}"))
-        (res   . ("\\begin{resumen}[" p "]" n> r q n> "\\end{resumen}"))
-        (abst  . ("\\begin{abstracting}[" p "]" n> r q n> "\\end{abstracting}"))
-        (ded   . ("\\begin{dedicatoria}" n> r q n> "\\end{dedicatoria}"))
-        (agr   . ("\\begin{agradecimientos}" n> r q n> "\\end{agradecimientos}"))
+    ;; --- Listas Estándar, EGA y Algoritmos ---
+    (enu   . ("\\begin{enumerate}" n> "\\item " p n> "\\end{enumerate}" q))
+    (itm   . ("\\begin{itemize}" n> "\\item " p n> "\\end{itemize}" q))
+    (egal  . ("\\begin{egalist}" n> "\\item " p n> "\\end{egalist}" q))
+    (tfae  . ("\\begin{tfae}" n> "\\item " p n> "\\end{tfae}" q))
+    (props . ("\\begin{properties}" n> "\\propitem{" (p "Propiedad") "} " p n> "\\end{properties}" q))
+    (algst . ("\\begin{algsteps}" n> "\\algstep{" (p "Paso") "} " p n> "\\end{algsteps}" q))
+    (pcs   . ("\\begin{proofcases}" n> "\\item " p n> "\\end{proofcases}" q))
+    (cpf   . ("\\begin{claimproof}" n> p n> "\\end{claimproof}" q))
 
-        ;; Envoltura Genérica
-        (env   . ("\\begin{" (s env) "}[" p "]" n> r q n> "\\end{" (s env) "}"))
+    ;; --- Bloques de Código y Python (apuntes-scr.cls) ---
+    (pycode . ("\\begin{pythoncode}[" (p "Título") "]" n> p n> "\\end{pythoncode}" q))
+    (pylib  . ("\\begin{pythonlib}[" (p "Título") "]{" (p "archivo.py") "}" n> p n> "\\end{pythonlib}" q))
+    (pyexec . ("\\begin{pythonexec}[" (p "Título") "]" n> p n> "\\end{pythonexec}" q))
+    (pseudo . ("\\begin{pseudocodigo}[" (p "Algoritmo") "]{" (p "python") "}" n> p n> "\\end{pseudocodigo}" q))
 
-        ;; Figuras y Tablas
-        (fig   . ("\\begin{figure}[" 
-                  (p (completing-read "Posición: " '("htpb" "H" "h!" "t" "b") nil nil "htpb")) "]" n> 
-                  "\\centering" n> 
-                  "\\includegraphics[width=" (p "0.8") "\\linewidth]{" 
-                  (p (read-file-name "Imagen: " nil nil t nil (lambda (f) (string-match-p "\\.\\(png\\|jpg\\|pdf\\|svg\\)$" f)))) "}" n> 
-                  "\\caption{" p "}" n> 
-                  "\\label{fig:" (p "etiqueta") "}" n> 
-                  "\\end{figure}" q))
+    ;; --- Figuras y Tablas ---
+    (fig   . ("\\begin{figure}[" (p "htpb") "]" n>
+              "\\centering" n>
+              "\\includegraphics[width=" (p "0.8") "\\linewidth]{" (p "ruta") "}" n>
+              "\\caption{" p "}" n>
+              "\\label{fig:" (p "etiqueta") "}" n>
+              "\\end{figure}" q))
+    (incfig . ("\\begin{figure}[" (p "htpb") "]" n>
+               "\\centering" n>
+               "\\incfig{" (p "figura") "}" n>
+               "\\caption{" p "}" n>
+               "\\label{fig:" (p "etiqueta") "}" n>
+               "\\end{figure}" q))
+    (subf  . ("\\begin{subfigure}{" (p "0.48") "\\linewidth}" n>
+              "\\centering" n>
+              "\\includegraphics[width=\\linewidth]{" (p "imagen") "}" n>
+              "\\caption{" p "}" n>
+              "\\label{subfig:" (p "etiqueta") "}" n>
+              "\\end{subfigure}" q))
+    (tab   . ("\\begin{table}[" (p "htpb") "]" n>
+              "\\centering" n>
+              "\\caption{" p "}" n>
+              "\\label{tab:" (p "etiqueta") "}" n>
+              "\\begin{tabular}{" (p "lcr") "}" n>
+              p n>
+              "\\end{tabular}" n>
+              "\\end{table}" q))
+    (tblr  . ("\\begin{table}[" (p "htpb") "]" n>
+              "\\centering" n>
+              "\\caption{" p "}" n>
+              "\\label{tab:" (p "etiqueta") "}" n>
+              "\\begin{tblr}{colspec={" (p "lcr") "}}" n>
+              p n>
+              "\\end{tblr}" n>
+              "\\end{table}" q))
+    )
+  "Macro-estructuras y entornos de apuntes-scr.cls.")
 
-        (tab   . ("\\begin{table}[" (p (completing-read "Posición: " '("htpb" "H" "h!" "t" "b") nil nil "htpb")) "]" n>
-                  "\\centering" n>
-                  "\\caption{" p "}" n>
-                  "\\label{tab:" (p "etiqueta") "}" n>
-                  "\\begin{tabular}{" (p "lcr") "}" n>
-                  r q n>
-                  "\\end{tabular}" n>
-                  "\\end{table}"))
+;; ==================================================================
+;; --- 3. MATEMÁTICAS, CÁLCULO Y OPTIMIZACIÓN ---
+;; ==================================================================
+(defvar my-latex-math-snippets
+  '(
+    ;; Cálculo y Derivadas (liberado de colisiones)
+    (fr    . ("\\frac{" (p "num") "}{" (p "den") "}" q))
+    (dfr   . ("\\dfrac{" (p "num") "}{" (p "den") "}" q))
+    (tfr   . ("\\tfrac{" (p "num") "}{" (p "den") "}" q))
+    (part  . ("\\frac{\\partial " (p "f") "}{\\partial " (p "x") "}" q))
+    (diff  . ("\\frac{d " (p "f") "}{d " (p "x") "}" q)) ;; ¡Limpio y funcional con TAB!
+    (sum   . ("\\sum_{" (p "i=1") "}^{" (p "\\infty") "}" q))
+    (lim   . ("\\lim_{" (p "n") "\\to " (p "\\infty") "}" q))
+    (int   . ("\\int_{" (p "a") "}^{" (p "b") "}" q))
+    (prod  . ("\\prod_{" (p "i=1") "}^{" (p "n") "}" q))
 
-        (tblr  . ("\\begin{table}[" (p (completing-read "Posición: " '("htpb" "H" "h!" "t" "b") nil nil "htpb")) "]" n>
-                  "\\centering" n>
-                  "\\caption{" p "}" n>
-                  "\\label{tab:" (p "etiqueta") "}" n>
-                  "\\begin{tblr}{colspec={" (p "lcr") "}}" n>
-                  r q n>
-                  "\\end{tblr}" n>
-                  "\\end{table}"))
+    ;; Delimitadores y Funciones Formales
+    (norm  . ("\\norm{" p "}" q))
+    (abs   . ("\\absolute{" p "}" q))
+    (abso  . ("\\absolute{" p "}" q))
+    (inr   . ("\\inner{" (p "x") "}{" (p "y") "}" q))   ;; Renombrado para no chocar con 'inn' (\in)
+    (opp   . ("\\operatorname{" p "}" q))              ;; Renombrado para no chocar con 'op' (\oplus)
+    (fobj  . ("\\Fobj{" (p "f") "}{" (p "M") "}{" (p "N") "}{" (p "x") "}{" (p "f(x)") "}" q))
 
-        (tikz  . ("\\begin{tikzcd}" n> r q n> "\\end{tikzcd}"))
-        (subf  . ("\\begin{subfigure}{0.45\\linewidth}" n>
-                  "\\centering" n>
-                  "\\includegraphics[width=\\linewidth]{" (p "imagen") "}" n>
-                  "\\caption{" p "}" n>
-                  "\\end{subfigure}" q))
-        ))
+    ;; Optimización (optidef en apuntes-scr.cls)
+    (mini  . ("\\begin{mini*}{" (p "x \\in \\R^n") "}{" (p "f(x)") "}{}{" (p "(P)") "}" n>
+              "\\addConstraint{" (p "g(x)") "}{\\le 0}" q n>
+              "\\end{mini*}"))
+    (maxi  . ("\\begin{maxi*}{" (p "x \\in \\R^n") "}{" (p "f(x)") "}{}{" (p "(D)") "}" n>
+              "\\addConstraint{" (p "g(x)") "}{\\le 0}" q n>
+              "\\end{maxi*}"))
+    (acon  . ("\\addConstraint{" (p "h(x)") "}{" (p "= 0") "}" q))
+    (kkt   . ("\\nabla f(x) + \\lambda^{\\top} \\nabla h(x) + \\mu^{\\top} \\nabla g(x) = 0" q))
+    (lagr  . ("\\symcal{L}(" (p "x") ", \\lambda, \\mu) = " (p "f(x)") " + \\lambda^{\\top} h(x) + \\mu^{\\top} g(x)" q))
+    (hess  . ("\\nabla^{2} f(" (p "x") ")" q))
+    (grad  . ("\\nabla f(" (p "x") ")" q))
 
-;; ------------------------------------------------------------------
-;; --- 3. MATEMÁTICAS: CÁLCULO, ÁLGEBRA Y TESIS-UNI ---
-;; ------------------------------------------------------------------
-(defvar my-latex-math-snippets nil)
-(setq my-latex-math-snippets
-      '(
-        ;; Cálculo y Análisis
-        (fr    . ("\\frac{" r p "}{" p "}" q))
-        (part  . ("\\frac{\\partial " r p "}{\\partial " (p "x") "}" q))
-        (diff  . ("\\frac{d " (p "f") "}{d " (p "x") "}" p))
-        (dif   . ("\\diff " p))
-        (sum   . ("\\sum_{" (p "i=1") "}^{" (p "\\infty") "}" q))
-        (lim   . ("\\lim_{" (p "n") "\\to " (p "\\infty") "}" q))
-        (int   . ("\\int_{" (p "a") "}^{" (p "b") "}" q))
-        (prod  . ("\\prod_{" (p "i=1") "}^{" (p "n") "}" q))
+    ;; Entornos Matemáticos con Alineación
+    (cds   . ("\\begin{conditions}" n> (p "f(x)") " & " (p "\\text{si } x > 0") " \\\\" n> (p "0") " & " (p "\\text{en otro caso}") n> "\\end{conditions}" q))
+    (cases . ("\\begin{cases}" n> (p "f(x)") " & " (p "\\text{si } x > 0") " \\\\" n> (p "0") " & " (p "\\text{en otro caso}") n> "\\end{cases}" q))
+    (align . ("\\begin{align*}" n> p n> "\\end{align*}" q))
+    (eq    . ("\\begin{equation}" n> p n> "\\end{equation}" q))
+    (bmat  . ("\\begin{bmatrix}" n> p n> "\\end{bmatrix}" q))
+    (pmat  . ("\\begin{pmatrix}" n> p n> "\\end{pmatrix}" q))
+    (tikz  . ("\\begin{tikzcd}" n> p n> "\\end{tikzcd}" q))
 
-        ;; Fuentes Matemáticas
-        (mbb   . ("\\symbb{" r p "}"))
-        (mcal  . ("\\symcal{" r p "}"))
-        (mfr   . ("\\symfrak{" r p "}"))
-        (mrm   . ("\\mathrm{" r p "}"))
-        (mbf   . ("\\mathbf{" r p "}"))
-        (msf   . ("\\mathsf{" r p "}"))
-        (mit   . ("\\mathit{" r p "}"))
-        (ot    . ("\\otimes "))
+;; Vectores columna rápidos
+    (vec2 . ("\\begin{pmatrix} " (p "x_1") " \\\\ " (p "x_2") " \\end{pmatrix}" q))
+    (vec3 . ("\\begin{pmatrix} " (p "x_1") " \\\\ " (p "x_2") " \\\\ " (p "x_3") " \\end{pmatrix}" q))
+    (vecn . ("\\begin{pmatrix} " (p "x_1") " \\\\ \\vdots \\\\ " (p "x_n") " \\end{pmatrix}" q))
 
-        ;; Delimitadores y Funciones Formales tesis-uni.cls
-        (norm  . ("\\norm{" r p "}" q))
-        (abso  . ("\\absolute{" r p "}" q))
-        (abs   . ("\\absolute{" r p "}" q))
-        (inn   . ("\\inner{" (p "x") "}{" (p "y") "}" q))
-        (fobj  . ("\\Fobj{" (p "f") "}{" (p "M") "}{" (p "N") "}{" (p "x") "}{" (p "f(x)") "}" q))
+    ;; Matrices con paréntesis (pmatrix)
+    (pmat2 . ("\\begin{pmatrix}" n> 
+              (p "a") " & " (p "b") " \\\\" n> 
+              (p "c") " & " (p "d") n> 
+              "\\end{pmatrix}" q))
+    (pmat3 . ("\\begin{pmatrix}" n> 
+              (p "a") " & " (p "b") " & " (p "c") " \\\\" n> 
+              (p "d") " & " (p "e") " & " (p "f") " \\\\" n> 
+              (p "g") " & " (p "h") " & " (p "i") n> 
+              "\\end{pmatrix}" q))
 
-        ;; Optimización No Lineal
-        (mini  . ("\\begin{mini*}{" (p "x \\in \\R^n") "}{" (p "f(x)") "}{}{" (p "(P)") "}" n> "\\addConstraint{" (p "g(x)") "}{\\le 0}" q n> "\\end{mini*}"))
-        (maxi  . ("\\begin{maxi*}{" (p "x \\in \\R^n") "}{" (p "f(x)") "}{}{" (p "(D)") "}" n> "\\addConstraint{" (p "g(x)") "}{\\le 0}" q n> "\\end{maxi*}"))
-        (acon  . ("\\addConstraint{" (p "h(x)") "}{" (p "= 0") "}" q))
-        (kkt   . ("\\text{sujeto a: } \\nabla f(x) + \\lambda^{\\top} \\nabla h(x) + \\mu^{\\top} \\nabla g(x) = 0" q))
-        (lagr  . ("\\symcal{L}(" p "x, \\lambda, \\mu) = " p "f(x) + \\lambda^{\\top} h(x) + \\mu^{\\top} g(x)" q))
-        (hess  . ("\\nabla^{2} f(" p "x)" q))
-        (grad  . ("\\nabla f(" p "x)" q))
+    ;; Matrices con corchetes (bmatrix)
+    (bmat2 . ("\\begin{bmatrix}" n> 
+              (p "a") " & " (p "b") " \\\\" n> 
+              (p "c") " & " (p "d") n> 
+              "\\end{bmatrix}" q))
+    )
+  "Snippets matemáticos y de optimización.")
 
-        ;; Operadores y Mapeos
-        (dmap  . ("\\map{" p "}{" p "}{" p "}{" p "}{" p "}{" p "}" q))
-        (evr   . ("\\Evr"))
-        (evc   . ("\\Evc"))
-        (ceq   . ("\\coloneq" q))
-        (op    . ("\\operatorname{" p "}" q))
-        (ix    . ("\\index{" p "}" q))
-
-        ;; Geometría Compleja / Kähler
-        (dox   . ("\\overline{\\partial}"))
-        (del   . ("\\partial"))
-        (delb  . ("\\overline{\\partial}"))
-        (om    . ("\\omega"))
-        (hodge . ("\\Delta_{d}"))
-        (drc   . ("d^{c}"))
-
-        ;; Álgebra Conmutativa
-        (loc   . ("S^{-1}R"))
-        (comp  . ("\\widehat{R}"))
-        (mad   . ("\\symfrak{m}-\\text{ádico}"))
-        (anill . ("(R, \\symfrak{m}, k)"))
-
-        ;; Texto y Decoraciones
-        (tx    . ("\\text{" r p "}" q))
-        (ol    . ("\\overline{" r p "}" q))
-        (ts    . ("\\widetilde{" r p "}" q))
-        (ht    . ("\\widehat{" r p "}" q))
-        (na    . ("\\nabla"))
-        (dsty  . ("\\displaystyle"))
-        (dst   . ("\\displaystyle"))
-        (pmod  . ("\\pmod{" p "}" q))
-
-        ;; Fracciones
-        (dfr   . ("\\dfrac{" r p "}{" p "}" q))
-        (tfr   . ("\\tfrac{" r p "}{" p "}" q))
-
-        ;; Matrices y Ecuaciones
-        (bmat  . ("\\begin{bmatrix}" n> r q n> "\\end{bmatrix}"))
-        (bm    . ("\\begin{bmatrix}" n> r q n> "\\end{bmatrix}"))
-        (pmat  . ("\\begin{pmatrix}" n> r q n> "\\end{pmatrix}"))
-        (pm    . ("\\begin{pmatrix}" n> r q n> "\\end{pmatrix}"))
-        (cases . ("\\begin{cases}" n> r q n> "\\end{cases}"))
-        (align . ("\\begin{align*}" n> r q n> "\\end{align*}"))
-        (eqref . ("\\eqref{eq:" (p "etiqueta") "}" q))
-        ))
-
-;; ------------------------------------------------------------------
-;; --- 3.5 SNIPPETS DE ENTORNOS ESPECIALIZADOS (EGA / tesis-uni) ---
-;; ------------------------------------------------------------------
-(defvar my-latex-specialized-snippets nil)
-(setq my-latex-specialized-snippets
-      '(
-        ;; Demostraciones estructuradas
-        (pcs    . ("\\begin{proofcases}" n> "\\item " r q n> "\\end{proofcases}"))
-        (cpf    . ("\\begin{claimproof}" n> r q n> "\\end{claimproof}"))
-        (cmt    . ("\\begin{commentary}[" p "]" n> r q n> "\\end{commentary}"))
-
-        ;; Pasos de Demostración EGA
-        (dstp   . ("\\directstep" n> q))
-        (dstep  . ("\\directstep" n> q))
-        (rstp   . ("\\reversestep" n> q))
-        (rstep  . ("\\reversestep" n> q))
-        (cstp   . ("\\containedstep" n> q))
-        (cstep  . ("\\containedstep" n> q))
-        (icstp  . ("\\inversecontainedstep" n> q))
-        (icstep . ("\\inversecontainedstep" n> q))
-
-        ;; Párrafos Numerados y Separadores EGA
-        (parag  . ("\\parag[" p "] " q))
-        (numpar . ("\\numpar[" p "] " q))
-        (egab   . ("\\egabreak" n> q))
-        (vd     . ("\\viragedangereux" q))
-        (csum   . ("\\chaptersummary" q))
-
-        ;; Referencias Inteligentes tesis-uni.cls
-        (sref   . ("\\sref[" (p "Sección") "]{" (p "etiqueta") "}" q))
-        (eref   . ("\\eref{" (p "etiqueta") "}" q))
-        ))
-
-;; ------------------------------------------------------------------
-;; --- 4. INTEGRACIÓN NATIVA CON TEMPEL ---
-;; ------------------------------------------------------------------
+;; ==================================================================
+;; --- 4. INTEGRACIÓN CON TEMPEL ---
+;; ==================================================================
 (defun my-latex-tempel-templates ()
-  "Devuelve los snippets de LaTeX solo si el modo actual es LaTeX."
+  "Devuelve la colección completa de snippets solo en buffers LaTeX."
   (when (derived-mode-p 'latex-mode 'LaTeX-mode)
     (append my-latex-common-snippets
             my-latex-general-snippets
-            my-latex-math-snippets
-            my-latex-specialized-snippets)))
+            my-latex-math-snippets)))
 
 (with-eval-after-load 'tempel
   (add-to-list 'tempel-template-sources 'my-latex-tempel-templates))
 
-;; ------------------------------------------------------------------
-;; --- 5. HYDRA DE AYUDA VISUAL UNIFICADA ---
-;; ------------------------------------------------------------------
-(defvar my-latex-snippet-hydra-last-trigger nil)
-
+;; ==================================================================
+;; --- 5. HYDRA VISUAL ACTUALIZADA ( ;th ) ---
+;; ==================================================================
 (defhydra my-latex-snippet-hydra (:color blue :hint nil :columns 5)
   "
-  ^Envoltura^^      ^Entornos^^       ^Matemáticas^^     ^Geom. Compleja^^   ^Optimización^^
-  ──────────────────────────────────────────────────────────────────────────────────────────
-  _dpp_: ()         _enu_: enumerate  _fr_: frac         _dox_: ∂̄            _kkt_: KKT
-  _pcc_: []         _itm_: itemize    _part_: ∂/∂x       _delb_: ∂̄           _lagr_: Lagrangiano
-  _dll_: {}         _egal_: egalist   _diff_: df/dx      _om_: ω             _hess_: Hessiano
-  _dbb_: ||         _tfae_: tfae      _sum_: ∑           _hodge_: Δd         _grad_: Gradiente
-  _mk_: \\(\\)      _thm_: theorem    _lim_: lim         _drc_: d^c          _acon_: addConstraint
-  _dm_: \\[\\]      _pro_: prop       _int_: ∫           ^^                  _mini_: mini*
-  _tab_: table      _lem_: lemma      _pdt_: ∏           ^^                  _maxi_: maxi*
-  _tblr_: tblr      _cor_: corolario  _norm_: ‖·‖        ^^                  ^^
-  _tikz_: tikzcd    _def_: definition _abso_: |·|        ^^                  ^^
-  _subf_: subfig    _ejm_: example    _inn_: ⟨·,·⟩       ^^                  ^^
-  _fig_: figure     _prf_: proof      _fobj_: Fobj       ^^                  ^^
-  _env_: env        _cases_: cases    _align_: align*    ^^                  ^^
-
-  ^Fuentes^^        ^Álgebra Conmut.^^ ^Pasos EGA / IHÉS^^ ^Referencias / Cajas^^ ^Texto/Decoración^^
-  ─────────────────────────────────────────────────────────────────────────────────────────────────
-  _mbb_: \\symbb    _loc_: S⁻¹R        _dstp_: (⇒)        	 _sref_: \\sref      			_tx_: \\text{...}
-  _mcal_: \\symcal  _comp_: R̂          _rstp_: (⇐)        	 _eref_: \\eref      			_ol_: \\overline{...}
-  _mfr_: \\symfrak  _mad_: m-ádico     _cstp_: (⊆)        	 _cbox_: convencion  			_ts_: \\widetilde{...}
-  _mbf_: \\mathbf   _anill_: (R,m,k)   _icstp_: (⊇)       	 _vd_: virage dang   			_ht_: \\widehat{...}
-  _mrm_: \\mathrm   ^^                 _parag_: parag     	 _res_: resumen      			_na_: \\nabla
-  _mit_: \\mathit   ^^                 _numpar_: numpar   	 _abst_: abstract    			_dsty_: \\displaystyle
-  _msf_: \\mathsf   _dfr_: \\dfrac     _egab_: egabreak   	 _ded_: dedicatoria  			_pmod_: \\pmod{...}
-  _ot_: \\otimes    _tfr_: \\tfrac     _pcs_: proofcases  	 _agr_: agradecim.   			_bmat_: [matrix]
-  ^^                ^^                 _cpf_: claimproof  	 _clm_: claim        			_pmat_: (matrix)
-  ^^                ^^                 _cmt_: commentary  	 ^^                			^^
+  ^Teoremas Bourbaki^^   |^Entornos Especiales^^   |^Matemáticas & Cálculo^^  |^Listas & Código^^       |^Optimización^^
+  ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  _thm_: Teorema        |_clm_: Afirmación       |_fr_: Fracción           |_enu_: Enumerate        |_mini_: mini*
+  _pro_: Proposición    |_cpf_: Claimproof       |_diff_: df/dx            |_itm_: Itemize          |_maxi_: maxi*
+  _lem_: Lema           |_sch_: Escolio          |_part_: ∂f/∂x            |_egal_: Egalist (EGA)   |_acon_: addConstraint
+  _cor_: Corolario      |_rap_: Recordatorio     |_sum_: Sumatoria         |_tfae_: TFAE            |_kkt_: KKT
+  _def_: Definición     |_cnt_: Contraejemplo    |_int_: Integral          |_prp_: Properties       |_lagr_: Lagrangiano
+  _ejm_: Ejemplo        |_cbox_: Convención      |_lim_: Límite            |_pycode_: Python Code   |_cds_: Conditions
+  _exc_: Ejercicio      |_egab_: EGA Box         |_norm_: Norma ‖·‖        |_pseudo_: Pseudocódigo  |_cases_: Cases
+  _sol_: Solución       |_exs_: Ejercicios       |_inr_: Producto ⟨·,·⟩    |_fig_: Figura           |_align_: Align*
+  _prf_: Demostración   |_nth_: Nota Histórica   |_opp_:  \\operatorname    |_incfig_: Inkscape      |_bmat_: [Matriz]
   "
-  ;; Envolturas
-  ("dpp"    (my-latex-snippet-hydra-insert "dpp")    :exit t)
-  ("pcc"    (my-latex-snippet-hydra-insert "pcc")    :exit t)
-  ("dll"    (my-latex-snippet-hydra-insert "dll")    :exit t)
-  ("dbb"    (my-latex-snippet-hydra-insert "dbb")    :exit t)
-  ("mk"     (my-latex-snippet-hydra-insert "mk")     :exit t)
-  ("dm"     (my-latex-snippet-hydra-insert "dm")     :exit t)
-
-  ;; Entornos Estándar y EGA
-  ("enu"    (my-latex-snippet-hydra-insert "enu")    :exit t)
-  ("itm"    (my-latex-snippet-hydra-insert "itm")    :exit t)
-  ("egal"   (my-latex-snippet-hydra-insert "egal")   :exit t)
-  ("tfae"   (my-latex-snippet-hydra-insert "tfae")   :exit t)
   ("thm"    (my-latex-snippet-hydra-insert "thm")    :exit t)
   ("pro"    (my-latex-snippet-hydra-insert "pro")    :exit t)
   ("lem"    (my-latex-snippet-hydra-insert "lem")    :exit t)
   ("cor"    (my-latex-snippet-hydra-insert "cor")    :exit t)
   ("def"    (my-latex-snippet-hydra-insert "def")    :exit t)
   ("ejm"    (my-latex-snippet-hydra-insert "ejm")    :exit t)
+  ("exc"    (my-latex-snippet-hydra-insert "exc")    :exit t)
+  ("sol"    (my-latex-snippet-hydra-insert "sol")    :exit t)
   ("prf"    (my-latex-snippet-hydra-insert "prf")    :exit t)
-  ("obs"    (my-latex-snippet-hydra-insert "obs")    :exit t)
   ("clm"    (my-latex-snippet-hydra-insert "clm")    :exit t)
-  ("fig"    (my-latex-snippet-hydra-insert "fig")    :exit t)
-  ("tab"    (my-latex-snippet-hydra-insert "tab")    :exit t)
-  ("tblr"   (my-latex-snippet-hydra-insert "tblr")   :exit t)
-  ("tikz"   (my-latex-snippet-hydra-insert "tikz")   :exit t)
-  ("subf"   (my-latex-snippet-hydra-insert "subf")   :exit t)
-  ("env"    (my-latex-snippet-hydra-insert "env")    :exit t)
+  ("cpf"    (my-latex-snippet-hydra-insert "cpf")    :exit t)
+  ("sch"    (my-latex-snippet-hydra-insert "sch")    :exit t)
+  ("rap"    (my-latex-snippet-hydra-insert "rap")    :exit t)
+  ("cnt"    (my-latex-snippet-hydra-insert "cnt")    :exit t)
+  ("cbox"   (my-latex-snippet-hydra-insert "cbox")   :exit t)
+  ("egab"   (my-latex-snippet-hydra-insert "egab")   :exit t)
+  ("exs"    (my-latex-snippet-hydra-insert "exs")    :exit t)
+  ("nth"    (my-latex-snippet-hydra-insert "nth")    :exit t)
 
-  ;; Matemáticas y Cálculo
   ("fr"     (my-latex-snippet-hydra-insert "fr")     :exit t)
-  ("part"   (my-latex-snippet-hydra-insert "part")   :exit t)
   ("diff"   (my-latex-snippet-hydra-insert "diff")   :exit t)
+  ("part"   (my-latex-snippet-hydra-insert "part")   :exit t)
   ("sum"    (my-latex-snippet-hydra-insert "sum")    :exit t)
-  ("lim"    (my-latex-snippet-hydra-insert "lim")    :exit t)
   ("int"    (my-latex-snippet-hydra-insert "int")    :exit t)
-  ("pdt"    (my-latex-snippet-hydra-insert "prod")   :exit t)
+  ("lim"    (my-latex-snippet-hydra-insert "lim")    :exit t)
   ("norm"   (my-latex-snippet-hydra-insert "norm")   :exit t)
-  ("abso"   (my-latex-snippet-hydra-insert "abs")    :exit t)
-  ("inn"    (my-latex-snippet-hydra-insert "inn")    :exit t)
-  ("fobj"   (my-latex-snippet-hydra-insert "fobj")   :exit t)
-  ("cases"  (my-latex-snippet-hydra-insert "cases")  :exit t)
-  ("align"  (my-latex-snippet-hydra-insert "align")  :exit t)
+  ("inr"    (my-latex-snippet-hydra-insert "inr")    :exit t)
+  ("opp"    (my-latex-snippet-hydra-insert "opp")    :exit t)
 
-  ;; Fuentes
-  ("mbb"    (my-latex-snippet-hydra-insert "mbb")    :exit t)
-  ("mcal"   (my-latex-snippet-hydra-insert "mcal")   :exit t)
-  ("mfr"    (my-latex-snippet-hydra-insert "mfr")    :exit t)
-  ("mbf"    (my-latex-snippet-hydra-insert "mbf")    :exit t)
-  ("mrm"    (my-latex-snippet-hydra-insert "mrm")    :exit t)
-  ("mit"    (my-latex-snippet-hydra-insert "mit")    :exit t)
-  ("msf"    (my-latex-snippet-hydra-insert "msf")    :exit t)
-  ("ot"     (my-latex-snippet-hydra-insert "ot")     :exit t)
+  ("enu"    (my-latex-snippet-hydra-insert "enu")    :exit t)
+  ("itm"    (my-latex-snippet-hydra-insert "itm")    :exit t)
+  ("egal"   (my-latex-snippet-hydra-insert "egal")   :exit t)
+  ("tfae"   (my-latex-snippet-hydra-insert "tfae")   :exit t)
+  ("prp"    (my-latex-snippet-hydra-insert "prp")    :exit t)
+  ("pycode" (my-latex-snippet-hydra-insert "pycode") :exit t)
+  ("pseudo" (my-latex-snippet-hydra-insert "pseudo") :exit t)
+  ("fig"    (my-latex-snippet-hydra-insert "fig")    :exit t)
+  ("incfig" (my-latex-snippet-hydra-insert "incfig") :exit t)
 
-  ;; Geometría Compleja
-  ("dox"    (my-latex-snippet-hydra-insert "dox")    :exit t)
-  ("delb"   (my-latex-snippet-hydra-insert "delb")   :exit t)
-  ("om"     (my-latex-snippet-hydra-insert "om")     :exit t)
-  ("hodge"  (my-latex-snippet-hydra-insert "hodge")  :exit t)
-  ("drc"    (my-latex-snippet-hydra-insert "drc")    :exit t)
-
-  ;; Optimización
-  ("kkt"    (my-latex-snippet-hydra-insert "kkt")    :exit t)
-  ("lagr"   (my-latex-snippet-hydra-insert "lagr")   :exit t)
-  ("hess"   (my-latex-snippet-hydra-insert "hess")   :exit t)
-  ("grad"   (my-latex-snippet-hydra-insert "grad")   :exit t)
-  ("acon"   (my-latex-snippet-hydra-insert "acon")   :exit t)
   ("mini"   (my-latex-snippet-hydra-insert "mini")   :exit t)
   ("maxi"   (my-latex-snippet-hydra-insert "maxi")   :exit t)
-
-  ;; Álgebra Conmutativa
-  ("loc"    (my-latex-snippet-hydra-insert "loc")    :exit t)
-  ("comp"   (my-latex-snippet-hydra-insert "comp")   :exit t)
-  ("mad"    (my-latex-snippet-hydra-insert "mad")    :exit t)
-  ("anill"  (my-latex-snippet-hydra-insert "anill")  :exit t)
-
-  ;; Pasos y Párrafos EGA (tesis-uni.cls)
-  ("dstp"   (my-latex-snippet-hydra-insert "dstp")   :exit t)
-  ("rstp"   (my-latex-snippet-hydra-insert "rstp")   :exit t)
-  ("cstp"   (my-latex-snippet-hydra-insert "cstp")   :exit t)
-  ("icstp"  (my-latex-snippet-hydra-insert "icstp")  :exit t)
-  ("parag"  (my-latex-snippet-hydra-insert "parag")  :exit t)
-  ("numpar" (my-latex-snippet-hydra-insert "numpar") :exit t)
-  ("egab"   (my-latex-snippet-hydra-insert "egab")   :exit t)
-  ("vd"     (my-latex-snippet-hydra-insert "vd")     :exit t)
-  ("pcs"    (my-latex-snippet-hydra-insert "pcs")    :exit t)
-  ("cpf"    (my-latex-snippet-hydra-insert "cpf")    :exit t)
-  ("cmt"    (my-latex-snippet-hydra-insert "cmt")    :exit t)
-
-  ;; Cajas y Preliminares tesis-uni.cls
-  ("sref"   (my-latex-snippet-hydra-insert "sref")   :exit t)
-  ("eref"   (my-latex-snippet-hydra-insert "eref")   :exit t)
-  ("cbox"   (my-latex-snippet-hydra-insert "cbox")   :exit t)
-  ("res"    (my-latex-snippet-hydra-insert "res")    :exit t)
-  ("abst"   (my-latex-snippet-hydra-insert "abst")   :exit t)
-  ("ded"    (my-latex-snippet-hydra-insert "ded")    :exit t)
-  ("agr"    (my-latex-snippet-hydra-insert "agr")    :exit t)
-  ("eqr"    (my-latex-snippet-hydra-insert "eqref")  :exit t)
-
-  ;; Texto y Variaciones
-  ("tx"     (my-latex-snippet-hydra-insert "tx")     :exit t)
-  ("ol"     (my-latex-snippet-hydra-insert "ol")     :exit t)
-  ("ts"     (my-latex-snippet-hydra-insert "ts")     :exit t)
-  ("ht"     (my-latex-snippet-hydra-insert "ht")     :exit t)
-  ("na"     (my-latex-snippet-hydra-insert "na")     :exit t)
-  ("dsty"   (my-latex-snippet-hydra-insert "dsty")   :exit t)
-  ("pmod"   (my-latex-snippet-hydra-insert "pmod")   :exit t)
-  ("dfr"    (my-latex-snippet-hydra-insert "dfr")    :exit t)
-  ("tfr"    (my-latex-snippet-hydra-insert "tfr")    :exit t)
+  ("acon"   (my-latex-snippet-hydra-insert "acon")   :exit t)
+  ("kkt"    (my-latex-snippet-hydra-insert "kkt")    :exit t)
+  ("lagr"   (my-latex-snippet-hydra-insert "lagr")   :exit t)
+  ("cds"    (my-latex-snippet-hydra-insert "cds")    :exit t)
+  ("cases"  (my-latex-snippet-hydra-insert "cases")  :exit t)
+  ("align"  (my-latex-snippet-hydra-insert "align")  :exit t)
   ("bmat"   (my-latex-snippet-hydra-insert "bmat")   :exit t)
-  ("pmat"   (my-latex-snippet-hydra-insert "pmat")   :exit t)
-  ("q"      nil                                      "salir"))
+  ("q"      nil                                      "Salir"))
 
 (defun my-latex-snippet-hydra-insert (trigger)
+  "Inserta el trigger de Tempel y lo expande de inmediato."
   (interactive)
-  (setq my-latex-snippet-hydra-last-trigger trigger)
   (insert trigger)
   (tempel-expand t))
 

@@ -136,7 +136,7 @@
                   (i-str (or (match-string 3) "")))
               (replace-match (concat b-str l-str i-str "\n") t t))))
 
-        ;; 7. Normalizar jerarquía de secciones de apuntes-scr con \label
+				;; 7. Normalizar jerarquía de secciones de apuntes-scr con \label
         (goto-char (point-min))
         (let ((sec-regex
                (concat "\\(\\\\\\("
@@ -145,8 +145,8 @@
                                      "addsubsec" "addsubsubsec" "paragraph"))
                        "\\)\\*?{\\(?:[^{}\n]\\|{[^{}\n]*}\\)+}\\)[ \t\n]*\\(\\\\label{[^}\n]+}\\)[ \t\n]*")))
           (while (re-search-forward sec-regex nil t)
-            (let ((s-str (match-string 1))
-                  (l-str (match-string 3)))
+            (let ((s-str (or (match-string 1) ""))
+                  (l-str (or (match-string 3) "")))
               (replace-match (concat s-str l-str "\n\n") t t))))
 
         ;; 8. Separar \begin{...} huérfanos a su propia línea
@@ -184,7 +184,7 @@
             (replace-match "\\1\n\\2")))))))
 
 ;; ==================================================================
-;; --- 4. ALINEACIÓN VERTICAL DE COLUMNAS '&' ---
+;; --- 4. ALINEACIÓN VERTICAL DE COLUMNAS '&' (CORREGIDA) ---
 ;; ==================================================================
 
 (defun my/latex-align-delims-in-envs (&optional beg end)
@@ -200,12 +200,15 @@
                              "pmatrix" "pmatrix*" "bmatrix" "bmatrix*"
                              "Bmatrix" "Bmatrix*" "vmatrix" "vmatrix*"
                              "Vmatrix" "Vmatrix*" "tabular" "conditions" "tblr"))))
-          (while (re-search-forward (concat "\\\\begin{" alignable-envs "}") nil t)
+          ;; ✅ CORRECCIÓN: \\( ... \\) para capturar el nombre del entorno en (match-string 1)
+          (while (re-search-forward (concat "\\\\begin{\\(" alignable-envs "\\)}") nil t)
             (let ((s-pos (match-beginning 0))
                   (env-name (match-string 1)))
-              (when (re-search-forward (format "\\\\end{%s}" (regexp-quote env-name)) nil t)
+              (when (and env-name
+                         (re-search-forward (format "\\\\end{%s}" (regexp-quote env-name)) nil t))
                 (let ((e-pos (match-end 0)))
-                  (align-regexp s-pos e-pos "\\(\\s-*\\)&" 1 1 t))))))))))
+                  (ignore-errors
+                    (align-regexp s-pos e-pos "\\(\\s-*\\)&" 1 1 t)))))))))))
 
 ;; ==================================================================
 ;; --- 5. MOTOR DE INDENTACIÓN Y RE-ENVOLTURA A 120 COLUMNAS ---

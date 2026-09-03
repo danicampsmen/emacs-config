@@ -40,7 +40,6 @@
 (require 'tesis-tools)           
 (require 'tesis-layout)          
 (require 'gdrive-sync)           
-(require 'syncclient)            
 (require 'my-second-brain)       
 
 ;; 5. ATAJOS DE TECLADO (Al final, para evitar warnings de compilación)

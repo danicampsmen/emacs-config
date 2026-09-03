@@ -1,13 +1,8 @@
-;;; laas.el --- A bundle of as-you-type LaTeX snippets -*- lexical-binding: t; -*-
+;;; laas.el --- Motor Maestro de Micro-Escritura Matemática mid-typing -*- lexical-binding: t; -*-
 ;;
 ;; Copyright (C) 2020-2021 Yoav Marco, TEC
-;; Modified by: Fayfer (Versión Definitiva Fusionada con Tempel)
+;; Modificado y Verificado para: apuntes-scr.cls & Tempel (Zero Keymap Conflicts)
 ;;
-;;; Commentary:
-;; Motor de expansión automática de snippets matemáticos y estructurales.
-;; 100% optimizado para usar `tempel` y sin rastro de `yasnippet`.
-;;
-;;; Code:
 
 (require 'aas)
 (require 'texmathp)
@@ -19,29 +14,39 @@
   :prefix "laas-"
   :group 'aas)
 
+;; ==================================================================
+;; --- 1. PROTECCIONES Y CONDICIONES GLOBALES DE SEGURIDAD ---
+;; ==================================================================
+
+(defun laas--inside-protected-command-p ()
+  "Devuelve t si el cursor está dentro del argumento de \\cite, \\ref, \\label, etc."
+  (let ((ppss (syntax-ppss)))
+    (when (nth 1 ppss)
+      (save-excursion
+        (goto-char (nth 1 ppss))
+        (when (eq (char-after) ?{)
+          (when (re-search-backward "\\\\[a-zA-Z*]+" (max (point-min) (- (point) 120)) t)
+            (looking-at "\\\\\\(label\\|ref\\|cref\\|Cref\\|sref\\|eref\\|cite\\|textcite\\|parencite\\|eqref\\|input\\|import\\|include\\|includegraphics\\|bibliography\\|addbibresource\\)\\b")))))))
+
+(defun laas--not-in-protected-command-p ()
+  "Condición global para evitar disparos accidentales en argumentos protegidos."
+  (not (laas--inside-protected-command-p)))
+
+(defun laas--no-backslash-before-point? ()
+  "Evita disparar snippets si el carácter anterior al trigger es un backslash."
+  (not (eq (char-before) ?\\)))
+
 (defun laas-current-snippet-insert-post-space-if-wanted ()
-  "Insert a space at point, if it seems warranted."
+  "Inserta un espacio tras el snippet si la macro lo requiere."
   (when (and (stringp aas-transient-snippet-expansion)
              (= ?\\ (aref aas-transient-snippet-expansion 0))
-             (not (memq (char-after) '(?\) ?\]))))
+             (not (memq (char-after) '(?\) ?\] ?\} ?, ?. ?\; ?: ?\s ?\n))))
     (insert " ")))
 
-(defun laas-insert-script (s)
-  "Add a subscript with a text of S (string)."
-  (interactive (list (this-command-keys)))
-  (pcase aas-transient-snippet-condition-result
-    ('one-sub
-     (insert "_" s))
-    ('extended-sub
-     (backward-char)
-     (insert "{")
-     (forward-char)
-     (insert s "}"))))
-
 (defun laas-mathp ()
-  "Determine whether point is within a LaTeX maths block."
+  "Determina si el punto está dentro de un entorno matemático."
   (cond
-   ((derived-mode-p 'latex-mode) (texmathp))
+   ((derived-mode-p 'latex-mode 'LaTeX-mode) (texmathp))
    ((derived-mode-p 'org-mode) (laas-org-mathp))
    (t nil)))
 
@@ -53,12 +58,29 @@
   (or (org-inside-LaTeX-fragment-p)
       (eq (org-element-type (org-element-at-point)) 'latex-environment)))
 
+;; ==================================================================
+;; --- 2. SUBÍNDICES Y SUPERÍNDICES INTELIGENTES ---
+;; ==================================================================
+
+(defun laas-insert-script (s)
+  "Agrega un subíndice con texto S respetando agrupación."
+  (interactive (list (this-command-keys)))
+  (pcase aas-transient-snippet-condition-result
+    ('one-sub
+     (insert "_" s))
+    ('extended-sub
+     (backward-char)
+     (insert "{")
+     (forward-char)
+     (insert s "}"))))
+
 (defun laas-auto-script-condition ()
+  "Detecta cuándo una letra/número debe transformarse en subíndice."
   (cond ((or (bobp) (= (1- (point)) (point-min))) nil)
         ((and (or (= (char-before (1- (point))) ?_)
                   (= (char-before (1- (point))) ?^))
               (/= (char-before) ?{))
-              (laas-mathp)
+         (laas-mathp)
          'extended-sub)
         ((and (or (<= ?a (char-before) ?z) (<= ?A (char-before) ?Z))
               (not (or (<= ?a (char-before (1- (point))) ?z)
@@ -67,7 +89,7 @@
          'one-sub)))
 
 (defun laas-identify-adjacent-tex-object (&optional point)
-  "Return the starting position of the left-adjacent TeX object from POINT."
+  "Retorna la posición de inicio del objeto TeX anterior al cursor."
   (save-excursion
     (goto-char (or point (point)))
     (cond
@@ -90,7 +112,7 @@
       (point)))))
 
 (defun laas-wrap-previous-object (tex-cmd)
-  "Wrap previous TeX object in TEX-COMMAND."
+  "Envuelve el objeto anterior en la macro TEX-CMD."
   (interactive)
   (let ((start (laas-identify-adjacent-tex-object))
         left right)
@@ -110,12 +132,11 @@
   (and (or (<= ?a (char-before) ?z)
            (<= ?A (char-before) ?Z)
            (<= ?0 (char-before) ?9)
-		   (memq (char-before) '(?\) ?\] ?\})))
+           (memq (char-before) '(?\) ?\] ?\})))
        (laas-mathp)))
 
-
 ;; ==================================================================
-;; --- FUNCIONES INTELIGENTES TEMPEL (Fracciones y Evaluaciones) ---
+;; --- 3. FRACCIONES DINÁMICAS (ESTILO GILLES CASTEL) ---
 ;; ==================================================================
 
 (defun laas-frac-cond ()
@@ -123,7 +144,7 @@
         ((laas-object-on-left-condition) 'wrapping-frac)))
 
 (defun laas-smart-fraction ()
-  "Expansión pura de fracciones usando Tempel."
+  "Expansión inteligente de fracciones usando Tempel."
   (interactive)
   (pcase aas-transient-snippet-condition-result
     ('standalone-frac
@@ -152,26 +173,31 @@
       (tempel-insert (list "\\eval{" content "}{" 'p "}")))))
 
 ;; ==================================================================
-;; --- LÓGICA POLIMÓRFICA INTEGRADA ---
+;; --- 4. POLIMORFISMO Y DIFERENCIALES ---
 ;; ==================================================================
 
 (defun my/aas-normal-mode-p ()
-  "Verifica si estamos en modo texto y precedidos de espacio o delimitadores."
+  "Verifica modo texto precedido de espacio, inicio de línea o puntuación (incluyendo español)."
   (and (not (laas-mathp))
        (or (bobp) 
-           (memq (char-before) '(?\s ?\n ?\t ?\{ ?\[ ?\( ?~)))))
+           (memq (char-before) '(?\s ?\n ?\t ?\{ ?\[ ?\( ?~ ?¿ ?¡ ?« ?» ?\" ?\')))))
+
+(defun laas-differential-cond ()
+  "Expande diferenciales solo en matemática y precedido de espacio, operador o delimitador."
+  (and (laas-mathp)
+       (or (bobp)
+           (memq (char-before) '(?\s ?\t ?\n ?\( ?\[ ?\{ ?+ ?- ?* ?/ ?= ?~ ?^ ?_ ?\, ?\;)))))
 
 (defun my/aas-proof-context ()
-  "Determina el contexto de demostración según el entorno de tesis-uni.cls."
+  "Determina el contexto de demostración en apuntes-scr.cls."
   (let ((current-env (if (fboundp 'LaTeX-current-environment) (LaTeX-current-environment) "document")))
     (cond
-     ;; Si estamos dentro de un proof, claim o claim*, el siguiente nivel es claimproof
-     ((member current-env '("proof" "claim" "claim*")) 'afirmacion)
-     ((member current-env '("exercise" "problem" "question" "exc")) 'solucion)
+     ((member current-env '("proof" "claim" "claim*" "pruebaafirmacion")) 'afirmacion)
+     ((member current-env '("exercise" "problem" "question" "exc" "exercices")) 'solucion)
      (t 'demostracion))))
 
 (defun my/aas-expand-proof-polymorphic ()
-  "Expande el entorno de prueba correcto según tesis-uni.cls."
+  "Expande el entorno de prueba correcto según el anidamiento en apuntes-scr.cls."
   (interactive)
   (pcase (my/aas-proof-context)
     ('afirmacion   (tempel-insert '("\\begin{claimproof}" n> p n> "\\end{claimproof}" q)))
@@ -190,48 +216,81 @@
       ('math (tempel-insert math-template))
       ('text (tempel-insert text-template)))))
 
-;; ==================================================================
-;; --- DICCIONARIOS DE SNIPPETS ---
-;; ==================================================================
-
-;; Función faltante restaurada:
 (defun laas-latex-accent-cond ()
-  (or (derived-mode-p 'latex-mode)
+  (or (derived-mode-p 'latex-mode 'LaTeX-mode)
       (laas-mathp)))
+
+;; ==================================================================
+;; --- 5. DICCIONARIOS DE SNIPPETS MAESTROS (VERIFICADOS) ---
+;; ==================================================================
 
 (defvar laas-basic-snippets
   '(:cond laas-mathp
-    "!=" "\\neq"  "!>" "\\mapsto"  "**" "\\cdot"  "+-" "\\pm"  "-+" "\\mp"
-    "->" "\\to"   "..." "\\dots"   "<<" "\\ll"    "<=" "\\leq" "<>" "\\diamond"
-    "=<" "\\impliedby" "==" "&="   "=>" "\\implies" ">=" "\\geq" ">>" "\\gg"
-    "AA" "\\forall" "EE" "\\exists" "cb" "^3" "sr" "^2"
-    "iff" "\\iff" "inn" "\\in" "nin" "\\not\\in" "xx" "\\times"
-    "|->" "\\mapsto" "|=" "\\models" "||" "\\mid" "~=" "\\approx" "~~" "\\sim"
+    ;; Operadores y Relaciones Instantáneas
+    ":=" "\\coloneq"  "!=" "\\ne"      "**" "\\cdot"    "+-" "\\pm"   "-+" "\\mp"
+    "->" "\\to"       "-->" "\\longrightarrow"
+    "..." "\\dots"    "<<" "\\ll"      "<=" "\\leq"     ">=" "\\geq"  ">>" "\\gg"
+    "<>" "\\diamond"  "=<" "\\impliedby" "==" "&="      "=>" "\\implies"
+    "AA" "\\forall"   "EE" "\\exists"  "cb" "^3"        "sr" "^2"
+    "iff" "\\iff"     "imp" "\\implies"
+    "inn" "\\in"      "nin" "\\not\\in" "xx" "\\times"
+    "|->" "\\mapsto"  "|=" "\\models"   "||" "\\mid"    "~=" "\\approx" "~~" "\\sim"
     "part" (tempel "\\frac{\\partial " p "}{\\partial " p "}" q)
-    "arccos" "\\arccos" "arccot" "\\arccot" "arccsc" "\\arccsc" "arcsec" "\\arcsec"
-    "arcsin" "\\arcsin" "arctan" "\\arctan" "cos" "\\cos" "cot" "\\cot"
-    "csc" "\\csc" "exp" "\\exp" "ln" "\\ln" "log" "\\log" "perp" "\\perp"
-    "sin" "\\sin" "tan" "\\tan" "star" "\\star" "gcd" "\\gcd" "min" "\\min"
-    "max" "\\max" "eqv" "\\equiv"
-    "CC" "\\C" "FF" "\\F" "HH" "\\H" "NN" "\\N" "PP" "\\P" "QQ" "\\Q" "RR" "\\R" "ZZ" "\\Z"
-    "rrn" "\\R ^n"
-	"ccn" "\\C ^n"
-	"cinf" (tempel "\\symcal{C}^{\\infty}(" (p "M") ")" q)
-    "hom"  (tempel "\\symcal{L}(" (p "V") " ; " (p "W") ")" q)
-    "diff" (tempel "d F_{" (p "p") "}" q) ;; Para el diferencial dF_p
-	"def" "\\coloneq"
-	"tpm" (tempel "T_{" (p "p") "}" (p "M") q)
-	"ctp" (tempel "T^{*}_{" (p "p") "}" (p "M") q)
-	"qd" "\\quad" "qqd" "\\qquad"
 
+    ;; Funciones Trigonométricas y Análisis
+    "arccos" "\\arccos" "arccot" "\\arccot" "arccsc" "\\arccsc" "arcsec" "\\arcsec"
+    "arcsin" "\\arcsin" "arctan" "\\arctan" "cos" "\\cos"       "cot" "\\cot"
+    "csc" "\\csc"       "exp" "\\exp"       "ln" "\\ln"         "log" "\\log"
+    "sin" "\\sin"       "tan" "\\tan"       "star" "\\star"     "gcd" "\\gcd"
+    "min" "\\min"       "max" "\\max"       "eqv" "\\equiv"     "perp" "\\perp"
+    "sgn" "\\sgn"       "qd" "\\quad"       "qqd" "\\qquad"
+
+    ;; Conjuntos Numéricos y Espacios
+    "CC" "\\C" "FF" "\\F" "HH" "\\H" "NN" "\\N" "PP" "\\P" "QQ" "\\Q" "RR" "\\R" "ZZ" "\\Z"
+    "rrn" "\\R^n"
+    "ccn" "\\C^n"
+    "cinf" (tempel "\\symcal{C}^{\\infty}(" (p "M") ")" q)
+    "hom"  (tempel "\\symcal{L}(" (p "V") " ; " (p "W") ")" q)
+    "dfp"  (tempel "d F_{" (p "p") "}" q)
+    "tpm"  (tempel "T_{" (p "p") "}" (p "M") q)
+    "ctp"  (tempel "T^{*}_{" (p "p") "}" (p "M") q)
+
+    ;; Álgebra Abstracta y Flechas
+    "ox" "\\otimes"   "ot" "\\otimes"
+    "op" "\\oplus"
+    "inj" "\\hookrightarrow"
+    "surj" "\\twoheadrightarrow"
+
+    ;; Haces, Ideales y Categorías (Bourbaki / EGA)
+    "sO" "\\symcal{O}"  "sA" "\\symcal{A}"  "sM" "\\symfrak{m}"
+    "sP" "\\symfrak{p}"  "sQ" "\\symfrak{q}"
+    "Spec" "\\Spec"     "Hom" "\\Hom"       "Ker" "\\Ker"       "Cok" "\\Coker"
+    "Im" "\\Image"      "End" "\\End"       "Aut" "\\Aut"       "Ext" "\\Ext"
+    "Tor" "\\Tor"       "Frac" "\\Frac"     "Proj" "\\Proj"
+
+    ;; Probabilidad y Procesos Estocásticos (Sin colisiones)
+    "sF"   "\\symcal{F}"
+    "sB"   "\\symcal{B}"
+    "sE"   "\\symcal{E}"
+    "cas"  "\\text{c.s.}"  ;; Casi seguro
+    "toc"  "\\xrightarrow{\\text{c.s.}}"
+    "top"  "\\xrightarrow{\\mathbb{P}}"
+    "tod"  "\\xrightarrow{d}"
+    "toL"  "\\xrightarrow{L^p}"
+    "Xt"   "(X_t)_{t \\ge 0}"
+    "Xn"   "(X_n)_{n \\ge 1}"
+    "Ft"   "(\\symcal{F}_t)_{t \\ge 0}"
+    "Exp"  (tempel "\\symbb{E}\\left[ " p " \\right]" q)
+    "Prob" (tempel "\\symbb{P}\\left( " p " \\right)" q)
+    "Var"  (tempel "\\operatorname{Var}\\left( " p " \\right)" q)
+    "Cov"  (tempel "\\operatorname{Cov}\\left( " p " \\right)" q)
+
+    ;; Letras Griegas y Símbolos (;tecla)
     ";a" "\\alpha" ";A" "\\forall" ";;A" "\\aleph" ";b" "\\beta"
     ";c" "\\subset" ";;c" "\\subseteq" ";d" "\\delta" ";;d" "\\partial"
     ";D" "\\Delta" ";;D" "\\nabla" ";e" "\\epsilon" ";;e" "\\varepsilon"
     ";E" "\\exists" ";;;E" "\\ln" ";f" "\\phi" ";;f" "\\varphi" ";F" "\\Phi"
-    ";g" "\\gamma" ";G" "\\Gamma" ";;;G" "10^{?}" ";h" "\\eta" ";;h" "\\hbar"
-    ;; ";i" "\\in"
-	"ox" "\\otimes"
-	"op" "\\oplus"
+    ";g" "\\gamma" ";G" "\\Gamma" ";h" "\\eta" ";;h" "\\hbar"
     ";i" "\\iota" ";I" "\\imath" ";;I" "\\Im" ";;j" "\\jmath"
     ";k" "\\kappa" ";l" "\\lambda" ";;l" "\\ell" ";L" "\\Lambda" ";m" "\\mu"
     ";n" "\\nu" ";N" "\\nabla" ";o" "\\omega" ";O" "\\Omega" ";;O" "\\mho"
@@ -247,11 +306,44 @@
     ";(" "\\langle" ";)" "\\rangle" ";[" "\\Leftarrow" ";;[" "\\Longleftarrow"
     ";]" "\\Rightarrow" ";;]" "\\Longrightarrow" ";{" "\\subset" ";;{" "\\subseteq"
     ";}" "\\supset" ";<" "\\leftarrow" ";;<" "\\longleftarrow" ";>" "\\rightarrow"
-    ";;>" "\\longrightarrow" ";." "\\cdot" "sgn" "\\sgn"
-    
+    ";;>" "\\longrightarrow" ";." "\\cdot"
+
+    ;; Sucesiones en espacios métricos (Sin colisión de prefijos)
+    "xsek"  "\\{x^k\\}_{k \\in \\N}"
+    "xsed"  "\\{x^k\\}_{k \\in \\N} \\subseteq D"
+    "xsen"  "(x_n)_{n \\ge 1}"
+
+    ;; Bolas métricas y entornos
+    "bball" (tempel "\\bar{B}(" (p "x_0") ", " (p "\\lambda") ")" q)
+    "oball" (tempel "B(" (p "x_0") ", " (p "r") ")" q)
+
+    ;; Conjuntos por comprensión: { x \in D | f(x) <= lambda }
+    "cset"  (tempel "\\{ " (p "x \\in D") " \\mid " (p "f(x) \\le \\lambda") " \\}" q)
+
+    ;; Sumatorias y límites indexados al vuelo
+    "sumn"  "\\sum_{i=1}^{n}"
+    "sumk"  "\\sum_{k=1}^{\\infty}"
+    "sumj"  "\\sum_{j=1}^{m}"
+    "limk"  "\\lim_{k \\to \\infty}"
+    "limn"  "\\lim_{n \\to \\infty}"
+    "limx"  (tempel "\\lim_{x \\to " (p "x_0") "}" q)
+    "linf"  "\\liminf_{k \\to \\infty}"
+    "lsup"  "\\limsup_{k \\to \\infty}"
+
+    ;; Auto-corrección de dedos rápidos
+    "tehta"  "\\theta"
+    "lamda"  "\\lambda"
+    "alfa"   "\\alpha"
+    "omeag"  "\\omega"
+    "inft"   "\\infty"
+    "sigam"  "\\sigma"
+    "epslon" "\\epsilon"
+    "vpes"   "\\varepsilon"
+    "nabal"  "\\nabla"
+
     :cond laas-object-on-left-condition
     "|e" my/laas-smart-eval)
-  "Basic math snippets.")
+  "Snippets matemáticos atómicos.")
 
 (defvar laas-subscript-snippets
   `(:cond ,#'laas-auto-script-condition
@@ -259,7 +351,7 @@
                collect key collect #'laas-insert-script)
     "ip1" "_{i+1}" "im1" "_{i-1}" "jp1" "_{j+1}" "jm1" "_{j-1}"
     "np1" "_{n+1}" "nm1" "_{n-1}" "kp1" "_{k+1}" "km1" "_{k-1}")
-  "Automatic subscripts.")
+  "Subíndices automáticos al vuelo.")
   
 (defvar laas-superscript-snippets
   `(:cond ,#'laas-mathp
@@ -268,44 +360,58 @@
                collect (concat "`" (char-to-string key)) 
                collect (concat "^" (char-to-string key)))
                
-    ;; 2. Letras minúsculas (EXCEPTO i, j, k, n, m para no chocar con las sumas/restas)
-    ,@(cl-loop for key across "abcdefghlopqrstuvwxyz"
+    ;; 2. Letras minúsculas (sin i, j, k, n, m, o)
+    ,@(cl-loop for key across "abcdefghlpqrstuvwxyz"
                collect (concat "`" (char-to-string key)) 
                collect (concat "^" (char-to-string key)))
                
-    ;; 3. Mayúsculas (Omitimos I, T, O por los atajos especiales de abajo)
+    ;; 3. Mayúsculas (sin I, T, O)
     ,@(cl-loop for key across "ABCDEFGHJKLMNPQRSUVWXYZ" 
                collect (concat "`" (char-to-string key)) 
                collect (concat "^" (char-to-string key)))
                
-    ;; 4. Índices base con DOBLE TOQUE (Para permitir los atajos de abajo)
-    "`ii" " ^i"
-    "`jj" " ^j"
-    "`kk" " ^k"
-    "`nn" " ^n"
-    "``m" " ^m"
+    ;; 4. Índices base con DOBLE TOQUE (Sin espacios parásitos)
+    "`ii" "^i"
+    "`jj" "^j"
+    "`kk" "^k"
+    "`nn" "^n"
+    "`mm" "^m"
     
-    ;; 5. MATEMÁTICAS DE ÍNDICES (+1 y -1)
+    ;; 5. Aritmética de Índices (mn1 evita colisión con mm)
     "`ip1" "^{i+1}"   "`im1" "^{i-1}"
     "`jp1" "^{j+1}"   "`jm1" "^{j-1}"
     "`kp1" "^{k+1}"   "`km1" "^{k-1}"
     "`np1" "^{n+1}"   "`nm1" "^{n-1}"
-    "`mp1" "^{m+1}"   "`mm1" "^{m-1}"
+    "`mp1" "^{m+1}"   "`mn1" "^{m-1}"
                
-    ;; 6. Operadores frecuentes
-    "`-" "^{-}"
-    "`+" "^{+}"
-    "`*" "^{*}"
-    "`T" "^{\\top}"
-    "``" "^{-1}"
-    "`O" "^{\\perp}")
-  "Superíndices ultrarrápidos y combinados usando la comilla invertida.")
+    ;; 6. Operadores frecuentes y exponentes algebraicos
+    "`-"  "^{-}"
+    "`+"  "^{+}"
+    "`*"  "^{*}"
+    "`T"  "^{\\top}"
+    "``"  "^{-1}"
+    "`O"  "^{\\perp}"
+    "`op" "^{\\mathrm{op}}")
+  "Superíndices rápidos con comilla invertida.")
+
+(defvar laas-differential-snippets
+  `(:cond ,#'laas-differential-cond
+    "dt"  "\\diff t"
+    "ds"  "\\diff s"
+    "dx"  "\\diff x"
+    "dy"  "\\diff y"
+    "dz"  "\\diff z"
+    "dbz" "\\diff \\overline{z}"
+    "dP"  "\\diff \\symbb{P}"
+    "dmu" "\\diff \\mu"
+    "dnu" "\\diff \\nu")
+  "Diferenciales rectos inteligentes (apuntes-scr.cls).")
 
 (defvar laas-frac-snippet
   `(:cond ,#'laas-frac-cond "/" ,#'laas-smart-fraction))
 
 (defvar laas-accent-snippets
-  `(;; Texto normal y matemática
+  `(;; Modificadores de texto y matemática
     :cond ,#'laas-latex-accent-cond
     "'r" ,(lambda () (interactive) (laas-wrap-previous-object (if (laas-mathp) "symrm" "textrm")))
     "'i" ,(lambda () (interactive) (laas-wrap-previous-object (if (laas-mathp) "symit" "textit")))
@@ -314,10 +420,12 @@
     "'y" ,(lambda () (interactive) (laas-wrap-previous-object (if (laas-mathp) "symtt" "texttt")))
     "'f" ,(lambda () (interactive) (laas-wrap-previous-object (if (laas-mathp) "symsf" "textsf")))
     "'k" ,(lambda () (interactive) (laas-wrap-previous-object (if (laas-mathp) "symfrak" "textfrak")))
+
     ;; Solo texto normal
-    :cond ,(lambda () (and (derived-mode-p 'latex-mode) (not (laas-mathp))))
+    :cond ,(lambda () (and (derived-mode-p 'latex-mode 'LaTeX-mode) (not (laas-mathp))))
     "'l" ,(lambda () (interactive) (laas-wrap-previous-object "textsl"))
-    ;; Solo matemática + Wrappers especiales
+
+    ;; Solo matemática
     :cond ,#'laas-object-on-left-condition
     "'B" ,(lambda () (interactive) (laas-wrap-previous-object "symbb"))
     "'F" ,(lambda () (interactive) (laas-wrap-previous-object "symfrak"))
@@ -335,16 +443,16 @@
                                     (",." . "vec") (".," . "vec") ("~ " . ("\\tilde{" . "} "))
                                     ("hat" . "hat") ("bar" . "overline"))
                collect key collect (let ((expp exp)) (lambda () (interactive) (laas-wrap-previous-object expp)))))
-  "Accents and wrappers.")
+  "Acentos y envolturas posfijas.")
 
 (defvar laas-comma-snippets
-  `(;; Editorial
+  `(;; Editorial y Notas
     ",td"  (tempel "\\TODO{" p "}" q)
     ",fx"  (tempel "\\FIXME{" p "}" q)
     ",db"  (tempel "\\DEBUG{" p "}" q)
     ",nte" (tempel "\\NOTE{" p "}" q)
     
-    ;; Polimórficos
+    ;; Polimórficos (Texto vs Matemática)
     :cond ,#'my/aas-polymorphic-cond
     ",bf" ,(my/aas-make-polymorphic '("\\symbf{" p "}" p) '("\\textbf{" p "}" p))
     ",bb" ,(my/aas-make-polymorphic '("\\symbb{" p "}" p) '("\\textbf{" p "}" p))
@@ -355,7 +463,7 @@
     ",tt" ,(my/aas-make-polymorphic '("\\symtt{" p "}" p) '("\\texttt{" p "}" p))
     ",rm" ,(my/aas-make-polymorphic '("\\symrm{" p "}" p) '("\\textrm{" p "}" p))
     ",em" ,(my/aas-make-polymorphic '("\\symit{" p "}" p) '("\\emph{" p "}" p))
-	",fk" ,(my/aas-make-polymorphic '("\\symfrak{" p "}" p) '("\\textfrak{" p"}" p))
+    ",fk" ,(my/aas-make-polymorphic '("\\symfrak{" p "}" p) '("\\textfrak{" p "}" p))
     ",,p"  (tempel "( " p " )" q)
     ",,c"  (tempel "[ " p " ]" q)
     ",,l"  (tempel "\\{ " p " \\}" q)
@@ -377,59 +485,90 @@
     ",up"  (tempel "\\textup{" p "}" q)
     ",md"  (tempel "\\textmd{" p "}" q)
     ",no"  (tempel "\\textnormal{" p "}" q)
+
+    ;; Pasos de Demostración EGA y Bourbaki (Sin colisiones)
+    ",dst"  (tempel "\\directstep" n> q)           ;; (⇒)
+    ",rst"  (tempel "\\reversestep" n> q)          ;; (⇐)
+    ",cst"  (tempel "\\containedstep" n> q)        ;; (⊆)
+    ",ist"  (tempel "\\inversecontainedstep" n> q) ;; (⊇)
+    ",cba"  (tempel "\\casobase{" p "}" n> q)
+    ",pi"   (tempel "\\pasoinductivo" n> q)
+    ",hi"   (tempel "\\hipotesisind" n> q)
+    ",dan"  (tempel "\\viragedangereux " q)        ;; Curva peligrosa Bourbaki ☡
+    ",ddan" (tempel "\\dbviragedangereux " q)      ;; Doble curva peligrosa ☡☡
+    ",brk"  (tempel "\\egabreak" n> q)             ;; Separador * * *
+    ",par"  (tempel "\\parag[" p "] " q)           ;; Párrafo EGA: § 1.1
+    ",npar" (tempel "\\numpar[" p "] " q)          ;; Párrafo numerado EGA
+
+    ;; Mapeos y Morfismos (apuntes-scr.cls)
+    ",map"  (tempel "\\map{" (p "f") "}{" (p "E") "}{" (p "F") "}{" (p "x") "}{" (p "f(x)") "}" q)
+    ",inm"  (tempel "\\inmap{" (p "f") "}{" (p "E") "}{" (p "F") "}" q)
     
-    ;; Teoremas y Entornos (Con 'q' para evitar espacios basura)
-    ",thm" (tempel "\\begin{theorem}[" p "]" n> p n> "\\end{theorem}" q)
-    ",pro" (tempel "\\begin{proposition}[" p "]" n> p n> "\\end{proposition}" q)
-    ",lem" (tempel "\\begin{lemma}[" p "]" n> p n> "\\end{lemma}" q)
-    ",cor" (tempel "\\begin{corollary}[" p "]" n> p n> "\\end{corollary}" q)
-    ",def" (tempel "\\begin{definition}[" p "]" n> p n> "\\end{definition}" q)
-    ",obs" (tempel "\\begin{remark}[" p "]" n> p n> "\\end{remark}" q)
-    ",nta" (tempel "\\begin{notation}[" p "]" n> p n> "\\end{notation}" q)
-    ",obj" (tempel "\\begin{objective}[" p "]" n> p n> "\\end{objective}" q)
-    ",ejm" (tempel "\\begin{example}[" p "]" n> p n> "\\end{example}" q)
-    ",exc" (tempel "\\begin{exercise}[" p "]" n> p n> "\\end{exercise}" q)
-    ",prf" ,#'my/aas-expand-proof-polymorphic
-    ",enu" (tempel "\\begin{enumerate}[label=\\normalfont" (p "\\arabic") "*., leftmargin=" (p "10mm") "]" n> "\\item " p n> "\\end{enumerate}" q)
-    ",fig" (tempel "\\begin{figure}[" (p "htpb") "]" n> "\\centering" n> "\\includegraphics[width=" (p "0.8") "\\linewidth]{" p "}" n> "\\caption{" p "}" n> "\\label{fig:" p "}" n> "\\end{figure}" q)
+    ;; Teoremas y Entornos Bourbaki / apuntes-scr.cls (Sin colisiones)
+    ",thm"  (tempel "\\begin{theorem}[" p "]" n> p n> "\\end{theorem}" q)
+    ",pro"  (tempel "\\begin{proposition}[" p "]" n> p n> "\\end{proposition}" q)
+    ",lem"  (tempel "\\begin{lemma}[" p "]" n> p n> "\\end{lemma}" q)
+    ",cor"  (tempel "\\begin{corollary}[" p "]" n> p n> "\\end{corollary}" q)
+    ",def"  (tempel "\\begin{definition}[" p "]" n> p n> "\\end{definition}" q)
+    ",obs"  (tempel "\\begin{remark}[" p "]" n> p n> "\\end{remark}" q)
+    ",nta"  (tempel "\\begin{notation}[" p "]" n> p n> "\\end{notation}" q)
+    ",obj"  (tempel "\\begin{objective}[" p "]" n> p n> "\\end{objective}" q)
+    ",ejm"  (tempel "\\begin{example}[" p "]" n> p n> "\\end{example}" q)
+    ",exc"  (tempel "\\begin{exercise}[" p "]" n> p n> "\\end{exercise}" q)
+    ",cm"   (tempel "\\begin{claim}[" p "]" n> p n> "\\end{claim}" q)
+    ",cvb"  (tempel "\\begin{convencionbox}[" p "]" n> p n> "\\end{convencionbox}" q)
+    ",sho"  (tempel "\\begin{scholium}[" p "]" n> p n> "\\end{scholium}" q)
+    ",rap"  (tempel "\\begin{rappel}[" p "]" n> p n> "\\end{rappel}" q)
+    ",exs"  (tempel "\\begin{exercices}" n> "\\exer " p n> "\\end{exercices}" q)
+    ",ntb"  (tempel "\\begin{notabox}[" p "]" n> p n> "\\end{notabox}" q)
+    ",wnb"  (tempel "\\begin{warningbox}[" p "]" n> p n> "\\end{warningbox}" q)
+    ",prf"  ,#'my/aas-expand-proof-polymorphic
+    ",enu"  (tempel "\\begin{enumerate}" n> "\\item " p n> "\\end{enumerate}" q)
+    ",fig"  (tempel "\\begin{figure}[" (p "htpb") "]" n> "\\centering" n> "\\includegraphics[width=" (p "0.8") "\\linewidth]{" p "}" n> "\\caption{" p "}" n> "\\label{fig:" p "}" n> "\\end{figure}" q)
 
     ;; Solo Matemáticas
     :cond ,#'laas-mathp
-    ",,i" (tempel "_{" p "}" p)   
-    ",,e" (tempel "^{" p "}" p)
-    "::"  (tempel "\\colon" p)
-    ",="  (tempel "\\coloneq" p)
-    "inv" "^{-1}"             
-    "Tr"  "^{\\top}"          
-    "ort" "^{\\perp}"
-	",mat" ,#'my/insert-matrix
-    ",cases" (tempel "\\begin{cases}" n> p " & \\text{si } " p " \\\\" n> p " & \\text{si } " p n> "\\end{cases}" q)
-    ",cas"   (tempel "\\begin{cases}" n> p " \\\\" n> p n> "\\end{cases}" q)
-   ))
+    ",,i"   (tempel "_{" p "}" p)   
+    ",,e"   (tempel "^{" p "}" p)
+    "::"    (tempel "\\colon" p)
+    ",="    (tempel "\\coloneq" p)
+    "inv"   "^{-1}"             
+    "Tr"    "^{\\top}"          
+    "ort"   "^{\\perp}"
+    ",mat"  ,#'my/insert-matrix
+    ",cas"  (tempel "\\begin{cases}" n> p " & " p " \\\\" n> p " & " p n> "\\end{cases}" q)
+    ",cds"  (tempel "\\begin{conditions}" n> p " & " p " \\\\" n> p " & " p n> "\\end{conditions}" q)
+    ",opt"  (tempel "\\begin{mini*}{" (p "x \\in \\R^n") "}{" (p "f(x)") "}{}{" (p "(P)") "}" n> "\\addConstraint{" (p "g(x)") "}{\\le 0}" q n> "\\end{mini*}")))
 
-(defun laas--no-backslash-before-point? ()
-  (not (eq (char-before) ?\\)))
-
+;; Registrar todos los grupos de snippets en AAS
 (apply #'aas-set-snippets 'laas-mode laas-basic-snippets)
 (apply #'aas-set-snippets 'laas-mode laas-subscript-snippets)
 (apply #'aas-set-snippets 'laas-mode laas-superscript-snippets)
+(apply #'aas-set-snippets 'laas-mode laas-differential-snippets)
 (apply #'aas-set-snippets 'laas-mode laas-frac-snippet)
 (apply #'aas-set-snippets 'laas-mode laas-accent-snippets)
 (apply #'aas-set-snippets 'laas-mode laas-comma-snippets)
 
+;; ==================================================================
+;; --- 6. MODO MENOR Y ACTIVACIÓN ---
+;; ==================================================================
+
 ;;;###autoload
 (define-minor-mode laas-mode
-  "Minor mode for enabling a ton of auto-activating LaTeX snippets."
+  "Minor mode para auto-expansión inteligente de snippets LaTeX."
   :init-value nil
   :group 'laas
   (if laas-mode
       (progn
         (aas-mode +1)
         (aas-activate-keymap 'laas-mode)
+        ;; Ganchos de seguridad globales en el buffer
         (add-hook 'aas-global-condition-hook #'laas--no-backslash-before-point? nil 'local)
+        (add-hook 'aas-global-condition-hook #'laas--not-in-protected-command-p nil 'local)
         (add-hook 'aas-post-snippet-expand-hook #'laas-current-snippet-insert-post-space-if-wanted nil 'local))
     (aas-deactivate-keymap 'laas-mode)
     (remove-hook 'aas-global-condition-hook #'laas--no-backslash-before-point? 'local)
+    (remove-hook 'aas-global-condition-hook #'laas--not-in-protected-command-p 'local)
     (remove-hook 'aas-post-snippet-expand-hook #'laas-current-snippet-insert-post-space-if-wanted 'local)))
 
 (provide 'laas)

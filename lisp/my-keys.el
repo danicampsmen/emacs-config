@@ -235,15 +235,6 @@ Si estás en Dired, actualiza el buffer automáticamente para mostrarlo."
   "dc"  '(gdrive-sync/resolve-conflicts :which-key "Resolver Conflictos (Ediff)")
   "dR"  '(gdrive-sync/refresh-folder-cache :which-key "Refrescar Caché de Carpetas")
 
-  "dy"  '(:ignore t :which-key "SyncClient")
-  "dyS" '(syncclient-status :which-key "Ver Estado")
-  "dyf" '(syncclient-force-sync-current :which-key "Forzar Sync Seleccionado")
-  "dyc" '(syncclient-clean-duplicates-current :which-key "Limpiar Duplicados Seleccionado")
-  "dya" '(syncclient-add-pair :which-key "Agregar Par")
-  "dyb" '(syncclient-browse-remote :which-key "Explorar Carpetas Remotas")
-  "dyi" '(syncclient-current-activity :which-key "Ver Actividad Actual")
-  "dyt" '(syncclient-transient-prefix :which-key "Menú Transient")
-
   ;; --- Ventanas / Frames ---
   "w"   '(:ignore t :which-key "Windows/Frames")
   "ww"  '(ace-window :which-key "Saltar (Ace)")

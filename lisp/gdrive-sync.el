@@ -4,6 +4,9 @@
 (require 'consult)
 (require 'multisession)
 (require 'subr-x)
+(require 'tramp)
+(require 'tramp-rclone nil t)
+(require 'transient)
 
 (defgroup gdrive-sync nil
   "Configuración de sincronización con Google Drive."
@@ -34,6 +37,11 @@
   :type 'file
   :group 'gdrive-sync)
 
+(defcustom gdrive-sync/mount-dir (expand-file-name "~/GoogleDrive/")
+  "Directorio local de montaje FUSE para Google Drive."
+  :type 'directory
+  :group 'gdrive-sync)
+
 (defcustom gdrive-sync/on-exit-strategy 'prompt
   "Estrategia de sincronización al salir de Emacs."
   :type '(choice (const :tag "Preguntar si hay cambios" prompt)
@@ -51,11 +59,12 @@
 
 (defun gdrive-sync--get-full-remote (path)
   "Construye la ruta remota completa para rclone (ej. Remote:Ruta)."
-  (format "%s:%s" gdrive-sync/remote-name path))
+  (format "%s:%s" (or gdrive-sync/remote-name "GoogleDrive") (or path "")))
 
 (defun gdrive-sync--track-modified-file ()
   "Añade el archivo actual a la lista de modificados si está en el dir de sync."
   (when (and buffer-file-name
+             gdrive-sync/local-dir
              (string-prefix-p (expand-file-name gdrive-sync/local-dir)
                               (expand-file-name buffer-file-name)))
     (add-to-list 'gdrive-sync--modified-files-in-session buffer-file-name)))
@@ -63,7 +72,7 @@
 (add-hook 'after-save-hook #'gdrive-sync--track-modified-file)
 
 ;; ==================================================================
-;; --- 2. MOTOR DE SINCRONIZACIÓN SEGURO Y ASÍNCRONO ---
+;; --- 2. MOTOR DE SINCRONIZACIÓN ASÍNCRONO ---
 ;; ==================================================================
 
 (defun gdrive-sync--execute (command-type args &optional silent)
@@ -74,18 +83,15 @@
   (let* ((base-flags '("--progress" "-v" "--drive-acknowledge-abuse" "--fast-list" "--tpslimit" "8"))
          (sync-flags '("--transfers" "8" "--checkers" "16" "--track-renames"))
          (use-filter (not (member command-type '("cleanup" "about" "dedupe" "lsf" "tree"))))
-         (filter-flags (when (and use-filter (file-exists-p gdrive-sync/filter-file))
+         (filter-flags (when (and use-filter gdrive-sync/filter-file (file-exists-p gdrive-sync/filter-file))
                          (list "--filter-from" gdrive-sync/filter-file)))
          (remote-full (gdrive-sync--get-full-remote gdrive-sync/remote-dir))
-         
-         ;; Utilizamos 'append' y strings puros para evitar errores de tipo en make-process
          (command-args (pcase command-type
-                         ("bisync" (append (list "bisync" gdrive-sync/local-dir remote-full)
+                         ("bisync" (append (list "bisync" (expand-file-name gdrive-sync/local-dir) remote-full)
                                            sync-flags base-flags filter-flags args))
                          ("cleanup" (append (list "cleanup" remote-full) base-flags args))
                          ((or "sync" "copy" "copyto") (append (list command-type) args sync-flags base-flags filter-flags))
                          (_ (append (list command-type) args))))
-                          
          (output-buffer (generate-new-buffer (format "*gdrive-%s-output*" command-type))))
 
     (unless silent
@@ -97,7 +103,7 @@
                     :buffer output-buffer
                     :command (cons (executable-find "rclone") command-args)
                     :sentinel
-                    (lambda (proc event)
+                    (lambda (_proc event)
                       (cond
                        ((string= event "finished\n")
                         (message "✅ rclone %s: completado." command-type)
@@ -108,42 +114,39 @@
                         (unless silent (display-buffer output-buffer))))))))
       process)))
 
-
 ;; ==================================================================
-;; --- 3. CACHÉ PERSISTENTE Y MONTAJE FUSE ---
+;; --- 3. NAVEGACIÓN, DIRED TRAMP Y MONTAJE FUSE ---
 ;; ==================================================================
-
-(defcustom gdrive-sync/mount-dir (expand-file-name "~/GoogleDrive/")
-  "Directorio local de montaje FUSE para Google Drive."
-  :type 'directory
-  :group 'gdrive-sync)
 
 ;;;###autoload
 (defun gdrive-sync/browse-remote (&optional remote-subpath)
-  "Abre Dired directamente en Google Drive usando TRAMP (método rclone)."
-  (interactive
-   (let* ((cached-folders (when (boundp 'gdrive-sync--remote-folders-cache)
-                            (multisession-value gdrive-sync--remote-folders-cache)))
-          (rsub (completing-read "Navegar a carpeta en Google Drive: "
-                                 (or cached-folders '("/"))
-                                 nil nil nil nil "/")))
-     (list rsub)))
+  "Abre Dired en Google Drive sin cuelgues (usando la carpeta montada)."
+  (interactive)
   (let* ((clean-sub (string-trim (or remote-subpath "") "/" "/"))
-         (tramp-path (format "/rclone:%s:%s"
-                             gdrive-sync/remote-name
-                             (if (string-empty-p clean-sub) "" clean-sub))))
-    (message "📂 Abriendo Dired en %s..." tramp-path)
-    (dired tramp-path)))
+         (target-dir (if (string-empty-p clean-sub)
+                         gdrive-sync/mount-dir
+                       (expand-file-name clean-sub gdrive-sync/mount-dir))))
+    ;; Si no está montado, montarlo primero automáticamente
+    (if (or (not (file-directory-p gdrive-sync/mount-dir))
+            (null (directory-files gdrive-sync/mount-dir nil "^[^.]")))
+        (progn
+          (message "Montando Google Drive antes de abrir...")
+          (gdrive-sync/mount-remote))
+      (dired target-dir))))
 
 ;;;###autoload
 (defun gdrive-sync/navigate-remote ()
   "Navega paso a paso por la jerarquía de carpetas de Google Drive."
   (interactive)
+  (unless (executable-find "rclone")
+    (user-error "El comando 'rclone' no se encuentra en tu sistema"))
   (let ((current-path "")
         (done nil))
     (while (not done)
-      (let* ((remote-full (gdrive-sync--get-full-remote current-path))
-             (prompt (format "GDrive [%s/]: " (if (string-empty-p current-path) "Raíz" current-path)))
+      (let* ((clean-current (string-trim (or current-path "") "/" "/"))
+             (remote-rel (if (string-empty-p clean-current) "" (concat clean-current "/")))
+             (remote-full (gdrive-sync--get-full-remote remote-rel))
+             (prompt (format "GDrive [%s/]: " (if (string-empty-p clean-current) "Raíz" clean-current)))
              (subdirs (condition-case nil
                           (process-lines (executable-find "rclone") "lsf" remote-full "--dirs-only")
                         (error nil)))
@@ -155,24 +158,43 @@
              (choice (completing-read prompt candidates nil t)))
         (cond
          ((string= choice "[📂 Abrir en Dired aquí]")
-          (gdrive-sync/browse-remote current-path)
+          (gdrive-sync/browse-remote clean-current)
           (setq done t))
+
          ((string= choice "[📥 Sincronizar esta carpeta hacia Local]")
-          (gdrive-sync/sync-remote-to-local current-path)
+          (let* ((default-local (if (string-empty-p clean-current)
+                                    gdrive-sync/local-dir
+                                  (expand-file-name clean-current gdrive-sync/local-dir)))
+                 (ldir (read-directory-name (format "Carpeta local destino [%s]: " (abbreviate-file-name default-local))
+                                            default-local default-local t)))
+            (gdrive-sync/sync-remote-to-local clean-current ldir))
           (setq done t))
+
          ((string= choice "[📤 Sincronizar Local hacia esta carpeta]")
-          (gdrive-sync/sync-local-to-remote nil current-path)
+          (let* ((default-local (if (string-empty-p clean-current)
+                                    gdrive-sync/local-dir
+                                  (expand-file-name clean-current gdrive-sync/local-dir)))
+                 (ldir (read-directory-name "Carpeta local origen a subir: "
+                                            (if (file-directory-p default-local) default-local gdrive-sync/local-dir)
+                                            nil t)))
+            (gdrive-sync/sync-local-to-remote ldir clean-current))
           (setq done t))
+
          ((string= choice "[⬆️ Subir un nivel]")
-          (setq current-path (file-name-directory (directory-file-name current-path)))
-          (when (or (null current-path) (string= current-path "./"))
-            (setq current-path "")))
+          (if (or (string-empty-p clean-current) (string= clean-current "."))
+              (message "ℹ️ Ya estás en la raíz de Google Drive.")
+            (let ((parent (file-name-directory (directory-file-name clean-current))))
+              (setq current-path (if (or (null parent) (string= parent "./") (string= parent "/"))
+                                     ""
+                                   parent)))))
+
          (t
-          (setq current-path (concat current-path choice))))))))
+          (setq current-path (concat (if (string-empty-p clean-current) "" (concat clean-current "/"))
+                                     (string-trim choice "/" "/")))))))))
 
 ;;;###autoload
 (defun gdrive-sync/mount-remote ()
-  "Monta Google Drive en `gdrive-sync/mount-dir` vía FUSE y abre Dired."
+  "Monta Google Drive (50GB+) en `gdrive-sync/mount-dir` con caché VFS de alto rendimiento."
   (interactive)
   (unless (executable-find "rclone")
     (user-error "rclone no está instalado"))
@@ -184,18 +206,31 @@
         (progn
           (message "✅ Google Drive ya está montado en %s" gdrive-sync/mount-dir)
           (dired gdrive-sync/mount-dir))
-      (message "🚀 Montando Google Drive (%s ➔ %s)..." remote-full gdrive-sync/mount-dir)
+      (message "🚀 Montando Google Drive en segundo plano...")
       (make-process
        :name "gdrive-mount"
        :buffer "*gdrive-mount-output*"
-       :command (list (executable-find "rclone") "mount" remote-full gdrive-sync/mount-dir
+       :command (list (executable-find "rclone") "mount" remote-full
+                      (expand-file-name gdrive-sync/mount-dir)
+                      ;; 1. Modo de caché completa (permite leer y editar archivos en Dired)
                       "--vfs-cache-mode" "full"
+                      ;; 2. Límite de caché en disco local (máx 10GB de archivos temporales)
+                      "--vfs-cache-max-size" "10G"
                       "--vfs-cache-max-age" "24h"
+                      ;; 3. ¡EL SECRETO ANTI-CUELGUES!: Guarda las carpetas en RAM por 72 horas
+                      "--dir-cache-time" "72h"
+                      ;; 4. Optimización de lectura en bloques (streaming rápido)
+                      "--vfs-read-chunk-size" "32M"
+                      "--vfs-read-chunk-size-limit" "2G"
+                      "--buffer-size" "32M"
+                      "--fast-list"
+                      ;; 5. Demonio en segundo plano
                       "--daemon")
        :sentinel
        (lambda (_proc event)
          (when (string-match-p "finished" event)
            (message "✅ Google Drive montado con éxito en %s" gdrive-sync/mount-dir)
+           ;; Abrir Dired local normal (instantáneo)
            (dired gdrive-sync/mount-dir)))))))
 
 ;;;###autoload
@@ -211,7 +246,7 @@
 ;;;###autoload
 (defun gdrive-sync--fetch-remote-folders-sync (&optional from-root)
   "Obtiene de forma síncrona la lista de carpetas en Google Drive y actualiza la caché."
-  (let* ((target-dir (if from-root "" gdrive-sync/remote-dir))
+  (let* ((target-dir (if from-root "" (or gdrive-sync/remote-dir "")))
          (remote-full (gdrive-sync--get-full-remote target-dir))
          (args (list "lsf" remote-full "--dirs-only" "--recursive" "--fast-list")))
     (message "🔍 Escaneando carpetas en Google Drive (%s)..." remote-full)
@@ -227,10 +262,10 @@
 ;;;###autoload
 (defun gdrive-sync/refresh-folder-cache (&optional root-remote)
   "Actualiza asíncronamente la caché de carpetas de Google Drive.
-Con prefijo C-u (ROOT-REMOTE non-nil), escanea desde la raíz del remote en lugar de `gdrive-sync/remote-dir`."
+Con prefijo C-u (ROOT-REMOTE non-nil), escanea desde la raíz del remote."
   (interactive "P")
   (message "Actualizando caché de carpetas de Google Drive...")
-  (let* ((target-dir (if root-remote "" gdrive-sync/remote-dir))
+  (let* ((target-dir (if root-remote "" (or gdrive-sync/remote-dir "")))
          (remote-full (gdrive-sync--get-full-remote target-dir))
          (process (gdrive-sync--execute "lsf" (list remote-full "--dirs-only" "--recursive" "--fast-list") t))
          (output-buffer (process-buffer process)))
@@ -263,15 +298,14 @@ Con prefijo C-u (ROOT-REMOTE non-nil), escanea desde la raíz del remote en luga
         (message "Subiendo %d archivos modificados..." (length modified-files))
         (dolist (file modified-files)
           (let* ((relative-path (file-relative-name file gdrive-sync/local-dir))
-                 (remote-path (concat gdrive-sync/remote-dir "/" relative-path)))
+                 (remote-path (concat (string-trim-right gdrive-sync/remote-dir "/") "/" relative-path)))
             (gdrive-sync--execute "copyto" (list file (gdrive-sync--get-full-remote remote-path)) t)))
         (setq gdrive-sync--modified-files-in-session nil))
     (message "No hay archivos modificados para subir.")))
 
 ;;;###autoload
 (defun gdrive-sync/sync-local-to-remote (&optional local-dir remote-subpath copy-only)
-  "Sincroniza una carpeta local hacia Google Drive (Local ➔ Remoto).
-Si COPY-ONLY es no-nil (o con prefijo C-u), usa `rclone copy` en lugar de `rclone sync`."
+  "Sincroniza una carpeta local hacia Google Drive (Local ➔ Remoto)."
   (interactive
    (let* ((default-dir (or (and buffer-file-name (file-name-directory buffer-file-name))
                            gdrive-sync/local-dir))
@@ -285,7 +319,7 @@ Si COPY-ONLY es no-nil (o con prefijo C-u), usa `rclone copy` en lugar de `rclon
           (copy (or current-prefix-arg
                     (not (y-or-n-p "⚠️ ¿Usar `sync` (hacer espejo exacto borrando lo sobrante en remoto)? ('n' usará `copy`): ")))))
      (list ldir rsub copy)))
-  (let* ((local-path (expand-file-name local-dir))
+  (let* ((local-path (expand-file-name (or local-dir gdrive-sync/local-dir)))
          (clean-rsub (string-trim (or remote-subpath "") "/" "/"))
          (remote-rel (if (string-empty-p clean-rsub)
                          gdrive-sync/remote-dir
@@ -297,15 +331,12 @@ Si COPY-ONLY es no-nil (o con prefijo C-u), usa `rclone copy` en lugar de `rclon
 
 ;;;###autoload
 (defun gdrive-sync/sync-remote-to-local (&optional remote-subpath local-dir copy-only)
-  "Sincroniza o descarga una carpeta desde Google Drive hacia local (Remoto ➔ Local).
-Muestra todas las carpetas disponibles en Google Drive.
-Si la caché está vacía o se usa C-u (prefijo), escanea las carpetas en remoto antes de seleccionar."
+  "Sincroniza o descarga una carpeta desde Google Drive hacia local (Remoto ➔ Local)."
   (interactive
    (let* ((force-refresh current-prefix-arg)
           (cached-raw (unless force-refresh
                         (when (boundp 'gdrive-sync--remote-folders-cache)
                           (multisession-value gdrive-sync--remote-folders-cache))))
-          ;; Si la caché está vacía o solo tiene "/", escanear remoto síncronamente desde la raíz
           (folders (if (or force-refresh (null cached-raw) (equal cached-raw '("/")) (equal cached-raw '("")))
                        (gdrive-sync--fetch-remote-folders-sync t)
                      cached-raw))
@@ -316,20 +347,16 @@ Si la caché está vacía o se usa C-u (prefijo), escanea las carpetas en remoto
                               (delete-dups (copy-sequence folders))))
           (selected-rsub (completing-read "Selecciona carpeta en Google Drive: "
                                           candidates nil nil nil nil nil)))
-     
-     ;; Si se seleccionó la opción de refrescar explícitamente
      (when (string= selected-rsub refresh-opt)
        (setq folders (gdrive-sync--fetch-remote-folders-sync t))
        (setq candidates (append (list root-opt main-opt refresh-opt)
                                 (delete-dups (copy-sequence folders))))
        (setq selected-rsub (completing-read "Selecciona carpeta en Google Drive: "
                                             candidates nil nil nil nil nil)))
-
      (let* ((clean-rsub (cond
                          ((string= selected-rsub root-opt) "")
                          ((string= selected-rsub main-opt) gdrive-sync/remote-dir)
                          (t (string-trim selected-rsub "/" "/"))))
-            ;; Calcular ruta local predeterminada inteligente
             (rel-local-sub (cond
                             ((string-empty-p clean-rsub) "")
                             ((string= clean-rsub gdrive-sync/remote-dir) "")
@@ -339,7 +366,6 @@ Si la caché está vacía o se usa C-u (prefijo), escanea las carpetas en remoto
             (default-local (if (string-empty-p rel-local-sub)
                                gdrive-sync/local-dir
                              (expand-file-name rel-local-sub gdrive-sync/local-dir)))
-            ;; Permitir libre navegación a carpetas padre
             (base-dir (file-name-directory (directory-file-name default-local)))
             (ldir (read-directory-name (format "Carpeta local destino [%s]: " (abbreviate-file-name default-local))
                                        (or base-dir "~/") default-local nil))
@@ -355,7 +381,10 @@ Si la caché está vacía o se usa C-u (prefijo), escanea las carpetas en remoto
                       (t
                        (concat (string-trim-right gdrive-sync/remote-dir "/") "/" clean-rsub))))
          (remote-full (gdrive-sync--get-full-remote remote-rel))
-         (local-path (expand-file-name local-dir))
+         (local-path (expand-file-name (or local-dir
+                                           (if (string-empty-p clean-rsub)
+                                               gdrive-sync/local-dir
+                                             (expand-file-name clean-rsub gdrive-sync/local-dir)))))
          (cmd-type (if copy-only "copy" "sync")))
     (unless (file-exists-p local-path)
       (make-directory local-path t))
@@ -402,9 +431,8 @@ Si la caché está vacía o se usa C-u (prefijo), escanea las carpetas en remoto
     (when (y-or-n-p (format "¿Descargar %s ➔ %s? " remote-full local-full))
       (gdrive-sync--execute "copyto" (list remote-full local-full)))))
 
-
 ;; ==================================================================
-;; --- 5. MANTENIMIENTO Y EMERGENCIA ---
+;; --- 5. MANTENIMIENTO, DIAGNÓSTICO Y CONFIGURACIÓN ---
 ;; ==================================================================
 
 ;;;###autoload
@@ -442,6 +470,25 @@ Si la caché está vacía o se usa C-u (prefijo), escanea las carpetas en remoto
             (ediff-files original-file file-to-resolve)
           (user-error "No se encontró el archivo original: %s" original-file))))))
 
+;;;###autoload
+(defun gdrive-sync/open-config-file ()
+  "Abre el archivo de configuración rclone.conf en Emacs."
+  (interactive)
+  (let ((conf-file (expand-file-name "~/.config/rclone/rclone.conf")))
+    (if (file-exists-p conf-file)
+        (find-file conf-file)
+      (user-error "No se encontró el archivo rclone.conf en ~/.config/rclone/"))))
+
+;;;###autoload
+(defun gdrive-sync/run-rclone-config-terminal ()
+  "Lanza el asistente interactivo de rclone config en una terminal vterm dedicada."
+  (interactive)
+  (require 'vterm)
+  (let ((buf (vterm "*rclone-setup*")))
+    (with-current-buffer buf
+      (vterm-send-string "rclone config\n"))
+    (pop-to-buffer buf)))
+
 ;; ==================================================================
 ;; --- 6. GESTIÓN DE LA SESIÓN Y SALIDA DE EMACS ---
 ;; ==================================================================
@@ -456,7 +503,8 @@ Si la caché está vacía o se usa C-u (prefijo), escanea las carpetas en remoto
       ('async
        (message "Cerrando Emacs y lanzando sincronización en segundo plano...")
        (apply #'process-file (executable-find "rclone") nil nil nil
-              (list "bisync" gdrive-sync/local-dir (gdrive-sync--get-full-remote gdrive-sync/remote-dir)
+              (list "bisync" (expand-file-name gdrive-sync/local-dir)
+                    (gdrive-sync--get-full-remote gdrive-sync/remote-dir)
                     "--log-file=/tmp/rclone-exit.log")))
       ('fast (gdrive-sync/upload-modified)))))
 
@@ -469,8 +517,8 @@ Si la caché está vacía o se usa C-u (prefijo), escanea las carpetas en remoto
 (defun gdrive-sync--transient-title ()
   "Genera un título dinámico y elegante para el menú Transient."
   (format "☁️  Google Drive Sync  |  Remote: %s  |  Local: %s"
-          (propertize gdrive-sync/remote-name 'face 'font-lock-keyword-face)
-          (propertize (abbreviate-file-name gdrive-sync/local-dir) 'face 'font-lock-string-face)))
+          (propertize (or gdrive-sync/remote-name "GoogleDrive") 'face 'font-lock-keyword-face)
+          (propertize (abbreviate-file-name (or gdrive-sync/local-dir "~/")) 'face 'font-lock-string-face)))
 
 ;;;###autoload
 (transient-define-prefix gdrive-sync-transient/body ()
@@ -493,13 +541,18 @@ Si la caché está vacía o se usa C-u (prefijo), escanea las carpetas en remoto
   ["🛠️  Mantenimiento y Diagnóstico"
    ["🔧 Reparación & Candados"
     ("r" "Forzar Resincronización (--resync)" gdrive-sync/bisync-resync-global)
-    ("l" "Eliminar Candados (.lck)" gdrive-sync/force-unlock)]
+    ("l" "Eliminar Candados (.lck)" gdrive-sync/force-unlock)
+    ("K" "Lanzar 'rclone config' (vterm)" gdrive-sync/run-rclone-config-terminal)
+    ("e" "Editar rclone.conf" gdrive-sync/open-config-file)]
    ["⚡ Conflictos & Caché"
     ("c" "Resolver Conflictos (Ediff)" gdrive-sync/resolve-conflicts)
     ("R" "Refrescar Caché de Carpetas" gdrive-sync/refresh-folder-cache)]])
 
 (defvar gdrive-sync-transient/body #'gdrive-sync-transient/body
   "Variable defensiva para gdrive-sync-transient/body.")
+
+;; Evita que Emacs consulte remotamente Google Drive en segundo plano cada 5 segundos
+(setq auto-revert-remote-files nil)
 
 (provide 'gdrive-sync)
 ;;; gdrive-sync.el ends here

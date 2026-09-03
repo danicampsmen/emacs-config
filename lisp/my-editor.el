@@ -168,6 +168,63 @@
 ;; --- 7. SNIPPETS Y UTILIDADES IA ---
 ;; ==================================================================
 
+(defun my/latex-smart-insert-item ()
+  "Inserta el tipo correcto de ítem o fila según el entorno actual con M-RET."
+  (interactive)
+  (let ((env (if (fboundp 'LaTeX-current-environment)
+                 (LaTeX-current-environment)
+               "document")))
+    (cond
+     ;; 1. Listas estándar
+     ((member env '("itemize" "enumerate" "egalist" "tfae" "enuthm"))
+      (end-of-line)
+      (newline-and-indent)
+      (insert "\\item "))
+
+     ;; 2. Propiedades Bourbaki
+     ((string= env "properties")
+      (end-of-line)
+      (newline-and-indent)
+      (insert "\\propitem{} ")
+      (backward-char 2))
+
+     ;; 3. Ejercicios Bourbaki
+     ((string= env "exercices")
+      (end-of-line)
+      (newline-and-indent)
+      (insert "\\exer "))
+
+     ;; 4. Algoritmos
+     ((string= env "algsteps")
+      (end-of-line)
+      (newline-and-indent)
+      (insert "\\algstep{} ")
+      (backward-char 2))
+
+     ;; 5. Casos y demostraciones
+     ((string= env "proofcases")
+      (end-of-line)
+      (newline-and-indent)
+      (insert "\\item "))
+
+     ;; 6. Entornos matemáticos alineados (align, cases, matrix)
+     ((member env '("align" "align*" "aligned" "cases" "conditions"
+                    "matrix" "pmatrix" "bmatrix" "vmatrix" "tabular"))
+      (end-of-line)
+      (insert " \\\\")
+      (newline-and-indent))
+
+     ;; 7. Fallback fuera de entornos
+     (t
+      (end-of-line)
+      (newline-and-indent)))))
+
+(add-hook 'LaTeX-mode-hook
+          (lambda ()
+            (local-set-key (kbd "M-RET") #'my/latex-smart-insert-item)
+            (when (bound-and-true-p evil-mode)
+              (evil-local-set-key 'insert (kbd "M-RET") #'my/latex-smart-insert-item))))
+
 (defun my/smart-latex-label ()
   "Inserta un \\label{} inteligente usando Tempel y pasa a modo Inserción."
   (interactive)
