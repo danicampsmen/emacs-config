@@ -38,7 +38,16 @@ class KeyboardServer:
             return
         env = dict(os.environ)
         if 'WAYLAND_DISPLAY' not in env:
-            env['WAYLAND_DISPLAY'] = 'wayland-0'
+            runtime_dir = env.get('XDG_RUNTIME_DIR', f"/run/user/{os.getuid()}")
+            try:
+                for name in os.listdir(runtime_dir):
+                    if name.startswith('wayland-') and not name.endswith('.lock'):
+                        env['WAYLAND_DISPLAY'] = name
+                        break
+            except Exception:
+                pass
+            if 'WAYLAND_DISPLAY' not in env:
+                env['WAYLAND_DISPLAY'] = 'wayland-1'
         if 'DISPLAY' not in env:
             env['DISPLAY'] = ':0'
 

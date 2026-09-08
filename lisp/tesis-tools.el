@@ -295,6 +295,21 @@
         (set-frame-parameter fr 'user-position t)
         (set-frame-position fr left top)))))
 
+(defvar-keymap tesis-tools-math-pad-mode-map
+  :doc "Mapa de teclas exclusivo para el buffer del Math Pad de Inkscape."
+  "RET" #'tesis-tools-math-pad-confirm
+  "<return>" #'tesis-tools-math-pad-confirm
+  "C-<return>" #'tesis-tools-math-pad-confirm
+  "C-c C-c" #'tesis-tools-math-pad-confirm
+  "C-c C-k" #'tesis-tools-math-pad-cancel
+  "C-g" #'tesis-tools-math-pad-cancel
+  "<escape>" #'tesis-tools-math-pad-cancel)
+
+(define-minor-mode tesis-tools-math-pad-mode
+  "Modo menor para gestionar los atajos del Math Pad de Inkscape sin mutar `LaTeX-mode-map'."
+  :lighter " MathPad"
+  :keymap tesis-tools-math-pad-mode-map)
+
 ;;;###autoload
 (defun tesis-tools-open-math-pad ()
   "Abre el buffer interactivo del Math Pad para escribir fórmulas LaTeX para Inkscape."
@@ -322,23 +337,19 @@
             (propertize " 󰐝 Inkscape Math Pad | [Enter] o [C-c C-c] o [ZZ]: Pegar | [Esc] o [q]: Cancelar "
                         'face '(:foreground "#1e88e5" :weight bold)))
 
-      ;; Mapear atajos de confirmación y cancelación
-      (local-set-key (kbd "<return>") #'tesis-tools-math-pad-confirm)
-      (local-set-key (kbd "RET") #'tesis-tools-math-pad-confirm)
-      (local-set-key (kbd "C-<return>") #'tesis-tools-math-pad-confirm)
-      (local-set-key (kbd "C-c C-c") #'tesis-tools-math-pad-confirm)
-      (local-set-key (kbd "C-c C-k") #'tesis-tools-math-pad-cancel)
-      (local-set-key (kbd "C-g") #'tesis-tools-math-pad-cancel)
-      (local-set-key (kbd "<escape>") #'tesis-tools-math-pad-cancel)
+      ;; Activar modo menor aislado (previene contaminar el mapa global de LaTeX-mode)
+      (tesis-tools-math-pad-mode 1)
 
-      ;; Soporte para Evil Mode
+      ;; Soporte para Evil Mode (buffer-local exclusivamente)
       (when (bound-and-true-p evil-mode)
         (evil-local-set-key 'insert (kbd "<return>") #'tesis-tools-math-pad-confirm)
         (evil-local-set-key 'insert (kbd "RET") #'tesis-tools-math-pad-confirm)
+        (evil-local-set-key 'insert (kbd "C-<return>") #'tesis-tools-math-pad-confirm)
         (evil-local-set-key 'insert (kbd "C-c C-c") #'tesis-tools-math-pad-confirm)
         (evil-local-set-key 'insert (kbd "C-c C-k") #'tesis-tools-math-pad-cancel)
         (evil-local-set-key 'normal (kbd "<return>") #'tesis-tools-math-pad-confirm)
         (evil-local-set-key 'normal (kbd "RET") #'tesis-tools-math-pad-confirm)
+        (evil-local-set-key 'normal (kbd "C-c C-c") #'tesis-tools-math-pad-confirm)
         (evil-local-set-key 'normal (kbd "ZZ") #'tesis-tools-math-pad-confirm)
         (evil-local-set-key 'normal (kbd "ZQ") #'tesis-tools-math-pad-cancel)
         (evil-local-set-key 'normal (kbd "q") #'tesis-tools-math-pad-cancel)
