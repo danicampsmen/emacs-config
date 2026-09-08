@@ -14,10 +14,19 @@
   :type 'string
   :group 'my-latex)
 
+;; Garantizar que los archivos .tex abran siempre en LaTeX-mode (AUCTeX)
+(add-to-list 'auto-mode-alist '("\\.tex\\'" . LaTeX-mode))
+(setq major-mode-remap-alist
+      (append '((tex-mode . LaTeX-mode)
+                (latex-mode . LaTeX-mode))
+              (bound-and-true-p major-mode-remap-alist)))
+
 (use-package tex
   :ensure auctex
   :hook ((LaTeX-mode . my/latex-mode-setup))
   :config
+  (setq TeX-default-mode 'LaTeX-mode)
+  (setq TeX-force-default-mode t)
   (setq TeX-auto-save t)
   (setq TeX-parse-self t)
   (setq-default TeX-engine 'luatex)

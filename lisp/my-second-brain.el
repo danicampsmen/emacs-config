@@ -47,19 +47,31 @@
       (message "No se encontró ningún enlace PDF en esta línea."))))
 
 (defun my/detect-project-bibliography ()
-  "Busca archivos .bib en la raíz del proyecto y los establece localmente."
-  (if (and (bound-and-true-p projectile-mode) (projectile-project-p))
-      (let* ((root (projectile-project-root))
-             (files (projectile-current-project-files))
-             (bib-files (cl-remove-if-not (lambda (f) (string-suffix-p ".bib" f t)) files)))
-        (if bib-files
-            (progn
-              (setq bib-files (mapcar (lambda (f) (expand-file-name f root)) bib-files))
-              (setq-local citar-bibliography bib-files)
-              (setq-local citar-library-paths (append (list root) citar-library-paths))
-              (message "📚 [Layout] Usando bibliografía local: %s" (mapconcat #'file-name-nondirectory bib-files ", ")))
-          (message "🌐 [Layout] No hay .bib en el proyecto. Usando Global.")))
-    (message "🌐 [Layout] Fuera de proyecto. Usando Global.")))
+  "Busca archivos .bib en el directorio del buffer o en la raíz del proyecto sin congelar Emacs."
+  (let* ((buf-file (buffer-file-name))
+         (file-dir (when buf-file (file-name-directory buf-file)))
+         (root (and (bound-and-true-p projectile-mode)
+                    (fboundp 'projectile-project-p)
+                    (projectile-project-p)
+                    (projectile-project-root)))
+         (home-dir (expand-file-name "~"))
+         ;; Si la raíz detectada es el HOME del usuario (~/), ignorarla para prevenir bloqueos masivos
+         (valid-root (and root
+                          (not (file-equal-p (expand-file-name root) home-dir))
+                          root))
+         (search-dirs (delete-dups (delq nil (list file-dir valid-root))))
+         (bib-files nil))
+    (dolist (dir search-dirs)
+      (when (and dir (file-directory-p dir))
+        (dolist (f (directory-files dir t "\\.bib\\'" t))
+          (unless (member f bib-files)
+            (push f bib-files)))))
+    (if bib-files
+        (progn
+          (setq-local citar-bibliography bib-files)
+          (setq-local citar-library-paths (append search-dirs citar-library-paths))
+          (message "📚 [Layout] Usando bibliografía local: %s" (mapconcat #'file-name-nondirectory bib-files ", ")))
+      (message "🌐 [Layout] Sin .bib local/proyecto. Usando Global."))))
 
 ;; Ejecuta la detección automáticamente cada vez que abres un buffer de LaTeX
 (add-hook 'LaTeX-mode-hook #'my/detect-project-bibliography)

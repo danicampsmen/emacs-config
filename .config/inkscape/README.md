@@ -70,7 +70,7 @@ inkscape/
 Para desplegar esta configuración completa en otra máquina o tras reinstalar el sistema:
 
 ```bash
-cd ~/.emacs.d/inkscape
+cd ~/.emacs.d/.config/inkscape
 ./install.sh
 ```
 

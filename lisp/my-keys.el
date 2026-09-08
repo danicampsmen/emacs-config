@@ -134,8 +134,23 @@ Si estás en Dired, actualiza el buffer automáticamente para mostrarlo."
 (require 'harpoon)
 
 ;; Configuración segura de estados
-(setq general-override-states '(insert emacs hybrid normal visual motion operator replace))
+(customize-set-variable 'general-override-states '(insert emacs hybrid normal visual motion operator replace))
+(general-override-mode 1)
 (general-auto-unbind-keys)
+
+;; Liberar ';' en Evil para usarlo como Líder global en normal, visual y motion
+(with-eval-after-load 'evil
+  ;; Desvincular ';' de los mapas de Evil para que no ejecute evil-repeat-find-char
+  (define-key evil-motion-state-map (kbd ";") nil)
+  (define-key evil-normal-state-map (kbd ";") nil)
+  (define-key evil-visual-state-map (kbd ";") nil)
+  ;; Al usar ';' como líder global, trasladamos la repetición de búsqueda horizontal
+  ;; hacia adelante a la tecla coma (',')
+  (define-key evil-motion-state-map (kbd ",") #'evil-repeat-find-char)
+  ;; Reasignamos la repetición inversa (hacia atrás) a la barra invertida ('\')
+  (define-key evil-motion-state-map (kbd "\\") #'evil-repeat-find-char-reverse)
+  ;; Desvinculamos preventivamente la coma en el mapa normal
+  (define-key evil-normal-state-map (kbd ",") nil))
 
 ;; Definición maestra de la tecla Líder (";")
 (general-create-definer my/leader-keys
@@ -327,22 +342,5 @@ Si estás en Dired, actualiza el buffer automáticamente para mostrarlo."
   "ok"  '(my/open-calendar :which-key "Calendario Gráfico")
   "ot"  '(lambda () (interactive) (find-file (expand-file-name "vida.org" org-directory)) :which-key "Abrir vida.org")
   )
-
-;; ==================================================================
-;; --- 6. RESCATE DE NAVEGACIÓN VIM (EVIL) ---
-;; ==================================================================
-(with-eval-after-load 'evil
-  ;; Al usar ';' como líder global, trasladamos la repetición de búsqueda horizontal
-  ;; hacia adelante a la tecla coma (',')
-  (define-key evil-motion-state-map (kbd ",") #'evil-repeat-find-char)
-  
-  ;; Reasignamos la repetición inversa (hacia atrás) a la barra invertida ('\')
-  ;; para no perder la capacidad de retroceder rápidamente si nos pasamos del caracter
-  (define-key evil-motion-state-map (kbd "\\") #'evil-repeat-find-char-reverse)
-  
-  ;; Desvinculamos preventivamente la coma en el mapa normal para evitar 
-  ;; conflictos con funciones legacy y garantizar que herede limpiamente del motion-map
-  (define-key evil-normal-state-map (kbd ",") nil))
-
 (provide 'my-keys)
 ;;; my-keys.el ends here

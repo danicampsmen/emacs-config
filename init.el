@@ -9,6 +9,11 @@
 
 (setq auth-sources '("~/.authinfo"))
 
+;; Iniciar servidor de Emacs temprano para permitir conexiones de emacsclient
+(require 'server)
+(unless (server-running-p)
+  (server-start))
+
 ;; 2. Carga de Módulos (NUEVO ORDEN)
 (require 'my-packages)           
 

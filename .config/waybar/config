@@ -1,16 +1,62 @@
 {
   "layer": "top",
   "position": "top",
-  "height": 28,
+  "height": 38,
   "spacing": 4,
-  "modules-left": ["sway/workspaces", "sway/mode"],
+  "modules-left": ["hyprland/workspaces", "hyprland/window"],
   "modules-center": ["clock"],
-  "modules-right": ["pulseaudio", "backlight", "battery", "tray"],
+  "modules-right": ["custom/audio-profile", "pulseaudio", "backlight", "battery", "custom/nightlight", "custom/ideapad", "tray", "custom/power"],
 
-  "sway/workspaces": {
+  "custom/audio-profile": {
+    "exec": "/home/fayfer/.config/hypr/scripts/audio-profile.sh --current",
+    "interval": 2,
+    "format": "{}",
+    "tooltip": true,
+    "tooltip-format": "Perfil de Audio actual\nClic izquierdo: Selector de perfiles\nClic derecho: Siguiente perfil",
+    "on-click": "/home/fayfer/.config/hypr/scripts/audio-profile.sh",
+    "on-click-right": "/home/fayfer/.config/hypr/scripts/audio-profile.sh --next",
+    "signal": 1
+  },
+
+  "custom/nightlight": {
+    "exec": "/home/fayfer/.config/hypr/scripts/nightlight.sh --status",
+    "return-type": "json",
+    "interval": 10,
+    "format": "{}",
+    "tooltip": true,
+    "on-click": "/home/fayfer/.config/hypr/scripts/nightlight.sh --menu",
+    "on-click-right": "/home/fayfer/.config/hypr/scripts/nightlight.sh --toggle",
+    "signal": 2
+  },
+
+  "custom/ideapad": {
+    "exec": "/home/fayfer/.config/hypr/scripts/ideapad-controls.sh --status",
+    "return-type": "json",
+    "interval": 10,
+    "format": "{}",
+    "tooltip": true,
+    "on-click": "/home/fayfer/.config/hypr/scripts/ideapad-controls.sh --menu",
+    "on-click-right": "/home/fayfer/.config/hypr/scripts/ideapad-controls.sh --toggle-conservation",
+    "signal": 3
+  },
+
+  "custom/power": {
+    "format": "",
+    "tooltip": true,
+    "tooltip-format": "Apagar / Suspender / Cerrar Sesión",
+    "on-click": "wlogout -b 5 -T 450 -B 450 -L 150 -R 150"
+  },
+
+  "hyprland/workspaces": {
     "disable-scroll": true,
     "all-outputs": true,
-    "format": "{name}"
+    "format": "{name}",
+    "on-click": "activate"
+  },
+
+  "hyprland/window": {
+    "max-length": 40,
+    "separate-outputs": true
   },
 
   "clock": {
@@ -25,12 +71,21 @@
     "format-plugged": "🔌 {capacity}%"
   },
 
-  "backlight": { "format": "☀️ {percent}%" },
+  "backlight": {
+    "format": "☀️ {percent}%",
+    "on-scroll-up": "brightnessctl set 2%+",
+    "on-scroll-down": "brightnessctl set 2%-",
+    "on-click": "/home/fayfer/.config/hypr/scripts/brightness-profile.sh",
+    "on-click-right": "/home/fayfer/.config/hypr/scripts/brightness-profile.sh --next",
+    "tooltip": true,
+    "tooltip-format": "Brillo de pantalla: {percent}%\n• Clic izquierdo: Selector de perfiles de brillo\n• Clic derecho: Siguiente perfil\n• Rueda del ratón: Ajuste fino (±2%)"
+  },
 
   "pulseaudio": {
     "format": "🔊 {volume}%",
     "format-muted": "🔇 Mute",
-    "on-click": "pavucontrol"
+    "on-click": "pavucontrol",
+    "on-click-right": "/home/fayfer/.config/hypr/scripts/audio-profile.sh"
   },
 
   "tray": { "spacing": 10 }

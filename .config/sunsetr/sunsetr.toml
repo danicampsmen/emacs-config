@@ -1,0 +1,20 @@
+# sunsetr configuration
+backend = "hyprland"
+transition_mode = "geo"
+
+smoothing = true
+startup_duration = 0.5
+shutdown_duration = 0.5
+adaptive_interval = 1
+
+night_temp = 4000
+day_temp = 6500
+night_gamma = 100
+day_gamma = 100
+update_interval = "auto"
+
+static_temp = 6500
+static_gamma = 100
+
+latitude = -12.050000
+longitude = -77.050003

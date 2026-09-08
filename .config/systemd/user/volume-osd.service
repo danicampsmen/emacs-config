@@ -1,0 +1,14 @@
+[Unit]
+Description=Volume Control and OSD Daemon (Anti-stuck evdev)
+PartOf=graphical-session.target
+After=graphical-session.target pipewire.service wireplumber.service
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python3 /home/fayfer/.config/hypr/scripts/volume-osd.py
+Restart=always
+RestartSec=2
+Environment=PYTHONUNBUFFERED=1
+
+[Install]
+WantedBy=default.target
