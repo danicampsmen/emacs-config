@@ -15,13 +15,22 @@ fi
 
 case "${1:-}" in
     --inc)
-        wpctl set-volume -l 1.5 @DEFAULT_AUDIO_SINK@ 1%+
+        wpctl set-volume -l 1.5 @DEFAULT_AUDIO_SINK@ 2%+
+        if [ "$(pactl get-default-sink 2>/dev/null)" = "jamesdsp_sink" ]; then
+            pactl set-sink-volume alsa_output.pci-0000_00_1f.3-platform-skl_hda_dsp_generic.HiFi__Speaker__sink +2% 2>/dev/null || true
+        fi
         ;;
     --dec)
-        wpctl set-volume @DEFAULT_AUDIO_SINK@ 1%-
+        wpctl set-volume @DEFAULT_AUDIO_SINK@ 2%-
+        if [ "$(pactl get-default-sink 2>/dev/null)" = "jamesdsp_sink" ]; then
+            pactl set-sink-volume alsa_output.pci-0000_00_1f.3-platform-skl_hda_dsp_generic.HiFi__Speaker__sink -2% 2>/dev/null || true
+        fi
         ;;
     --toggle)
         wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle
+        if [ "$(pactl get-default-sink 2>/dev/null)" = "jamesdsp_sink" ]; then
+            pactl set-sink-mute alsa_output.pci-0000_00_1f.3-platform-skl_hda_dsp_generic.HiFi__Speaker__sink toggle 2>/dev/null || true
+        fi
         ;;
     --toggle-mic)
         wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle

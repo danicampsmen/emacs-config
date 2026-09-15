@@ -23,26 +23,41 @@ set window-title-basename true
 # Suavizar el desplazamiento de página (scroll-step similar a tu EAF)
 set scroll-step 40
 
-# ==================================================================
-# --- 3. MODO OSCURO (Estilo Modus Vivendi) ---
-# ==================================================================
-# Descomenta la siguiente línea si quieres que los PDFs se abran en modo oscuro por defecto:
-# set recolor true
+# ============================================================
+# --- 3. TEMA MODUS VIVENDI (WCAG AAA OLED Dark) ---
+# ============================================================
+# Mantener fondo blanco original de los PDFs (recolor desactivado)
+set recolor                     false
+set recolor-keephue             true
 
-# Colores del Modo Oscuro (Fondo gris muy oscuro, texto blanco/gris claro)
-# Esto invierte los PDFs blancos para que no te cansen la vista de noche.
-set recolor-lightcolor "#111111"  # Color de fondo de la hoja
-set recolor-darkcolor  "#e0e0e0"  # Color de la tinta/texto
+# Colores del Modo Oscuro / Recolor (Fondo negro OLED #000000, Tinta blanca nítida #ffffff)
+set default-bg                  "#000000"
+set default-fg                  "#ffffff"
 
-# Colores de la barra de estado y comandos para que combine con Emacs
-set statusbar-bg       "#1e1e1e"
-set statusbar-fg       "#ffffff"
-set inputbar-bg        "#1e1e1e"
-set inputbar-fg        "#ffffff"
-set notification-bg    "#d3869b"  # Violeta suave (basado en tu font-latex)
-set notification-fg    "#ffffff"
-set notification-error-bg "#ff0000"
-set notification-error-fg "#ffffff"
+set recolor-lightcolor          "#000000"
+set recolor-darkcolor           "#e0e0e0"
+
+# Barra de estado e ingreso de comandos (Bg-dim #1e1e1e)
+set statusbar-bg                "#1e1e1e"
+set statusbar-fg                "#ffffff"
+set inputbar-bg                 "#1e1e1e"
+set inputbar-fg                 "#ffffff"
+
+# Notificaciones y advertencias
+set notification-bg             "#1e1e1e"
+set notification-fg             "#ffffff"
+set notification-error-bg       "#1e1e1e"
+set notification-error-fg       "#ff5f59"
+set notification-warning-bg     "#1e1e1e"
+set notification-warning-fg     "#cabf00"
+
+# Completado y Selección
+set highlight-color             "rgba(47, 175, 255, 0.35)"
+set highlight-active-color      "rgba(0, 211, 208, 0.45)"
+set completion-bg               "#1e1e1e"
+set completion-fg               "#ffffff"
+set completion-highlight-bg     "#2fafff"
+set completion-highlight-fg     "#000000"
 
 # ==================================================================
 # --- 4. ATAJOS DE TECLADO EXTRA ---

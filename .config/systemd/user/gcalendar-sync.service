@@ -1,0 +1,11 @@
+[Unit]
+Description=Sincronización en segundo plano de Google Calendar
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/python3 /home/fayfer/.config/hypr/scripts/calendar-popup.py --sync-only
+
+[Install]
+WantedBy=default.target

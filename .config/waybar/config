@@ -3,9 +3,76 @@
   "position": "top",
   "height": 38,
   "spacing": 4,
-  "modules-left": ["hyprland/workspaces", "hyprland/window"],
+  "modules-left": ["hyprland/workspaces", "mpris", "hyprland/window"],
   "modules-center": ["clock"],
-  "modules-right": ["custom/audio-profile", "pulseaudio", "backlight", "battery", "custom/nightlight", "custom/ideapad", "tray", "custom/power"],
+  "modules-right": ["cpu", "memory", "custom/audio-profile", "pulseaudio", "backlight", "battery", "custom/nightlight", "custom/ideapad", "tray", "custom/notification", "custom/power"],
+
+  "cpu": {
+    "interval": 2,
+    "format": " {usage}%",
+    "tooltip": true,
+    "tooltip-format": "Uso de CPU: {usage}%\nFrecuencia máx: {max_frequency} GHz\n• Clic: Abrir monitor de procesos (btop)",
+    "states": {
+      "warning": 70,
+      "critical": 90
+    },
+    "on-click": "kitty -e btop"
+  },
+
+  "memory": {
+    "interval": 2,
+    "format": " {percentage}%",
+    "tooltip": true,
+    "tooltip-format": "RAM usada: {used:0.1f} GiB / {total:0.1f} GiB ({percentage}%)\nSwap: {swapUsed:0.1f} GiB / {swapTotal:0.1f} GiB\n• Clic: Abrir monitor de procesos (btop)",
+    "states": {
+      "warning": 80,
+      "critical": 90
+    },
+    "on-click": "kitty -e btop"
+  },
+
+  "custom/notification": {
+    "tooltip": true,
+    "tooltip-format": "Centro de Control y Notificaciones\n• Clic izquierdo: Abrir / Cerrar\n• Clic derecho: Modo No Molestar",
+    "format": "{icon}",
+    "format-icons": {
+      "notification": "<span foreground='#ff6c6b'><sup></sup></span>",
+      "none": "",
+      "dnd-notification": "<span foreground='#ff6c6b'><sup></sup></span>",
+      "dnd-none": "",
+      "inhibited-notification": "<span foreground='#ff6c6b'><sup></sup></span>",
+      "inhibited-none": "",
+      "dnd-inhibited-notification": "<span foreground='#ff6c6b'><sup></sup></span>",
+      "dnd-inhibited-none": ""
+    },
+    "return-type": "json",
+    "exec-if": "which swaync-client",
+    "exec": "swaync-client -swb",
+    "on-click": "swaync-client -t -sw",
+    "on-click-right": "swaync-client -d -sw",
+    "escape": true
+  },
+
+  "mpris": {
+    "format": "{player_icon} {dynamic}",
+    "format-paused": "{status_icon} <i>{dynamic}</i>",
+    "player-icons": {
+      "default": "▶ ",
+      "spotify": " ",
+      "firefox": "󰈹 ",
+      "mpv": "🎵 "
+    },
+    "status-icons": {
+      "paused": "⏸ "
+    },
+    "dynamic-order": ["title", "artist"],
+    "dynamic-importance-order": ["title", "artist"],
+    "dynamic-len": 32,
+    "on-click": "playerctl play-pause",
+    "on-click-right": "playerctl next",
+    "on-click-middle": "playerctl previous",
+    "tooltip-format": "Reproductor: {player}\nTítulo: {title}\nArtista: {artist}\nÁlbum: {album}\n\n• Clic: Play/Pausa\n• Clic der: Siguiente\n• Clic central: Anterior"
+  },
 
   "custom/audio-profile": {
     "exec": "/home/fayfer/.config/hypr/scripts/audio-profile.sh --current",
@@ -50,7 +117,19 @@
   "hyprland/workspaces": {
     "disable-scroll": true,
     "all-outputs": true,
-    "format": "{name}",
+    "format": "{name} {icon}",
+    "format-icons": {
+      "1": "",
+      "2": "",
+      "3": "󰈦",
+      "4": "󰈹",
+      "5": "󰭹",
+      "urgent": "",
+      "default": ""
+    },
+    "persistent-workspaces": {
+      "*": [1, 2, 3, 4, 5]
+    },
     "on-click": "activate"
   },
 
@@ -60,8 +139,31 @@
   },
 
   "clock": {
+    "interval": 1,
     "format": "{:%a %d %b | %H:%M}",
-    "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>"
+    "format-alt": "{:%A, %d de %B de %Y  |  Semana %V  |  %H:%M:%S}",
+    "on-click": "/home/fayfer/.config/hypr/scripts/toggle-calendar.sh",
+    "tooltip-format": "<tt><span size='11pt' font='JetBrainsMono Nerd Font'>{calendar}</span></tt>\n<span size='9pt' color='#5c6370'>• Clic: Calendario GNOME / Google  • Rueda: Mes ±1  • Clic der: Vista  • Clic central: Hoy</span>",
+    "calendar": {
+      "mode": "month",
+      "mode-mon-col": 3,
+      "weeks-pos": "right",
+      "on-scroll": 1,
+      "iso8601": true,
+      "format": {
+        "months": "<span color='#51afef' size='11.5pt'><b>{}</b></span>",
+        "weekdays": "<span color='#00d3d0'><b>{}</b></span>",
+        "days": "<span color='#abb2bf'>{}</span>",
+        "weeks": "<span color='#5c6370'><b>W{}</b></span>",
+        "today": "<span color='#ffffff' background='#51afef'><b>{}</b></span>"
+      }
+    },
+    "actions": {
+      "on-click-right": "mode",
+      "on-click-middle": "shift_reset",
+      "on-scroll-up": "shift_up",
+      "on-scroll-down": "shift_down"
+    }
   },
 
   "battery": {

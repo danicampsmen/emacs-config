@@ -29,25 +29,66 @@
   :type 'string
   :group 'my-antigravity)
 
-(defcustom my/antigravity-default-model "gemini-3.7-flash"
+(defcustom my/antigravity-default-model "gemini-3.8-flash-high"
   "Modelo por defecto para las sesiones de Antigravity."
   :type 'string
   :group 'my-antigravity)
 
-(defvar my/antigravity-model "gemini-3.7-flash"
+(defvar my/antigravity-model "gemini-3.8-flash-high"
   "Modelo activo actualmente para Antigravity.")
 
+(defconst my/antigravity-fallback-models
+  '(("gemini-3.8-flash-high"     . "Gemini 3.8 Flash (High)")
+    ("gemini-3.8-flash-medium"   . "Gemini 3.8 Flash (Medium)")
+    ("gemini-3.8-flash-low"      . "Gemini 3.8 Flash (Low)")
+    ("gemini-3.7-flash-high"     . "Gemini 3.7 Flash (High)")
+    ("gemini-3.7-flash-medium"   . "Gemini 3.7 Flash (Medium)")
+    ("gemini-3.7-flash-low"      . "Gemini 3.7 Flash (Low)")
+    ("gemini-3.6-flash-high"     . "Gemini 3.6 Flash (High)")
+    ("gemini-3.6-flash-medium"   . "Gemini 3.6 Flash (Medium)")
+    ("gemini-3.6-flash-low"      . "Gemini 3.6 Flash (Low)")
+    ("gemini-3.1-pro-high"       . "Gemini 3.1 Pro (High)")
+    ("gemini-3.1-pro-low"        . "Gemini 3.1 Pro (Low)")
+    ("claude-sonnet-4-6"         . "Claude Sonnet 4.6 (Thinking)")
+    ("claude-opus-4-6-thinking"  . "Claude Opus 4.6 (Thinking)")
+    ("gpt-oss-120b-medium"       . "GPT-OSS 120B (Medium)"))
+  "Lista de respaldo de modelos para cuando `agy models` falle o no responda.")
+
+(defvar my/antigravity--cached-models nil
+  "Caché en memoria de modelos disponibles en formato alist (ID . DISPLAY-NAME).")
+
+(defvar my/antigravity--models-cache-time 0
+  "Marca temporal (epoch) de la última consulta a `agy models`.")
+
+(defun my/antigravity-get-models (&optional refresh)
+  "Obtiene dinámicamente los modelos llamando a `agy models`.
+Usa caché en memoria durante 300 segundos a menos que REFRESH sea no-nil."
+  (let ((now (float-time)))
+    (if (and my/antigravity--cached-models
+             (not refresh)
+             (< (- now my/antigravity--models-cache-time) 300))
+        my/antigravity--cached-models
+      (let ((output (ignore-errors
+                      (with-temp-buffer
+                        (call-process my/antigravity-executable nil t nil "models")
+                        (buffer-string))))
+            (models nil))
+        (if (and output (not (string-empty-p output)))
+            (dolist (line (split-string output "\n" t))
+              (let ((clean (string-trim line)))
+                (unless (or (string-empty-p clean)
+                            (string-prefix-p "Fetching" clean))
+                  (if (string-match "^\\([a-zA-Z0-9._-]+\\)[ \t]+\\(.*\\)$" clean)
+                      (push (cons (match-string 1 clean) (string-trim (match-string 2 clean))) models)
+                    (push (cons clean clean) models)))))
+          (setq models my/antigravity-fallback-models))
+        (setq my/antigravity--cached-models (if models (nreverse models) my/antigravity-fallback-models))
+        (setq my/antigravity--models-cache-time now)
+        my/antigravity--cached-models))))
+
 (defvar my/antigravity-available-models
-  '("gemini-3.7-flash"
-    "gemini-3.6-flash-high"
-    "gemini-3.6-flash-medium"
-    "gemini-3.6-flash-low"
-    "gemini-3.5-flash-high"
-    "gemini-3.1-pro-high"
-    "claude-sonnet-4-6"
-    "claude-opus-4-6-thinking"
-    "gpt-oss-120b-medium")
-  "Lista de modelos soportados por Antigravity CLI.")
+  (mapcar #'car my/antigravity-fallback-models)
+  "Lista de IDs de modelos soportados por Antigravity CLI.")
 
 (defvar my/antigravity-effort "high"
   "Nivel de razonamiento (effort): 'low', 'medium', o 'high'.")
@@ -77,8 +118,9 @@
       default-directory))
 
 (defun my/antigravity--build-args (&optional extra-flags mode)
-  "Construye la lista de argumentos para `agy` según la configuración actual."
-  (let ((args (copy-sequence extra-flags)))
+  "Construye la lista de argumentos para `agy` según la configuración actual.
+Garantiza que las banderas (--model, --effort, etc.) precedan a los comandos posicionales."
+  (let ((args nil))
     (when my/antigravity-model
       (setq args (append args (list "--model" my/antigravity-model))))
     (when my/antigravity-effort
@@ -89,6 +131,8 @@
       (setq args (append args (list "--sandbox"))))
     (when mode
       (setq args (append args (list "--mode" mode))))
+    (when extra-flags
+      (setq args (append args extra-flags)))
     args))
 
 (defun my/antigravity--build-command-string (&optional extra-args mode)
@@ -109,7 +153,11 @@
     (if (and buf (buffer-live-p buf))
         (progn
           (pop-to-buffer buf)
-          (when (and cmd (fboundp 'vterm-send-string))
+          ;; Solo enviar comando si el proceso en el búfer ya no está vivo
+          (when (and cmd
+                     (fboundp 'vterm-send-string)
+                     (let ((proc (get-buffer-process buf)))
+                       (or (null proc) (not (process-live-p proc)))))
             (vterm-send-string (concat cmd "\n"))))
       (let ((default-directory proj-dir))
         (setq buf (vterm (generate-new-buffer-name buf-name)))
@@ -156,12 +204,55 @@
     (my/antigravity--get-or-create-vterm-buffer "*Antigravity-CLI*" cmd)
     (message "⚡ Antigravity iniciado en modo Auto-Edición.")))
 
+(defun my/antigravity--list-recent-conversations (&optional limit)
+  "Retorna una lista de conversaciones recientes con metadatos.
+Cada elemento es (DISPLAY-STRING . CONV-ID)."
+  (let ((limit (or limit 25))
+        (dirs (list (expand-file-name ".gemini/antigravity-cli/brain" (getenv "HOME"))
+                    (expand-file-name ".gemini/antigravity-ide/brain" (getenv "HOME"))))
+        (convs nil))
+    (dolist (brain-dir dirs)
+      (when (file-directory-p brain-dir)
+        (dolist (f (directory-files brain-dir t "^[0-9a-f]\\{8\\}-"))
+          (when (file-directory-p f)
+            (let* ((conv-id (file-name-nondirectory f))
+                   (mtime (file-attribute-modification-time (file-attributes f)))
+                   (log-file (expand-file-name ".system_generated/logs/transcript.jsonl" f))
+                   (preview ""))
+              (when (file-exists-p log-file)
+                (with-temp-buffer
+                  (ignore-errors
+                    (insert-file-contents log-file nil 0 600)
+                    (when (re-search-forward "\"content\":[ \t]*\"\\(?:<USER_REQUEST>\\\\n\\)?\\([^\"\\]+\\)" nil t)
+                      (setq preview (replace-regexp-in-string "\\\\n\\|[\n\r]" " " (match-string 1)))
+                      (when (> (length preview) 50)
+                        (setq preview (concat (substring preview 0 47) "...")))))))
+              (push (list mtime conv-id preview) convs))))))
+    (let* ((unique-convs (cl-remove-duplicates convs :key #'cadr :test #'string=))
+           (sorted (sort unique-convs (lambda (a b) (time-less-p (car b) (car a))))))
+      (cl-loop for (_mtime id prev) in (seq-take sorted limit)
+               collect (cons (format "%s [%s] %s"
+                                     (format-time-string "%Y-%m-%d %H:%M" _mtime)
+                                     (substring id 0 8)
+                                     (if (string-empty-p prev) "(sin preview)" prev))
+                             id)))))
+
 ;;;###autoload
-(defun my/antigravity-resume-conversation (conv-id)
-  "Reanuda una conversación específica de Antigravity por su CONV-ID."
-  (interactive "sID de conversación de Antigravity: ")
-  (let ((cmd (my/antigravity--build-command-string (list "--conversation" conv-id))))
-    (my/antigravity--get-or-create-vterm-buffer (format "*Antigravity-%s*" conv-id) cmd)))
+(defun my/antigravity-resume-conversation (&optional conv-id)
+  "Reanuda una conversación de Antigravity seleccionándola interactivamente de la lista reciente."
+  (interactive)
+  (let* ((recent-convs (my/antigravity--list-recent-conversations))
+         (id (or conv-id
+                 (if recent-convs
+                     (let ((choice (completing-read "Reanudar conversación: "
+                                                   (mapcar #'car recent-convs)
+                                                   nil nil)))
+                       (or (cdr (assoc choice recent-convs)) choice))
+                   (read-string "ID de conversación de Antigravity: ")))))
+    (when (and id (not (string-empty-p id)))
+      (let ((cmd (my/antigravity--build-command-string (list "--conversation" id))))
+        (my/antigravity--get-or-create-vterm-buffer (format "*Antigravity-%s*" (substring id 0 (min (length id) 8))) cmd)
+        (message "🔄 Reanudando conversación %s..." id)))))
 
 ;;;###autoload
 (defun my/antigravity-new-session ()
@@ -201,32 +292,62 @@
           (message "⚠️ No hay ninguna sesión *Antigravity-CLI* activa.")))
     (message "⚠️ El búfer actual no visita ningún archivo.")))
 
+(defun my/antigravity--list-available-skills ()
+  "Encuentra las skills disponibles en el proyecto o globalmente."
+  (let ((dirs (list (expand-file-name ".agents/skills" (my/antigravity-project-root))
+                    (expand-file-name ".gemini/config/skills" (getenv "HOME"))
+                    (expand-file-name ".gemini/antigravity-cli/builtin/skills" (getenv "HOME"))))
+        (skills nil))
+    (dolist (dir dirs)
+      (when (file-directory-p dir)
+        (dolist (f (directory-files dir t "^[^.]"))
+          (when (file-directory-p f)
+            (let ((skill-name (file-name-nondirectory f))
+                  (skill-md (expand-file-name "SKILL.md" f)))
+              (when (file-exists-p skill-md)
+                (let ((desc ""))
+                  (with-temp-buffer
+                    (ignore-errors
+                      (insert-file-contents skill-md nil 0 600)
+                      (when (re-search-forward "^description:[ \t]*>?-?[ \t]*\\(.*\\)$" nil t)
+                        (setq desc (string-trim (match-string 1))))))
+                  (push (cons (concat "/" skill-name) (if (string-empty-p desc) "Skill personalizada" desc)) skills))))))))
+    (delete-dups skills)))
+
 ;;;###autoload
 (defun my/antigravity-send-slash-command ()
-  "Muestra una paleta interactiva de Slash Commands de Antigravity y la envía al REPL."
+  "Muestra una paleta interactiva de Slash Commands y Skills de Antigravity y la envía al REPL."
   (interactive)
-  (let* ((commands '(("/plan" . "Iniciar modo planificación interactivo")
-                     ("/goal" . "Ejecución continua orientada a objetivo sin detenerse")
-                     ("/schedule" . "Programar tareas periódicas o temporizadores")
-                     ("/learn" . "Guardar aprendizaje o regla persistente")
-                     ("/grill-me" . "Entrevista interactiva para afinar diseño")
-                     ("/clear" . "Limpiar el contexto actual del chat")
-                     ("/help" . "Mostrar ayuda de comandos Antigravity")
-                     ("/exit" . "Finalizar sesión de Antigravity")))
-         (choice (completing-read "Slash Command de Antigravity: " (mapcar #'car commands) nil t))
+  (let* ((builtin-commands '(("/plan" . "Iniciar modo planificación interactivo")
+                             ("/goal" . "Ejecución continua orientada a objetivo sin detenerse")
+                             ("/schedule" . "Programar tareas periódicas o temporizadores")
+                             ("/learn" . "Guardar aprendizaje o regla persistente")
+                             ("/grill-me" . "Entrevista interactiva para afinar diseño")
+                             ("/boost" . "Razonamiento profundo y verificación exhaustiva")
+                             ("/teamwork-preview" . "Coordinación con subagentes paralelos")
+                             ("/browser" . "Navegación y pruebas web automatizadas")
+                             ("/status" . "Estado de tareas y procesos en ejecución")
+                             ("/clear" . "Limpiar el contexto actual del chat")
+                             ("/help" . "Mostrar ayuda de comandos Antigravity")
+                             ("/exit" . "Finalizar sesión de Antigravity")))
+         (skills (my/antigravity--list-available-skills))
+         (all-commands (append builtin-commands skills))
+         (candidates (mapcar (lambda (c) (format "%-20s — %s" (car c) (cdr c))) all-commands))
+         (choice (completing-read "Slash Command / Skill de Antigravity: " candidates nil t))
+         (command (car (split-string choice " " t)))
          (term-buf (get-buffer "*Antigravity-CLI*")))
     (if (and term-buf (buffer-live-p term-buf))
         (progn
           (pop-to-buffer term-buf)
-          (vterm-send-string (concat choice "\n")))
+          (vterm-send-string (concat command "\n")))
       (my/antigravity-cli)
-      (run-at-time 0.3 nil
+      (run-at-time 0.4 nil
                    (lambda (c)
                      (let ((tb (get-buffer "*Antigravity-CLI*")))
                        (when (and tb (buffer-live-p tb))
                          (with-current-buffer tb
                            (vterm-send-string (concat c "\n"))))))
-                   choice))))
+                   command))))
 
 ;; ====================================================================
 ;; --- 4. EJECUCIÓN ASÍNCRONA NO BLOQUEANTE (PRINT / CHAT / ACTIONS) ---
@@ -379,12 +500,43 @@
 ;; --- 5. MODO INSTRUCTIVO INLINE (EDICIÓN DIRECTA & DIFF PREVIEW) ---
 ;; ====================================================================
 
+(defun my/antigravity--clean-code-blocks (text)
+  "Elimina bloques envolventes de Markdown (```lang ... ```) si el modelo los incluyó."
+  (let ((s (string-trim text)))
+    (if (and (string-prefix-p "```" s)
+             (string-suffix-p "```" s))
+        (let* ((without-prefix (replace-regexp-in-string "\\````[a-zA-Z0-9_-]*\n?" "" s))
+               (without-suffix (replace-regexp-in-string "\n?```\\'" "" without-prefix)))
+          without-suffix)
+      s)))
+
+(defun my/antigravity--show-diff (old-text new-text)
+  "Muestra un búfer con las diferencias unificadas entre OLD-TEXT y NEW-TEXT."
+  (let ((diff-buf (get-buffer-create "*Antigravity-Diff*"))
+        (old-file (make-temp-file "agy-old-"))
+        (new-file (make-temp-file "agy-new-")))
+    (unwind-protect
+        (progn
+          (with-temp-file old-file (insert old-text))
+          (with-temp-file new-file (insert new-text))
+          (with-current-buffer diff-buf
+            (let ((inhibit-read-only t))
+              (erase-buffer)
+              (call-process "diff" nil t nil "-u" "--label" "Original" "--label" "Propuesto" old-file new-file)
+              (diff-mode)
+              (setq-local header-line-format " 🛸 Antigravity Diff: Original (-) vs Propuesto (+) | 'q' cerrar")))
+          (pop-to-buffer diff-buf))
+      (ignore-errors (delete-file old-file))
+      (ignore-errors (delete-file new-file)))))
+
 ;;;###autoload
 (defun my/antigravity-inline-edit (start end instruction)
   "Edita la región seleccionada según INSTRUCTION y genera un diff para revisión."
   (interactive "r\nsInstrucción de edición inline: ")
-  (let* ((orig-text (buffer-substring-no-properties start end))
-         (orig-buf (current-buffer))
+  (let* ((orig-buf (current-buffer))
+         (beg-marker (copy-marker start))
+         (end-marker (copy-marker end t))
+         (orig-text (buffer-substring-no-properties start end))
          (lang (symbol-name major-mode))
          (prompt (format "Devuelve ÚNICAMENTE el código resultante modificado sin explicaciones, ni etiquetas markdown (sin ```), que reemplazará exactamente este bloque en %s según la siguiente instrucción: '%s'.\n\nCódigo original:\n%s" lang instruction orig-text)))
     (message "⚡ Antigravity procesando edición inline...")
@@ -397,31 +549,37 @@
        :sentinel (lambda (proc _event)
                    (when (eq (process-status proc) 'exit)
                      (let ((new-text (with-current-buffer (process-buffer proc)
-                                       (string-trim (buffer-string)))))
+                                       (my/antigravity--clean-code-blocks (buffer-string)))))
                        (kill-buffer (process-buffer proc))
                        (if (string-empty-p new-text)
                            (message "⚠️ Antigravity no devolvió cambios.")
-                         (my/antigravity--apply-inline-diff orig-buf start end orig-text new-text)))))))))
+                         (my/antigravity--apply-inline-diff orig-buf beg-marker end-marker orig-text new-text)))))))))
 
-(defun my/antigravity--apply-inline-diff (buf start end _old-text new-text)
+(defun my/antigravity--apply-inline-diff (buf beg-marker end-marker old-text new-text)
   "Muestra el resultado de la edición inline y permite aplicarlo con confirmación."
   (with-current-buffer buf
-    (let ((choice (read-char-choice "⚡ Antigravity: [a]plicar cambios, [d]iferencias en búfer, [c]ancelar: " '(?a ?d ?c))))
+    (let ((choice (read-char-choice "⚡ Antigravity: [a]plicar cambios, [d]iferencias (diff), [c]ancelar: " '(?a ?d ?c))))
       (cond
        ((eq choice ?a)
-        (delete-region start end)
-        (goto-char start)
+        (delete-region (marker-position beg-marker) (marker-position end-marker))
+        (goto-char (marker-position beg-marker))
         (insert new-text)
+        (set-marker beg-marker nil)
+        (set-marker end-marker nil)
         (message "✅ Cambios aplicados con éxito."))
        ((eq choice ?d)
-        (let ((diff-buf (get-buffer-create "*Antigravity-Diff*")))
-          (with-current-buffer diff-buf
-            (let ((inhibit-read-only t))
-              (erase-buffer)
-              (insert (format "=== Código Propuesto por Antigravity ===\n\n%s" new-text))
-              (diff-mode)))
-          (pop-to-buffer diff-buf)))
+        (my/antigravity--show-diff old-text new-text)
+        (when (y-or-n-p "Aplicar estos cambios al búfer de origen? ")
+          (with-current-buffer buf
+            (delete-region (marker-position beg-marker) (marker-position end-marker))
+            (goto-char (marker-position beg-marker))
+            (insert new-text)
+            (set-marker beg-marker nil)
+            (set-marker end-marker nil)
+            (message "✅ Cambios aplicados con éxito."))))
        (t
+        (set-marker beg-marker nil)
+        (set-marker end-marker nil)
         (message "❌ Edición cancelada."))))))
 
 ;; ====================================================================
@@ -462,21 +620,61 @@
 ;; --- 7. HERRAMIENTAS ACADÉMICAS Y LATEX ---
 ;; ====================================================================
 
-;;;###autoload
-(defun my/antigravity-latex-fix-formula (start end)
-  "Corrige, alinea y optimiza la fórmula o entorno LaTeX seleccionado."
-  (interactive "r")
-  (let* ((formula (buffer-substring-no-properties start end))
-         (prompt (format "Optimiza y corrige esta fórmula / entorno matemático en LaTeX. Asegura que la sintaxis de amsmath sea impecable, la alineación sea elegante y no contenga errores de compilación:\n\n```latex\n%s\n```\nDevuelve el código LaTeX corregido listo para copiar." formula)))
-    (my/antigravity--run-async prompt "*Antigravity-LaTeX-Fórmula*")))
+(defun my/antigravity--get-latex-math-region ()
+  "Devuelve cons (START . END) de la región activa o de la fórmula bajo el cursor."
+  (if (use-region-p)
+      (cons (region-beginning) (region-end))
+    (save-excursion
+      (cond
+       ;; Si AUCTeX / texmathp está disponible y estamos dentro de matemática
+       ((and (fboundp 'texmathp) (texmathp))
+        (let ((entry (car texmathp-why))
+              (beg (cdr texmathp-why)))
+          (goto-char beg)
+          (if (or (string= entry "$") (string= entry "$$"))
+              (progn
+                (forward-char (length entry))
+                (re-search-forward (regexp-quote entry) nil t))
+            (when (fboundp 'LaTeX-find-matching-end)
+              (LaTeX-find-matching-end)))
+          (cons beg (point))))
+       ;; Fallback a párrafo si no se detectó fórmula específica
+       (t
+        (bounds-of-thing-at-point 'paragraph))))))
 
 ;;;###autoload
-(defun my/antigravity-latex-explain (start end)
+(defun my/antigravity-latex-fix-formula (&optional start end)
+  "Corrige, alinea y optimiza la fórmula LaTeX bajo el cursor o seleccionada."
+  (interactive
+   (when (use-region-p)
+     (list (region-beginning) (region-end))))
+  (let* ((bounds (if (and start end)
+                     (cons start end)
+                   (my/antigravity--get-latex-math-region)))
+         (formula (if bounds
+                      (buffer-substring-no-properties (car bounds) (cdr bounds))
+                    ""))
+         (prompt (format "Optimiza y corrige esta fórmula / entorno matemático en LaTeX. Asegura que la sintaxis de amsmath sea impecable, la alineación sea elegante y no contenga errores de compilación:\n\n```latex\n%s\n```\nDevuelve el código LaTeX corregido listo para copiar." formula)))
+    (if (string-empty-p (string-trim formula))
+        (message "⚠️ No se detectó ninguna fórmula o región matemática.")
+      (my/antigravity--run-async prompt "*Antigravity-LaTeX-Fórmula*"))))
+
+;;;###autoload
+(defun my/antigravity-latex-explain (&optional start end)
   "Explica detalladamente el significado matemático o físico de la fórmula LaTeX."
-  (interactive "r")
-  (let* ((formula (buffer-substring-no-properties start end))
+  (interactive
+   (when (use-region-p)
+     (list (region-beginning) (region-end))))
+  (let* ((bounds (if (and start end)
+                     (cons start end)
+                   (my/antigravity--get-latex-math-region)))
+         (formula (if bounds
+                      (buffer-substring-no-properties (car bounds) (cdr bounds))
+                    ""))
          (prompt (format "Explica rigurosa y didácticamente el significado, variables y contexto de esta fórmula o demostración en LaTeX:\n\n```latex\n%s\n```" formula)))
-    (my/antigravity--run-async prompt "*Antigravity-LaTeX-Explicación*")))
+    (if (string-empty-p (string-trim formula))
+        (message "⚠️ No se detectó ninguna fórmula o región matemática.")
+      (my/antigravity--run-async prompt "*Antigravity-LaTeX-Explicación*"))))
 
 ;;;###autoload
 (defun my/antigravity-latex-generate-tikz (description)
@@ -499,16 +697,40 @@
 
 ;;;###autoload
 (defun my/antigravity-git-commit-message ()
-  "Genera un mensaje de commit semántico (Conventional Commits) a partir del diff en staging."
+  "Genera un mensaje de commit semántico a partir del diff en staging.
+Si se ejecuta dentro de un búfer de commit de Magit (`COMMIT_EDITMSG`), lo inserta directamente."
   (interactive)
-  (let ((diff (shell-command-to-string "git diff --cached")))
+  (let* ((proj-dir (my/antigravity-project-root))
+         (default-directory proj-dir)
+         (diff (shell-command-to-string "git diff --cached"))
+         (in-commit-buf (or (string-match-p "COMMIT_EDITMSG" (buffer-name))
+                            (derived-mode-p 'git-commit-mode))))
     (if (string-empty-p (string-trim diff))
         (message "⚠️ No hay cambios en staging (`git add`). Agrega archivos primero.")
-      (let ((prompt (format "Genera un mensaje de commit claro y semántico siguiendo la convención 'Conventional Commits' (ej: feat, fix, refactor, docs) a partir de este diff de git:\n\n```diff\n%s\n```\nDevuelve únicamente el título del commit y viñetas descriptivas si son necesarias." diff)))
-        (my/antigravity--run-async prompt "*Antigravity-Git-Commit*" nil
-                                  (lambda (proc _ev)
-                                    (when (eq (process-status proc) 'exit)
-                                      (message "💡 Puedes copiar el mensaje con `y` e insertarlo en Magit."))))))))
+      (let ((prompt (format "Genera un mensaje de commit claro y semántico siguiendo la convención 'Conventional Commits' (ej: feat, fix, refactor, docs) a partir de este diff de git:\n\n```diff\n%s\n```\nDevuelve únicamente el título del commit y viñetas descriptivas si son necesarias, sin texto de cortesía ni etiquetas de bloque markdown (```)." diff)))
+        (if in-commit-buf
+            (let ((target-buf (current-buffer)))
+              (message "⏳ Generando mensaje de commit con Antigravity...")
+              (make-process
+               :name "antigravity-commit-msg"
+               :buffer (generate-new-buffer " *antigravity-commit-tmp*")
+               :command (cons my/antigravity-executable (my/antigravity--build-args (list "--print" prompt)))
+               :sentinel (lambda (proc _ev)
+                           (when (eq (process-status proc) 'exit)
+                             (let ((msg (my/antigravity--clean-code-blocks
+                                         (with-current-buffer (process-buffer proc)
+                                           (string-trim (buffer-string))))))
+                               (kill-buffer (process-buffer proc))
+                               (when (buffer-live-p target-buf)
+                                 (with-current-buffer target-buf
+                                   (save-excursion
+                                     (goto-char (point-min))
+                                     (insert msg "\n\n")))
+                                 (message "✅ Mensaje de commit insertado en Magit.")))))))
+          (my/antigravity--run-async prompt "*Antigravity-Git-Commit*" nil
+                                    (lambda (proc _ev)
+                                      (when (eq (process-status proc) 'exit)
+                                        (message "💡 Puedes copiar el mensaje con `y` e insertarlo en Magit.")))))))))
 
 ;;;###autoload
 (defun my/antigravity-git-review-diff ()
@@ -563,12 +785,29 @@
 ;; ====================================================================
 
 ;;;###autoload
-(defun my/antigravity-switch-model ()
-  "Selecciona interactivamente el modelo de Antigravity."
-  (interactive)
-  (let ((choice (completing-read "Modelo de Antigravity: " my/antigravity-available-models nil t nil nil my/antigravity-model)))
-    (setq my/antigravity-model choice)
-    (message "🚀 Modelo de Antigravity cambiado a: %s" choice)))
+(defun my/antigravity-switch-model (&optional refresh)
+  "Selecciona interactivamente el modelo de Antigravity desde `agy models`.
+Con argumento prefijo \\[universal-argument] fuerza la actualización de la lista."
+  (interactive "P")
+  (let* ((models-alist (my/antigravity-get-models refresh))
+         (candidates (mapcar (lambda (pair)
+                               (format "%-25s (%s)" (car pair) (cdr pair)))
+                             models-alist))
+         (default-cand (car (cl-remove-if-not
+                             (lambda (c) (string-prefix-p my/antigravity-model c))
+                             candidates)))
+         (choice (completing-read
+                  (format "Modelo Antigravity (actual: %s): " my/antigravity-model)
+                  candidates nil nil nil nil default-cand))
+         (selected-id (car (split-string choice " " t))))
+    (when (and selected-id (not (string-empty-p selected-id)))
+      (setq my/antigravity-model selected-id)
+      ;; Sincronizar effort automáticamente si el ID del modelo termina en -high, -medium o -low
+      (cond
+       ((string-match-p "-high$" selected-id) (setq my/antigravity-effort "high"))
+       ((string-match-p "-medium$" selected-id) (setq my/antigravity-effort "medium"))
+       ((string-match-p "-low$" selected-id) (setq my/antigravity-effort "low")))
+      (message "🚀 Modelo cambiado a: %s (Effort: %s)" my/antigravity-model my/antigravity-effort))))
 
 ;;;###autoload
 (defun my/antigravity-switch-effort ()
@@ -612,8 +851,8 @@
     ("p" "Modo Planificación (plan)" my/antigravity-plan)
     ("A" "Modo Auto-Edición (accept-edits)" my/antigravity-accept-edits)
     ("n" "Nueva Sesión Limpia" my/antigravity-new-session)
-    ("R" "Reanudar por ID..." my/antigravity-resume-conversation)
-    ("/" "Slash Commands..." my/antigravity-send-slash-command)]
+    ("R" "Reanudar Sesión Reciente..." my/antigravity-resume-conversation)
+    ("/" "Slash Commands & Skills..." my/antigravity-send-slash-command)]
 
    ["⚡ Acciones de Código"
     ("q" "Preguntar / Consultar" my/antigravity-ask)
@@ -641,7 +880,7 @@
     ("P" "Asistente de Demostración" my/antigravity-latex-proof-assist)]
 
    ["⚙️ Ajustes & Reglas"
-    ("m" "Cambiar Modelo" my/antigravity-switch-model)
+    ("m" "Cambiar Modelo (Dinámico)" my/antigravity-switch-model)
     ("x" "Nivel de Razonamiento (effort)" my/antigravity-switch-effort)
     ("!" "Alternar Auto-Aprobación" my/antigravity-toggle-auto-approve)
     ("b" "Alternar Sandbox" my/antigravity-toggle-sandbox)
@@ -653,17 +892,20 @@
 ;; ====================================================================
 
 (defun my/antigravity-find-latest-task-log ()
-  "Encuentra el archivo .log de la tarea más reciente de Antigravity."
-  (let* ((brain-dir (expand-file-name ".gemini/antigravity-ide/brain" (getenv "HOME")))
+  "Encuentra el archivo .log de la tarea más reciente de Antigravity (CLI o IDE)."
+  (let* ((brain-dirs (list (expand-file-name ".gemini/antigravity-cli/brain" (getenv "HOME"))
+                           (expand-file-name ".gemini/antigravity-ide/brain" (getenv "HOME"))))
          (all-logs nil))
-    (when (file-directory-p brain-dir)
-      (dolist (conv (directory-files brain-dir t "^[^.]"))
-        (let ((tasks-dir (expand-file-name ".system_generated/tasks" conv)))
-          (when (file-directory-p tasks-dir)
-            (dolist (log-file (directory-files tasks-dir t "\\.log$"))
-              (push (cons (file-attribute-modification-time (file-attributes log-file))
-                          log-file)
-                    all-logs))))))
+    (dolist (brain-dir brain-dirs)
+      (when (file-directory-p brain-dir)
+        (dolist (conv (directory-files brain-dir t "^[0-9a-f]"))
+          (when (file-directory-p conv)
+            (let ((tasks-dir (expand-file-name ".system_generated/tasks" conv)))
+              (when (file-directory-p tasks-dir)
+                (dolist (log-file (directory-files tasks-dir t "\\.log$"))
+                  (push (cons (file-attribute-modification-time (file-attributes log-file))
+                              log-file)
+                        all-logs))))))))
     (when all-logs
       (cdr (car (sort all-logs (lambda (a b) (time-less-p (car b) (car a)))))))))
 
@@ -687,7 +929,7 @@
           (setq-local revert-without-query '(".*"))
           (setq-local header-line-format
                       (format " 🛸 Antigravity Live Log: %s | (Presiona 'q' para ocultar)"
-                              (file-name-nondirectory log-path))))
+                               (file-name-nondirectory log-path))))
         (pop-to-buffer buf '(display-buffer-at-bottom
                              (window-height . 0.35)))
         (message "🛸 Mostrando log en vivo: %s" (file-name-nondirectory log-path))))))
@@ -713,25 +955,38 @@
 ;; ====================================================================
 
 (defconst my/gemini-models
-  '("gemini-2.5-flash" "gemini-2.5-pro" "gemini-1.5-pro-latest" "gemini-1.5-flash-latest")
-  "Lista de modelos de Gemini para GPTel.")
+  '("gemini-2.0-flash" "gemini-2.0-flash-lite" "gemini-1.5-pro" "gemini-1.5-flash")
+  "Lista de modelos de Gemini actualizados para GPTel.")
 
-(defun my/setup-gptel-gemini ()
-  "Inicializa el backend oficial de Gemini en GPTel."
-  (let ((key (or (getenv "GEMINI_API_KEY")
-                 (bound-and-true-p gptel-api-key))))
-    (when (and key (fboundp 'gptel-make-gemini))
-      (setq gptel-api-key key)
+(defun my/setup-gptel-backends ()
+  "Inicializa los backends disponibles de IA para GPTel (DeepSeek y Gemini)."
+  (when (fboundp 'gptel-make-openai)
+    ;; Configurar DeepSeek si DEEPSEEK_API_KEY está configurada en el entorno
+    (when-let ((deepseek-key (getenv "DEEPSEEK_API_KEY")))
+      (let ((backend (gptel-make-openai "DeepSeek"
+                       :host "api.deepseek.com"
+                       :endpoint "/chat/completions"
+                       :stream t
+                       :key deepseek-key
+                       :models '(deepseek-chat deepseek-reasoner))))
+        (setq gptel-backend backend)
+        (setq gptel-model 'deepseek-chat)
+        (message "DeepSeek configurado como backend por defecto en GPTel."))))
+  
+  ;; Configurar Gemini si GEMINI_API_KEY está disponible
+  (when-let ((gemini-key (or (getenv "GEMINI_API_KEY") (bound-and-true-p gptel-api-key))))
+    (when (fboundp 'gptel-make-gemini)
       (let ((backend (gptel-make-gemini "Antigravity-Gemini"
-                       :key key
+                       :key gemini-key
                        :stream t
                        :models (mapcar #'intern my/gemini-models))))
-        (setq gptel-backend backend)
-        (setq gptel-model (intern (car my/gemini-models)))
+        (unless (getenv "DEEPSEEK_API_KEY")
+          (setq gptel-backend backend)
+          (setq gptel-model (intern (car my/gemini-models))))
         (message "Antigravity/Gemini configurado en GPTel.")))))
 
 (with-eval-after-load 'gptel
-  (my/setup-gptel-gemini))
+  (my/setup-gptel-backends))
 
 (use-package aidermacs
   :ensure t

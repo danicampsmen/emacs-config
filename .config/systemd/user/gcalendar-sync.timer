@@ -1,0 +1,10 @@
+[Unit]
+Description=Temporizador periódico para sincronizar Google Calendar
+
+[Timer]
+OnBootSec=2m
+OnUnitActiveSec=15m
+Persistent=true
+
+[Install]
+WantedBy=timers.target

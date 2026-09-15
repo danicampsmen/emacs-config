@@ -1,3 +1,5 @@
+@import "/home/fayfer/.config/hypr/colors.css";
+
 * {
     font-family: "Inter", "JetBrainsMono Nerd Font", "Symbols Nerd Font Mono";
     font-size: 14px;
@@ -7,32 +9,57 @@
 }
 
 window#waybar {
-    background-color: #000000;
-    color: #ffffff;
-    border-bottom: 2px solid #1e1e1e;
+    background-color: @mantle;
+    color: @text;
+    border-bottom: 2px solid @surface0;
 }
 
 #workspaces button {
     padding: 0 10px;
-    color: #5c6370;
+    color: @overlay0;
     background: transparent;
     font-weight: 600;
 }
 
 #workspaces button.active,
 #workspaces button.focused {
-    color: #51afef;
-    border-bottom: 2px solid #51afef;
+    color: @primary;
+    border-bottom: 2px solid @primary;
 }
 
-#clock, #battery, #backlight, #pulseaudio, #tray, #custom-audio-profile, #custom-nightlight, #custom-ideapad {
-    padding: 0 12px;
-    color: #dfdfdf;
+#clock, #battery, #backlight, #pulseaudio, #tray, #custom-audio-profile, #custom-nightlight, #custom-ideapad, #cpu, #memory {
+    padding: 0 10px;
+    color: @text;
+}
+
+#cpu, #memory {
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+#cpu:hover, #memory:hover {
+    background-color: rgba(138, 173, 244, 0.2);
+    color: @text;
+}
+
+#cpu.warning, #memory.warning {
+    color: @yellow;
+}
+
+#cpu.critical, #memory.critical {
+    color: @red;
 }
 
 #clock {
     font-weight: 600;
     letter-spacing: 0.3px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+#clock:hover {
+    color: @mauve;
+    background-color: rgba(198, 160, 246, 0.2);
 }
 
 #custom-nightlight {
@@ -43,16 +70,16 @@ window#waybar {
 }
 
 #custom-nightlight.on {
-    color: #fabd2f;
+    color: @yellow;
 }
 
 #custom-nightlight.off {
-    color: #5c6370;
+    color: @overlay0;
 }
 
 #custom-nightlight:hover {
-    color: #ffffff;
-    background-color: rgba(250, 189, 47, 0.25);
+    color: @yellow;
+    background-color: rgba(238, 212, 159, 0.2);
     border-radius: 4px;
 }
 
@@ -63,64 +90,119 @@ window#waybar {
 }
 
 #custom-ideapad.conservation-on {
-    color: #98c379;
+    color: @green;
 }
 
 #custom-ideapad:hover {
-    color: #ffffff;
-    background-color: rgba(152, 195, 121, 0.25);
+    color: @green;
+    background-color: rgba(166, 218, 149, 0.2);
     border-radius: 4px;
 }
 
 #custom-audio-profile {
-    color: #00d3d0;
+    color: @teal;
     font-weight: 600;
 }
 
 #battery.critical:not(.charging) {
-    color: #ff6c6b;
+    color: @red;
 }
 
 #custom-power {
     padding: 0 14px;
     margin-right: 6px;
     font-size: 18px;
-    color: #ff6c6b;
+    color: @red;
     border-radius: 4px;
     transition: all 0.2s ease;
 }
 
 #custom-power:hover {
-    color: #ffffff;
-    background-color: #ff6c6b;
+    color: @crust;
+    background-color: @red;
 }
 
 /* Menús contextuales del Tray (FolderSync, Blueman, etc.) */
 #tray menu {
-    background-color: #12141a;
-    color: #ffffff;
-    border: 1px solid rgba(81, 175, 239, 0.45);
+    background-color: @mantle;
+    color: @text;
+    border: 1px solid @surface1;
     border-radius: 10px;
     padding: 6px;
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.6);
+    box-shadow: 0 8px 16px rgba(24, 25, 38, 0.6);
 }
 
 #tray menu menuitem {
     background-color: transparent;
-    color: #c5cde0;
+    color: @subtext0;
     padding: 6px 12px;
     border-radius: 6px;
     transition: all 0.15s ease;
 }
 
 #tray menu menuitem:hover {
-    background-color: rgba(81, 175, 239, 0.25);
-    color: #ffffff;
+    background-color: @surface0;
+    color: @text;
 }
 
 #tray menu separator {
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: @surface0;
     min-height: 1px;
     margin: 4px 0;
 }
 
+/* Tooltips globales */
+tooltip {
+    background-color: @mantle;
+    color: @subtext0;
+    border: 1px solid @surface1;
+    border-radius: 10px;
+    padding: 6px;
+    box-shadow: 0 8px 24px rgba(24, 25, 38, 0.7);
+}
+
+tooltip label {
+    color: @subtext0;
+    font-family: "JetBrainsMono Nerd Font", monospace;
+    font-size: 13px;
+    padding: 8px 12px;
+}
+
+/* Reproductor multimedia MPRIS */
+#mpris {
+    padding: 0 12px;
+    margin: 4px 6px;
+    background-color: @surface0;
+    border: 1px solid @surface1;
+    border-radius: 6px;
+    color: @green;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+#mpris:hover {
+    background-color: rgba(166, 218, 149, 0.15);
+    border-color: @green;
+    color: @text;
+}
+
+#mpris.paused {
+    color: @overlay0;
+    background-color: transparent;
+    border-color: transparent;
+}
+
+/* Botón del Centro de Control y Notificaciones */
+#custom-notification {
+    font-family: "Symbols Nerd Font Mono", "JetBrainsMono Nerd Font";
+    padding: 0 10px;
+    font-size: 16px;
+    color: @text;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+#custom-notification:hover {
+    color: @primary;
+    background-color: @surface0;
+}
