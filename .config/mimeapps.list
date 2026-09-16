@@ -1,0 +1,36 @@
+[Default Applications]
+text/html=firefox_firefox.desktop
+x-scheme-handler/http=firefox_firefox.desktop
+x-scheme-handler/https=firefox_firefox.desktop
+x-scheme-handler/about=google-chrome.desktop
+x-scheme-handler/unknown=google-chrome.desktop
+text/x-tex=emacs.desktop
+application/pdf=okular_okular.desktop
+text/org=emacs.desktop
+x-scheme-handler/jetbrains=jetbrainsd.desktop
+text/x-bibtex=emacs.desktop
+video/mp4=vlc.desktop
+x-scheme-handler/webcal=google-chrome.desktop
+text/x-python3=jetbrains-pycharm-669f3adf-bada-4de7-93f7-085493ca0e22.desktop
+text/x-python=spyder-6-spyder_spyder-6.desktop
+font/collection=org.gnome.font-viewer.desktop
+application/x-bat=nautilus-autorun-software.desktop
+application/xhtml+xml=firefox_firefox.desktop
+x-scheme-handler/net.thunderbird=thunderbird_thunderbird.desktop
+inode/directory=org.gnome.Nautilus.desktop
+
+[Added Associations]
+text/x-tex=emacsclient.desktop;emacs.desktop;
+application/pdf=org.gnome.Evince.desktop;okular_okular.desktop;org.pwmt.zathura-pdf-poppler.desktop;okularApplication_pdf.desktop;evince_evince.desktop;
+text/org=emacs.desktop;
+application/octet-stream=org.gnome.TextEditor.desktop;
+text/x-bibtex=emacs.desktop;
+video/mp4=vlc.desktop;
+text/x-python3=jetbrains-pycharm-669f3adf-bada-4de7-93f7-085493ca0e22.desktop;
+text/x-python=spyder-6-spyder_spyder-6.desktop;jetbrains-pycharm-669f3adf-bada-4de7-93f7-085493ca0e22.desktop;
+font/collection=org.gnome.font-viewer.desktop;
+application/x-bat=nautilus-autorun-software.desktop;
+x-scheme-handler/http=firefox_firefox.desktop;
+application/xhtml+xml=firefox_firefox.desktop;
+text/html=firefox_firefox.desktop;
+x-scheme-handler/https=firefox_firefox.desktop;

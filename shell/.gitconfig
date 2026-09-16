@@ -1,0 +1,14 @@
+[user]
+	name = danicampsmen
+	email = danicampsmen@gmail.com
+[credential "https://github.com"]
+	helper = 
+	helper = !/usr/bin/gh auth git-credential
+[credential "https://gist.github.com"]
+	helper = 
+	helper = !/usr/bin/gh auth git-credential
+[safe]
+	directory = *
+[gui]
+	fontui = -family \"Iosevka Term\" -size 12 -weight normal -slant roman -underline 0 -overstrike 0
+	fontdiff = -family \"Iosevka Term\" -size 12 -weight normal -slant roman -underline 0 -overstrike 0

@@ -1,0 +1,25 @@
+/* Modus Vivendi Theme for GTK 3 (OLED Pure Black) */
+@define-color theme_base_color #000000;
+@define-color theme_bg_color #000000;
+@define-color theme_fg_color #ffffff;
+@define-color theme_selected_bg_color #2fafff;
+@define-color theme_selected_fg_color #000000;
+@define-color insensitive_bg_color #121212;
+@define-color insensitive_fg_color #707070;
+@define-color borders #282828;
+
+/* GTK 3: Configuración de ancho de barra lateral de marcadores de acceso rápido */
+placessidebar,
+placessidebar list,
+.navigation-sidebar,
+sidebar,
+placesview {
+    min-width: 360px;
+}
+
+placessidebar row,
+.navigation-sidebar row {
+    min-height: 32px;
+    padding-left: 8px;
+    padding-right: 12px;
+}

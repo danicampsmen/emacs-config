@@ -1,0 +1,54 @@
+* {
+    background-image: none;
+    box-shadow: none;
+}
+
+window {
+    background-color: rgba(12, 12, 16, 0.85);
+}
+
+button {
+    border-radius: 16px;
+    border-color: #33ccff;
+    text-decoration-color: #ffffff;
+    color: #ffffff;
+    background-color: #1e1e2e;
+    border-style: solid;
+    border-width: 2px;
+    background-repeat: no-repeat;
+    background-position: center 32%;
+    background-size: 38%;
+    margin: 15px;
+    font-size: 24px;
+    font-weight: bold;
+    font-family: "Iosevka Term";
+    outline-style: none;
+}
+
+button:focus, button:active, button:hover {
+    background-color: #33ccff;
+    color: #11111b;
+    border-color: #ffffff;
+    outline-style: none;
+}
+
+#lock {
+    background-image: image(url("/usr/share/wlogout/icons/lock.png"));
+}
+
+#logout {
+    background-image: image(url("/usr/share/wlogout/icons/logout.png"));
+}
+
+#suspend {
+    background-image: image(url("/usr/share/wlogout/icons/suspend.png"));
+}
+
+#shutdown {
+    background-image: image(url("/usr/share/wlogout/icons/shutdown.png"));
+}
+
+#reboot {
+    background-image: image(url("/usr/share/wlogout/icons/reboot.png"));
+}
+

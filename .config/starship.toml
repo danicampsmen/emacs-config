@@ -1,0 +1,45 @@
+# ~/.config/starship.toml
+# Tema: Modus Vivendi Deuteranopia (Armonizado con Emacs y Kitty)
+
+# 1. Desactivar el salto de línea (Línea compacta)
+[line_break]
+disabled = true
+
+# 2. Configurar el directorio compacto con color cian turquesa
+[directory]
+truncation_length = 3
+truncation_symbol = "…/"
+style = "bold #00d3d0"
+read_only = " 🔒"
+read_only_style = "#ff6f6f"
+
+# 3. Estado de Git (Ramas y cambios)
+[git_branch]
+symbol = " "
+style = "bold #fec43f"
+format = "[$symbol$branch]($style) "
+
+[git_status]
+style = "bold #ff6f6f"
+format = "([\\[$all_status$ahead_behind\\]]($style) )"
+conflicted = "⚔️ "
+ahead = "⇡${count} "
+behind = "⇣${count} "
+diverged = "⇕ "
+untracked = "? "
+stashed = "📦 "
+modified = "! "
+staged = "+ "
+renamed = "» "
+deleted = "✘ "
+
+# 4. Indicador de tiempo de ejecución para compilaciones LaTeX o Julia largas (> 2s)
+[cmd_duration]
+min_time = 2_000
+style = "bold #feacd0"
+format = "took [$duration]($style) "
+
+# 5. Símbolo del prompt
+[character]
+success_symbol = "[➜](bold #70d770)"
+error_symbol = "[✗](bold #ff6f6f)"

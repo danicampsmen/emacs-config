@@ -1,0 +1,132 @@
+/**
+ * Modern Sleek Dark Rofi Theme
+ * Configured for Hyprland & Wayland
+ */
+
+configuration {
+    modi:                       "drun,run,window";
+    show-icons:                 true;
+    display-drun:               " ";
+    display-run:                " ";
+    display-window:             " ";
+    display-dmenu:              "⚡ ";
+    drun-display-format:        "{name}";
+    window-format:              "{w} · {c} · {t}";
+    font:                       "Inter 13";
+    icon-theme:                 "Papirus-Dark";
+    terminal:                   "kitty";
+    case-sensitive:             false;
+    cycle:                      true;
+    hover-select:               true;
+    me-select-entry:            "";
+    matching:                   "normal";
+    drun-match-fields:          "name,generic,keywords";
+    sort:                       true;
+    sorting-method:             "fzf";
+}
+
+@theme "/dev/null"
+
+* {
+    bg-col:                      #000000f2;
+    bg-col-light:                #1e1e1e;
+    border-col:                  #2fafff;
+    selected-col:                #282828;
+    blue:                        #2fafff;
+    mauve:                       #feacd0;
+    fg-col:                      #ffffff;
+    fg-col2:                     #ffffff;
+    grey:                        #989898;
+
+    font:                        "Inter 13";
+}
+
+element-text, element-icon, mode-switcher {
+    background-color: inherit;
+    text-color:       inherit;
+}
+
+window {
+    width:                       620px;
+    height:                      470px;
+    border:                      1.5px;
+    border-color:                rgba(47, 175, 255, 0.55);
+    border-radius:               16px;
+    background-color:            @bg-col;
+    padding:                     0px;
+}
+
+mainbox {
+    background-color:            transparent;
+    padding:                     20px;
+    spacing:                     15px;
+    children:                    [ "inputbar", "listview" ];
+}
+
+inputbar {
+    children:                    [ "prompt", "entry" ];
+    background-color:            @bg-col-light;
+    border-radius:               10px;
+    padding:                     6px 12px;
+    spacing:                     8px;
+    border:                      1px;
+    border-color:                rgba(255, 255, 255, 0.08);
+}
+
+prompt {
+    background-color:            transparent;
+    padding:                     6px 2px;
+    text-color:                  @blue;
+    font:                        "Symbols Nerd Font Mono 13";
+}
+
+entry {
+    padding:                     6px;
+    margin:                      0px;
+    text-color:                  @fg-col2;
+    background-color:            transparent;
+    placeholder:                 "Buscar aplicaciones...";
+    placeholder-color:           @grey;
+    cursor:                      text;
+}
+
+listview {
+    border:                      0px;
+    padding:                     4px 0px 0px 0px;
+    margin:                      0px;
+    columns:                     1;
+    lines:                       8;
+    background-color:            transparent;
+    spacing:                     5px;
+    cycle:                       true;
+    dynamic:                     true;
+    scrollbar:                   false;
+}
+
+element {
+    padding:                     8px 12px;
+    background-color:            transparent;
+    text-color:                  @fg-col;
+    border-radius:               8px;
+    spacing:                     12px;
+    cursor:                      pointer;
+    border:                      1px;
+    border-color:                transparent;
+}
+
+element-icon {
+    size:                        28px;
+    cursor:                      pointer;
+}
+
+element-text {
+    vertical-align:              0.5;
+    cursor:                      pointer;
+}
+
+element selected {
+    background-color:            @selected-col;
+    text-color:                  @fg-col2;
+    border:                      1px;
+    border-color:                rgba(47, 175, 255, 0.6);
+}

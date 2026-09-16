@@ -1,0 +1,55 @@
+/* ============================================================
+ * Modus Vivendi Palette for GTK / Waybar / SwayNC
+ * WCAG AAA Contrast - OLED Dark
+ * https://protesilaos.com/emacs/modus-themes
+ * ============================================================ */
+
+/* Modus Vivendi Dark Backgrounds */
+@define-color base #000000;
+@define-color mantle #000000;
+@define-color crust #000000;
+
+@define-color surface0 #1e1e1e;
+@define-color surface1 #282828;
+@define-color surface2 #383838;
+
+@define-color overlay0 #595959;
+@define-color overlay1 #707070;
+@define-color overlay2 #989898;
+
+@define-color subtext0 #c5cde0;
+@define-color subtext1 #e0e0e0;
+@define-color text #ffffff;
+
+/* Modus Vivendi Accents */
+@define-color red #ff5f59;
+@define-color green #44bc44;
+@define-color yellow #cabf00;
+@define-color blue #2fafff;
+@define-color purple #feacd0;
+@define-color aqua #00d3d0;
+@define-color orange #ffa00f;
+@define-color gray #989898;
+
+/* Compatibility Aliases */
+@define-color rosewater #ffffff;
+@define-color flamingo #f0f0f0;
+@define-color pink #feacd0;
+@define-color mauve #feacd0;
+@define-color maroon #ff5f59;
+@define-color peach #ffa00f;
+@define-color teal #00d3d0;
+@define-color sky #00bcff;
+@define-color sapphire #2fafff;
+@define-color lavender #c6daff;
+
+/* Waybar and SwayNC Interface Standards */
+@define-color primary #2fafff;
+@define-color on_primary #000000;
+@define-color secondary #cabf00;
+@define-color tertiary #00d3d0;
+@define-color surface #000000;
+@define-color surface_container #1e1e1e;
+@define-color on_surface #ffffff;
+@define-color outline #383838;
+@define-color error #ff5f59;

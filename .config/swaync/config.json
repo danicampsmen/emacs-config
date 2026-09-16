@@ -1,0 +1,105 @@
+{
+  "$schema": "/etc/xdg/swaync/configSchema.json",
+  "positionX": "right",
+  "positionY": "top",
+  "layer": "overlay",
+  "control-center-layer": "overlay",
+  "layer-shell": true,
+  "cssPriority": "application",
+  "control-center-margin-top": 8,
+  "control-center-margin-bottom": 8,
+  "control-center-margin-right": 10,
+  "control-center-margin-left": 0,
+  "control-center-width": 420,
+  "control-center-height": 700,
+  "notification-2nd-image-size": 32,
+  "notification-2nd-image-width": 32,
+  "notification-2nd-image-height": 32,
+  "notification-window-width": 420,
+  "keyboard-shortcuts": true,
+  "image-visibility": "when-available",
+  "transition-time": 200,
+  "hide-on-clear": false,
+  "hide-on-action": true,
+  "script-fail-notify": true,
+  "widgets": [
+    "title",
+    "dnd",
+    "mpris",
+    "volume",
+    "backlight",
+    "buttons-grid",
+    "notifications"
+  ],
+  "widget-config": {
+    "title": {
+      "text": "Centro de Control",
+      "clear-all-button": true,
+      "button-text": "Limpiar todo"
+    },
+    "dnd": {
+      "text": "No Molestar"
+    },
+    "label": {
+      "max-lines": 5,
+      "text": "Notificaciones"
+    },
+    "mpris": {
+      "image-size": 80,
+      "image-radius": 10
+    },
+    "volume": {
+      "label": "",
+      "show-per-app": true,
+      "show-per-app-icon": true
+    },
+    "backlight": {
+      "label": "☀️",
+      "device": "intel_backlight"
+    },
+    "buttons-grid": {
+      "actions": [
+        {
+          "label": "󰖩 WiFi",
+          "type": "normal",
+          "command": "nm-connection-editor"
+        },
+        {
+          "label": "󰂯 Bluetooth",
+          "type": "normal",
+          "command": "blueman-manager"
+        },
+        {
+          "label": "󰃞 Modo Noche",
+          "type": "normal",
+          "command": "/home/fayfer/.config/hypr/scripts/nightlight.sh --toggle"
+        },
+        {
+          "label": "󰓃 Dolby Atmos",
+          "type": "normal",
+          "command": "/home/fayfer/.config/hypr/scripts/audio-profile.sh --next"
+        },
+        {
+          "label": "󰔎 Apariencia",
+          "type": "normal",
+          "command": "nwg-look"
+        },
+        {
+          "label": "󰸉 Fondo",
+          "type": "normal",
+          "command": "/home/fayfer/.config/hypr/scripts/wallpaper.sh"
+        },
+        {
+          "label": " Bloquear",
+          "type": "normal",
+          "command": "hyprlock"
+        },
+        {
+          "label": " Apagar",
+          "type": "normal",
+          "command": "wlogout -b 5 -T 450 -B 450 -L 150 -R 150"
+        }
+      ]
+    }
+  }
+}

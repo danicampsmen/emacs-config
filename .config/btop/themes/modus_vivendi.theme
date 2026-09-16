@@ -1,0 +1,76 @@
+# Modus Vivendi Theme for btop (WCAG AAA OLED Dark)
+# Palette by Protesilaos Stavrou
+
+# Main background, empty for terminal default
+theme[main_bg]="#000000"
+
+# Main text color
+theme[main_fg]="#ffffff"
+
+# Title color for boxes
+theme[title]="#2fafff"
+
+# Highlight color for keyboard shortcuts
+theme[hi_fg]="#ffa00f"
+
+# Background color of selected items
+theme[selected_bg]="#282828"
+
+# Foreground color of selected items
+theme[selected_fg]="#ffffff"
+
+# Color of inactive/disabled text
+theme[inactive_fg]="#535353"
+
+# Color of text appearing on top of graphs
+theme[graph_text]="#989898"
+
+# Misc colors for processes box
+theme[proc_misc]="#00d3d0"
+
+# Box outline colors
+theme[cpu_box]="#383838"
+theme[mem_box]="#383838"
+theme[net_box]="#383838"
+theme[proc_box]="#383838"
+theme[div_line]="#282828"
+
+# Temperature graph colors
+theme[temp_start]="#2fafff"
+theme[temp_mid]="#cabf00"
+theme[temp_end]="#ff5f59"
+
+# CPU graph colors
+theme[cpu_start]="#00d3d0"
+theme[cpu_mid]="#2fafff"
+theme[cpu_end]="#feacd0"
+
+# Mem/Disk free meter
+theme[free_start]="#44bc44"
+theme[free_mid]=""
+theme[free_end]="#70e070"
+
+# Mem/Disk cached meter
+theme[cached_start]="#00bcff"
+theme[cached_mid]=""
+theme[cached_end]="#2fafff"
+
+# Mem/Disk available meter
+theme[available_start]="#cabf00"
+theme[available_mid]=""
+theme[available_end]="#ffa00f"
+
+# Mem/Disk used meter
+theme[used_start]="#ffa00f"
+theme[used_mid]=""
+theme[used_end]="#ff5f59"
+
+# Download graph colors
+theme[download_start]="#00bcff"
+theme[download_mid]="#2fafff"
+theme[download_end]="#79a8ff"
+
+# Upload graph colors
+theme[upload_start]="#cabf00"
+theme[upload_mid]="#ffa00f"
+theme[upload_end]="#feacd0"

@@ -1,0 +1,13 @@
+# Wofi Configuration
+show=drun
+prompt=Buscar aplicación...
+filter_rate=100
+allow_images=true
+insensitive=true
+matching=multi-contains
+width=580
+height=420
+location=center
+lines=8
+no_actions=true
+term=kitty

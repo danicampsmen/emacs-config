@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Easy Effects Service
+Comment=Audio effects service for PipeWire
+Exec=easyeffects --gapplication-service
+Icon=com.github.wwmm.easyeffects
+Terminal=false
+Type=Application
+Categories=Audio;AudioVideo;
+X-GNOME-Autostart-enabled=true

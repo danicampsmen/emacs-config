@@ -1,0 +1,49 @@
+/* Modus Vivendi Theme for GTK 4 & Libadwaita (OLED Pure Black) */
+@define-color window_bg_color #000000;
+@define-color window_fg_color #ffffff;
+@define-color view_bg_color #000000;
+@define-color view_fg_color #ffffff;
+@define-color headerbar_bg_color #0d0d0d;
+@define-color headerbar_fg_color #ffffff;
+@define-color headerbar_border_color #282828;
+@define-color headerbar_backdrop_color #000000;
+@define-color card_bg_color #161616;
+@define-color card_fg_color #ffffff;
+@define-color popover_bg_color #1e1e1e;
+@define-color popover_fg_color #ffffff;
+@define-color shade_color rgba(0, 0, 0, 0.4);
+@define-color scrollbar_outline_color #1e1e1e;
+@define-color accent_bg_color #2fafff;
+@define-color accent_fg_color #000000;
+@define-color accent_color #2fafff;
+@define-color destructive_bg_color #ff5f59;
+@define-color destructive_fg_color #ffffff;
+@define-color destructive_color #ff5f59;
+@define-color success_bg_color #44bc44;
+@define-color success_fg_color #000000;
+@define-color success_color #44bc44;
+@define-color warning_bg_color #cabf00;
+@define-color warning_fg_color #000000;
+@define-color warning_color #cabf00;
+@define-color error_bg_color #ff5f59;
+@define-color error_fg_color #ffffff;
+@define-color error_color #ff5f59;
+
+/* GTK 4 & Libadwaita (Nautilus): Configuración de ancho de barra lateral */
+navigation-split-view > sidebar,
+navigation-split-view > sidebar > navigation-page,
+placessidebar,
+placessidebar > viewport,
+placessidebar list,
+.navigation-sidebar,
+placesview,
+sidebar {
+    min-width: 360px;
+}
+
+placessidebar row,
+.navigation-sidebar row {
+    min-height: 32px;
+    padding-left: 8px;
+    padding-right: 12px;
+}

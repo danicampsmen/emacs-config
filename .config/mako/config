@@ -1,0 +1,17 @@
+# Mako Notification Daemon Configuration - Modus Vivendi
+font=Inter 13
+background-color=#000000f0
+text-color=#ffffff
+border-color=#2fafff
+border-size=2
+border-radius=8
+padding=12
+default-timeout=5000
+margin=10
+layer=overlay
+anchor=top-right
+max-visible=5
+
+[urgency=high]
+border-color=#ff5f59
+default-timeout=0
