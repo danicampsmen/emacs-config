@@ -1,5 +1,6 @@
 # Archivos sensibles
 *.json
+!.config/**/*.json
 *.secret
 *client_secret*
 

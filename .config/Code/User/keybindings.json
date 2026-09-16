@@ -1,0 +1,5 @@
+{
+    "key": "ctrl+;", // O la combinación que prefieras
+    "command": "hsnips.expand",
+    "when": "editorTextFocus && !editorHasSelectionContext && editorHasCompletionItemProvider && !inSnippetMode"
+}

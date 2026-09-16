@@ -1,0 +1,395 @@
+{
+    "workbench.colorTheme": "modus-vivendi",
+    "editor.fontSize": 14,
+    "editor.fontFamily": "'JetBrainsMono Nerd Font', 'JetBrains Mono', 'DejaVu Sans Mono', monospace",
+    "terminal.integrated.fontSize": 14,
+    "terminal.integrated.fontFamily": "'JetBrainsMono Nerd Font', monospace",
+    "chat.editor.fontSize": 14,
+    "chat.fontSize": 14,
+    "debug.console.fontSize": 14,
+    "markdown.preview.fontSize": 14,
+    "notebook.markup.fontSize": 14,
+    "notebook.output.fontSize": 14,
+    "window.zoomLevel": 1,
+    "security.workspace.trust.untrustedFiles": "open",
+    "files.autoSave": "onFocusChange",
+    "editor.formatOnSave": true,
+    "editor.formatOnPaste": true,
+    "editor.formatOnType": true,
+    "editor.lineNumbers": "on",
+    "editor.cursorLine": "all",
+    "editor.wordWrap": "on",
+    "editor.rulers": [
+        80,
+        100,
+        120
+    ],
+    "editor.folding": false,
+    "editor.tabCompletion": "on",
+    "editor.wordBreak": "keepAll",
+    "editor.wordWrapColumn": 100,
+    "editor.autoClosingBrackets": "never",
+    "editor.minimap.enabled": false,
+    "diffEditor.wordWrap": "on",
+    "terminal.integrated.commandsToSkipShell": [
+        "language-julia.interrupt",
+        "kilo-code.new.agentManagerOpen",
+        "kilo-code.new.agentManager.showTerminal",
+        "kilo-code.new.agentManager.previousTerminal",
+        "kilo-code.new.agentManager.nextTerminal"
+    ],
+    "julia.symbolCacheDownload": true,
+    "[latex]": {
+        "editor.defaultFormatter": "James-Yu.latex-workshop",
+        "editor.spellCheck": "on"
+    },
+    "latex-workshop.formatting.latex": "latexindent",
+    "latex-workshop.intellisense.package.unusual": true,
+    "latex-workshop.intellisense.citation.backend": "biblatex",
+    "latex-workshop.latex.recipe.default": "latexmk (lualatex)",
+    "latex-workshop.view.outline.sync.viewer": true,
+    "latex-workshop.view.pdf.toolbar.hide.timeout": 0.5,
+    "latex-workshop.view.pdf.zoom": "page-width",
+    "latex-workshop.view.pdf.hand": true,
+    "latex-workshop.view.pdf.invertMode.grayscale": 0,
+    "latex-workshop.view.pdf.invertMode.hueRotate": 0,
+    "latex-workshop.linting.chktex.enabled": true,
+    "latex-workshop.hover.preview.scale": 2,
+    "latex-workshop.latex.autoBuild.run": "onSave",
+    "latex-workshop.latex.autoClean.run": "onSucceeded",
+    "latex-workshop.intellisense.subsuperscript.enabled": true,
+    "latex-workshop.latex.clean.subfolder.enabled": true,
+    "latex-utilities.liveReformat.enabled": false,
+    "cSpell.language": "en,es",
+    "cSpell.userWords": [
+        "abelianos",
+        "biblatex",
+        "booktabs",
+        "lualatex",
+        "synctex",
+        "tabularx",
+        "vimtex"
+    ],
+    "vim.leader": ";",
+    "vim.autoSwitchInputMethod.enable": true,
+    "vim.easymotion": true,
+    "vim.hlsearch": false,
+    "vim.incsearch": false,
+    "vim.useSystemClipboard": true,
+    "vim.surround": true,
+    "vim.scrolloff": 8,
+    "vim.cursorStylePerMode.insert": "line",
+    "vim.cursorStylePerMode.normal": "block",
+    "vim.cursorStylePerMode.replace": "underline",
+    "vim.cursorStylePerMode.visual": "block-outline",
+    "vim.insertModeKeyBindingsNonRecursive": [
+        {
+            "before": [
+                "<C-e>"
+            ],
+            "after": [
+                "<C-o>",
+                "d",
+                "w"
+            ]
+        },
+        {
+            "before": [
+                "<C-d>"
+            ],
+            "after": [
+                "<C-o>",
+                "D"
+            ]
+        },
+        {
+            "before": [
+                "<C-j>"
+            ],
+            "commands": [
+                "editor.action.jumpToNextSnippetPlaceholder"
+            ]
+        },
+        {
+            "before": [
+                "<C-k>"
+            ],
+            "commands": [
+                "editor.action.jumpToPreviousSnippetPlaceholder"
+            ]
+        }
+    ],
+    "vim.normalModeKeyBindingsNonRecursive": [
+        {
+            "before": [
+                "Y"
+            ],
+            "after": [
+                "y",
+                "$"
+            ]
+        },
+        {
+            "before": [
+                "c",
+                "c"
+            ],
+            "after": [
+                "\"",
+                "_",
+                "c",
+                "c"
+            ]
+        },
+        {
+            "before": [
+                "x"
+            ],
+            "after": [
+                "\"",
+                "_",
+                "x"
+            ]
+        },
+        {
+            "before": [
+                "s"
+            ],
+            "after": [
+                "\"",
+                "_",
+                "s"
+            ]
+        },
+        {
+            "before": [
+                "j"
+            ],
+            "after": [
+                "g",
+                "j"
+            ]
+        },
+        {
+            "before": [
+                "k"
+            ],
+            "after": [
+                "g",
+                "k"
+            ]
+        },
+        {
+            "before": [
+                "H"
+            ],
+            "after": [
+                "g",
+                "^"
+            ]
+        },
+        {
+            "before": [
+                "L"
+            ],
+            "after": [
+                "g",
+                "$"
+            ]
+        },
+        {
+            "before": [
+                "<C-h>"
+            ],
+            "commands": [
+                "workbench.action.focusLeftGroup"
+            ]
+        },
+        {
+            "before": [
+                "<C-j>"
+            ],
+            "commands": [
+                "workbench.action.focusBelowGroup"
+            ]
+        },
+        {
+            "before": [
+                "<C-k>"
+            ],
+            "commands": [
+                "workbench.action.focusAboveGroup"
+            ]
+        },
+        {
+            "before": [
+                "<C-l>"
+            ],
+            "commands": [
+                "workbench.action.focusRightGroup"
+            ]
+        },
+        {
+            "before": [
+                "<leader>",
+                "w"
+            ],
+            "commands": [
+                "workbench.action.files.save"
+            ]
+        },
+        {
+            "before": [
+                "Q"
+            ],
+            "after": [
+                "@",
+                "q"
+            ]
+        },
+        {
+            "before": [
+                "<leader>",
+                "g"
+            ],
+            "commands": [
+                "workbench.view.scm"
+            ]
+        },
+        {
+            "before": [
+                "K"
+            ],
+            "after": [
+                "k",
+                "d",
+                "d",
+                "$"
+            ]
+        },
+        {
+            "before": [
+                "<leader>",
+                "s"
+            ],
+            "after": [
+                ":",
+                "%",
+                "s",
+                "/"
+            ]
+        },
+        {
+            "before": [
+                "<leader>",
+                "f"
+            ],
+            "commands": [
+                "workbench.action.editor.changeLanguageMode"
+            ]
+        },
+        {
+            "before": [
+                "<leader>",
+                "l",
+                "l"
+            ],
+            "commands": [
+                "latex-workshop.build"
+            ]
+        },
+        {
+            "before": [
+                "<leader>",
+                "l",
+                "v"
+            ],
+            "commands": [
+                "latex-workshop.view"
+            ]
+        },
+        {
+            "before": [
+                "<leader>",
+                "l",
+                "c"
+            ],
+            "commands": [
+                "latex-workshop.clean"
+            ]
+        },
+        {
+            "before": [
+                "<leader>",
+                "l",
+                "s"
+            ],
+            "commands": [
+                "latex-workshop.synctex"
+            ]
+        },
+        {
+            "before": [
+                "[",
+                "["
+            ],
+            "commands": [
+                "editor.action.previousSymbol"
+            ]
+        },
+        {
+            "before": [
+                "]",
+                "]"
+            ],
+            "commands": [
+                "editor.action.nextSymbol"
+            ]
+        },
+        {
+            "before": [
+                "<leader>",
+                "g",
+                "h"
+            ],
+            "commands": [
+                "gitlens.showFileHistory"
+            ]
+        }
+    ],
+    "vim.visualModeKeyBindingsNonRecursive": [
+        {
+            "before": [
+                "<leader>",
+                "s"
+            ],
+            "commands": [
+                "editor.action.showSnippets"
+            ]
+        }
+    ],
+    "editor.cursorSurroundingLines": 8,
+    "julia.enableTelemetry": false,
+    "geminicodeassist.outlines.automaticOutlineGeneration": true,
+    "roo-cline.debug": true,
+    "roo-cline.allowedCommands": [
+        "git log",
+        "git diff",
+        "git show"
+    ],
+    "roo-cline.deniedCommands": [],
+    "workbench.secondarySideBar.defaultVisibility": "visible",
+    "kilo-code.new.agentWorkStyle": "skipped",
+    "kilo-code.new.autoApprove.enabled": true,
+    "github.copilot.nextEditSuggestions.eagerness": "low",
+    "chat.byokUtilityModelDefault": "mainAgent",
+    "kilo-code.new.attention.enabled": true,
+    "kilo-code.new.attention.sound": "yup-04",
+    "kilo-code.new.browserAutomation.enabled": true,
+    "workbench.editor.enablePreview": false,
+    "trae.chatLanguage": "en",
+    "chat.viewSessions.orientation": "stacked",
+    "github.copilot.enable": {
+        "plaintext": false
+    }
+}
