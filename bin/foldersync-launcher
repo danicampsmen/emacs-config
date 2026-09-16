@@ -1,0 +1,50 @@
+#!/usr/bin/env bash
+# ==============================================================================
+# FolderSync Desktop Smart Launcher para Hyprland / Wayland
+# Enfoca la ventana si existe, la restaura desde el tray vía DBus, o la inicia.
+# ==============================================================================
+set -euo pipefail
+
+# 1. Si la ventana ya está abierta en algún workspace, darle foco
+if hyprctl clients 2>/dev/null | grep -q "class: dk-tacit-desktop-foldersync-MainKt"; then
+    hyprctl dispatch focuswindow "class:^(dk-tacit-desktop-foldersync-MainKt)$" >/dev/null 2>&1 || true
+    exit 0
+fi
+
+# 2. Si el proceso ya está corriendo en segundo plano / tray, invocar Activate vía DBus
+SERVICE=$(busctl --user list --acquired 2>/dev/null | awk '/StatusNotifierItem.*foldersync/ {print $1}' | head -n 1)
+if [ -n "$SERVICE" ]; then
+    # Re-registrar en el watcher de Waybar por si Waybar fue reiniciado
+    busctl --user call org.kde.StatusNotifierWatcher /StatusNotifierWatcher org.kde.StatusNotifierWatcher RegisterStatusNotifierItem s "$SERVICE" >/dev/null 2>&1 || true
+    busctl --user call "$SERVICE" /StatusNotifierItem org.kde.StatusNotifierItem Activate ii 0 0 >/dev/null 2>&1 || true
+    sleep 0.2
+    hyprctl dispatch focuswindow "class:^(dk-tacit-desktop-foldersync-MainKt)$" >/dev/null 2>&1 || true
+    exit 0
+fi
+
+# 3. Si no está en ejecución, iniciarlo con variables para Xwayland y asegurar registro en el Tray
+export GDK_BACKEND=x11
+export DISPLAY=:0
+
+# Esperar a que el watcher de Waybar esté activo si venimos del arranque
+for i in {1..10}; do
+    if busctl --user list 2>/dev/null | grep -q "StatusNotifierWatcher"; then
+        break
+    fi
+    sleep 0.5
+done
+
+nohup /usr/lib/tacit-dynamics-aps/foldersync-desktop/bin/foldersync-desktop "$@" </dev/null >/dev/null 2>&1 &
+disown
+
+# En segundo plano, asegurar registro en Waybar una vez inicializado
+(
+    for i in {1..20}; do
+        sleep 0.5
+        SRV=$(busctl --user list --acquired 2>/dev/null | awk '/StatusNotifierItem.*foldersync/ {print $1}' | head -n 1)
+        if [ -n "$SRV" ]; then
+            busctl --user call org.kde.StatusNotifierWatcher /StatusNotifierWatcher org.kde.StatusNotifierWatcher RegisterStatusNotifierItem s "$SRV" >/dev/null 2>&1 || true
+            break
+        fi
+    done
+) &

@@ -197,5 +197,9 @@
     "on-click-right": "/home/fayfer/.config/hypr/scripts/audio-profile.sh"
   },
 
-  "tray": { "spacing": 10 }
+  "tray": {
+    "icon-size": 16,
+    "spacing": 10,
+    "show-passive-items": true
+  }
 }
