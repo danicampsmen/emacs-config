@@ -3,6 +3,8 @@ ExternalEditor=Emacsclient
 ExternalEditorCommand=emacsclient -n +%l "%f"\n
 
 [Core Performance]
+EnableThreading=true
+MemoryLevel=Greedy
 TextHinting=Enabled
 
 [Dlg Accessibility]
@@ -28,6 +30,7 @@ ShowLeftPanel=false
 
 [PageView]
 BackgroundColor=40,40,40
+SmoothScrolling=false
 UseCustomBackgroundColor=true
 ViewMode=Facing
 
