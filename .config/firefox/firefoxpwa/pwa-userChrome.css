@@ -1,0 +1,19 @@
+
+/* Borde superior y barra de título con color de tema oscuro */
+#titlebar,
+#TabsToolbar,
+#nav-bar,
+.site-info,
+#TabsToolbar-customization-target {
+  background-color: #12141a !important;
+  color: #ffffff !important;
+}
+.tab-text.tab-label {
+  color: #e0e0e0 !important;
+}
+.titlebar-button,
+#PanelUI-menu-button,
+.toolbarbutton-1 {
+  fill: #ffffff !important;
+  color: #ffffff !important;
+}

@@ -1,0 +1,13 @@
+[Desktop Entry]
+Version=1.0
+Name=Firefox (Daniel)
+GenericName=Navegador Web - Perfil Personal
+Comment=Navegador web Firefox con el perfil personal de Daniel
+Exec=firefox -P Daniel %u
+Icon=firefox
+Terminal=false
+Type=Application
+Categories=Network;WebBrowser;
+Keywords=firefox;daniel;navegador;web;internet;
+StartupWMClass=firefox
+StartupNotify=true

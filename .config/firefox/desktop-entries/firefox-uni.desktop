@@ -1,0 +1,13 @@
+[Desktop Entry]
+Version=1.0
+Name=Firefox (UNI)
+GenericName=Navegador Web - Perfil Institucional
+Comment=Navegador web Firefox con el perfil institucional de la UNI
+Exec=firefox -P UNI %u
+Icon=firefox
+Terminal=false
+Type=Application
+Categories=Network;WebBrowser;
+Keywords=firefox;uni;universidad;navegador;web;internet;
+StartupWMClass=firefox
+StartupNotify=true

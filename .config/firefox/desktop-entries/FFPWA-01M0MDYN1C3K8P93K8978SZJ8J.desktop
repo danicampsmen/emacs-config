@@ -1,0 +1,14 @@
+[Desktop Entry]
+Type=Application
+Version=1.4
+Name=Calendario de Google
+Comment=
+Keywords=;
+Categories=GTK;;
+Icon=FFPWA-01M0MDYN1C3K8P93K8978SZJ8J
+Exec=/usr/bin/firefoxpwa site launch 01M0MDYN1C3K8P93K8978SZJ8J --protocol %u
+Actions=
+MimeType=
+Terminal=false
+StartupNotify=true
+StartupWMClass=FFPWA-01M0MDYN1C3K8P93K8978SZJ8J

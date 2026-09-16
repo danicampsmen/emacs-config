@@ -1,0 +1,707 @@
+{
+  "profiles": {
+    "00000000000000000000000000": {
+      "ulid": "00000000000000000000000000",
+      "name": "Default",
+      "description": "Default profile for all web apps",
+      "sites": []
+    },
+    "01M0MCWB9E52DQ6E2S4XXF9AVR": {
+      "ulid": "01M0MCWB9E52DQ6E2S4XXF9AVR",
+      "name": "Google AI Studio",
+      "description": null,
+      "sites": [
+        "01M0MCWC8E02JJKRZG9P19N6WX"
+      ]
+    },
+    "01M0MD1ZW2Y1YNMC0Y3D1H1AYE": {
+      "ulid": "01M0MD1ZW2Y1YNMC0Y3D1H1AYE",
+      "name": "Anna\u2019s Archive",
+      "description": null,
+      "sites": [
+        "01M0MD21FWF6SJ58RSVWV0RWF6"
+      ]
+    },
+    "01M0MD5WA83YE1S6SAW2QQ0WTX": {
+      "ulid": "01M0MD5WA83YE1S6SAW2QQ0WTX",
+      "name": "WhatsApp Web",
+      "description": null,
+      "sites": [
+        "01M0MD5WH4NJNSJK5G1FAEC8P6"
+      ]
+    },
+    "01M0MDBHHJ4PQYPBY8W4CGMRRZ": {
+      "ulid": "01M0MDBHHJ4PQYPBY8W4CGMRRZ",
+      "name": "Gemini Notebook",
+      "description": null,
+      "sites": [
+        "01M0MDBJ35RAN5B8D2EH8WGE7J"
+      ]
+    },
+    "01M0MDJMRN7488VKAXZ8XRT061": {
+      "ulid": "01M0MDJMRN7488VKAXZ8XRT061",
+      "name": "Spotify",
+      "description": null,
+      "sites": [
+        "01M0MDJMSSCDSF46BGGXEZX7BM"
+      ]
+    },
+    "01M0MDWDXSYNPEHMA877P0Z4BE": {
+      "ulid": "01M0MDWDXSYNPEHMA877P0Z4BE",
+      "name": "Google Meet",
+      "description": null,
+      "sites": [
+        "01M0MDWEHP1R25Y4B41P9FK2RW"
+      ]
+    },
+    "01M0MDYMF811BR86R78NX2AXY5": {
+      "ulid": "01M0MDYMF811BR86R78NX2AXY5",
+      "name": "Calendario\u00a0de\u00a0Google",
+      "description": null,
+      "sites": [
+        "01M0MDYN1C3K8P93K8978SZJ8J"
+      ]
+    },
+    "01M0MEVD73V5PN20D2CK75J4JA": {
+      "ulid": "01M0MEVD73V5PN20D2CK75J4JA",
+      "name": "Google Drive",
+      "description": null,
+      "sites": [
+        "01M0MEVDRBQMTVX6PKQF9WM1GG"
+      ]
+    },
+    "01M16VD95WQ4EPGXAZHQDPNC8P": {
+      "ulid": "01M16VD95WQ4EPGXAZHQDPNC8P",
+      "name": "GitHub",
+      "description": null,
+      "sites": [
+        "01M16VD9MRPJ72JP7GMT86QMK6"
+      ]
+    }
+  },
+  "sites": {
+    "01M0MCWC8E02JJKRZG9P19N6WX": {
+      "ulid": "01M0MCWC8E02JJKRZG9P19N6WX",
+      "profile": "01M0MCWB9E52DQ6E2S4XXF9AVR",
+      "config": {
+        "name": null,
+        "description": null,
+        "start_url": null,
+        "icon_url": null,
+        "document_url": "https://aistudio.google.com/app/prompts/new_chat",
+        "manifest_url": "https://aistudio.google.com/app/_/MakerSuite/manifest.json",
+        "categories": null,
+        "keywords": null,
+        "enabled_url_handlers": [],
+        "enabled_protocol_handlers": [],
+        "custom_protocol_handlers": [],
+        "launch_on_login": false,
+        "launch_on_browser": false
+      },
+      "manifest": {
+        "start_url": "https://aistudio.google.com/prompts/new_chat?utm_source=pwa&utm_medium=homescreen&lfhs=2",
+        "scope": "https://aistudio.google.com/prompts/",
+        "name": "Google AI Studio",
+        "short_name": "AI Studio",
+        "categories": [],
+        "keywords": [],
+        "dir": "auto",
+        "display": "standalone",
+        "orientation": "any",
+        "background_color": "#12141a",
+        "theme_color": "#12141a",
+        "prefer_related_applications": false,
+        "related_applications": [],
+        "protocol_handlers": [],
+        "shortcuts": [],
+        "icons": [
+          {
+            "src": "https://www.gstatic.com/images/branding/productlogos/ai_studio/v1/web-32dp/logo_ai_studio_color_1x_web_32dp.png",
+            "type": "image/png",
+            "sizes": "32x32",
+            "purpose": "any"
+          },
+          {
+            "src": "https://www.gstatic.com/images/branding/productlogos/ai_studio/v1/web-64dp/logo_ai_studio_color_1x_web_64dp.png",
+            "type": "image/png",
+            "sizes": "64x64",
+            "purpose": "any"
+          },
+          {
+            "src": "https://www.gstatic.com/images/branding/productlogos/ai_studio/v1/web-96dp/logo_ai_studio_color_1x_web_96dp.png",
+            "type": "image/png",
+            "sizes": "96x96",
+            "purpose": "any"
+          },
+          {
+            "src": "https://www.gstatic.com/images/branding/productlogos/ai_studio/v1/web-512dp/logo_ai_studio_color_1x_web_512dp.png",
+            "type": "image/png",
+            "sizes": "512x512",
+            "purpose": "any"
+          }
+        ],
+        "screenshots": []
+      }
+    },
+    "01M0MD21FWF6SJ58RSVWV0RWF6": {
+      "ulid": "01M0MD21FWF6SJ58RSVWV0RWF6",
+      "profile": "01M0MD1ZW2Y1YNMC0Y3D1H1AYE",
+      "config": {
+        "name": null,
+        "description": null,
+        "start_url": null,
+        "icon_url": null,
+        "document_url": "https://annas-archive.gl/",
+        "manifest_url": "https://annas-archive.gl/site.webmanifest?hash=076af9a96b0bfbd668cd",
+        "categories": null,
+        "keywords": null,
+        "enabled_url_handlers": [],
+        "enabled_protocol_handlers": [],
+        "custom_protocol_handlers": [],
+        "launch_on_login": false,
+        "launch_on_browser": false
+      },
+      "manifest": {
+        "start_url": "https://annas-archive.gl/",
+        "scope": "https://annas-archive.gl/",
+        "name": "Anna\u2019s Archive",
+        "short_name": "Anna\u2019s Archive",
+        "categories": [],
+        "keywords": [],
+        "dir": "auto",
+        "display": "standalone",
+        "orientation": "any",
+        "background_color": "#12141a",
+        "theme_color": "#12141a",
+        "prefer_related_applications": false,
+        "related_applications": [],
+        "protocol_handlers": [],
+        "shortcuts": [],
+        "icons": [
+          {
+            "src": "https://annas-archive.gl/android-chrome-192x192.png",
+            "type": "image/png",
+            "sizes": "192x192",
+            "purpose": "any"
+          },
+          {
+            "src": "https://annas-archive.gl/android-chrome-512x512.png",
+            "type": "image/png",
+            "sizes": "512x512",
+            "purpose": "any"
+          }
+        ],
+        "screenshots": []
+      }
+    },
+    "01M0MD5WH4NJNSJK5G1FAEC8P6": {
+      "ulid": "01M0MD5WH4NJNSJK5G1FAEC8P6",
+      "profile": "01M0MD5WA83YE1S6SAW2QQ0WTX",
+      "config": {
+        "name": null,
+        "description": null,
+        "start_url": null,
+        "icon_url": null,
+        "document_url": "https://web.whatsapp.com/",
+        "manifest_url": "https://web.whatsapp.com/data/manifest.json",
+        "categories": null,
+        "keywords": null,
+        "enabled_url_handlers": [],
+        "enabled_protocol_handlers": [],
+        "custom_protocol_handlers": [],
+        "launch_on_login": false,
+        "launch_on_browser": false
+      },
+      "manifest": {
+        "start_url": "https://web.whatsapp.com/",
+        "scope": "https://web.whatsapp.com/",
+        "name": "WhatsApp Web",
+        "short_name": "WhatsApp Web",
+        "description": "Log in to WhatsApp Web for simple, reliable and private messaging on your desktop. Send and receive messages and files with ease, all for free.",
+        "categories": [],
+        "keywords": [],
+        "dir": "auto",
+        "display": "standalone",
+        "orientation": "any",
+        "background_color": "#12141a",
+        "theme_color": "#12141a",
+        "prefer_related_applications": false,
+        "related_applications": [
+          {
+            "platform": "windows",
+            "url": "ms-windows-store://pdp/?productid=9NKSQGP7F2NH&mode=mini",
+            "fingerprints": []
+          },
+          {
+            "platform": "itunes",
+            "url": "https://apps.apple.com/us/app/whatsapp-desktop/id1147396723",
+            "fingerprints": []
+          }
+        ],
+        "protocol_handlers": [],
+        "shortcuts": [],
+        "icons": [
+          {
+            "src": "https://static.whatsapp.net/rsrc.php/yI/r/Pj7ZhJGIiYs.webp",
+            "type": "image/png",
+            "sizes": "16x16",
+            "purpose": "any"
+          },
+          {
+            "src": "https://static.whatsapp.net/rsrc.php/ya/r/p_M74pzYX_m.webp",
+            "type": "image/png",
+            "sizes": "32x32",
+            "purpose": "any"
+          },
+          {
+            "src": "https://static.whatsapp.net/rsrc.php/yv/r/EHF9w7w6AJQ.webp",
+            "type": "image/png",
+            "sizes": "60x60",
+            "purpose": "any"
+          },
+          {
+            "src": "https://static.whatsapp.net/rsrc.php/yO/r/fbPIq_vzdY6.webp",
+            "type": "image/png",
+            "sizes": "64x64",
+            "purpose": "any"
+          },
+          {
+            "src": "https://static.whatsapp.net/rsrc.php/yc/r/Vz2HF0AAORX.webp",
+            "type": "image/png",
+            "sizes": "90x90",
+            "purpose": "any"
+          },
+          {
+            "src": "https://static.whatsapp.net/rsrc.php/yJ/r/3jXQFJBQ7J0.webp",
+            "type": "image/png",
+            "sizes": "128x128",
+            "purpose": "any"
+          },
+          {
+            "src": "https://static.whatsapp.net/rsrc.php/yY/r/pxeXQZRzD__.webp",
+            "type": "image/png",
+            "sizes": "192x192",
+            "purpose": "any"
+          },
+          {
+            "src": "https://static.whatsapp.net/rsrc.php/yR/r/ivOukiEvXdZ.webp",
+            "type": "image/png",
+            "sizes": "512x512",
+            "purpose": "any"
+          },
+          {
+            "src": "https://static.whatsapp.net/rsrc.php/yp/r/iBj9rlryvZv.svg",
+            "type": "image/svg",
+            "sizes": "512x512",
+            "purpose": "maskable"
+          }
+        ],
+        "screenshots": []
+      }
+    },
+    "01M0MDBJ35RAN5B8D2EH8WGE7J": {
+      "ulid": "01M0MDBJ35RAN5B8D2EH8WGE7J",
+      "profile": "01M0MDBHHJ4PQYPBY8W4CGMRRZ",
+      "config": {
+        "name": null,
+        "description": null,
+        "start_url": null,
+        "icon_url": null,
+        "document_url": "https://notebook.google.com/?icid=home_maincta&pli=1",
+        "manifest_url": "https://notebook.google.com/_/static/branding/v6/manifest.json",
+        "categories": null,
+        "keywords": null,
+        "enabled_url_handlers": [],
+        "enabled_protocol_handlers": [],
+        "custom_protocol_handlers": [],
+        "launch_on_login": false,
+        "launch_on_browser": false
+      },
+      "manifest": {
+        "start_url": "https://notebook.google.com/",
+        "scope": "https://notebook.google.com/",
+        "name": "Gemini Notebook",
+        "short_name": "Notebook",
+        "categories": [],
+        "keywords": [],
+        "dir": "auto",
+        "display": "standalone",
+        "orientation": "any",
+        "background_color": "#12141a",
+        "theme_color": "#12141a",
+        "prefer_related_applications": false,
+        "related_applications": [],
+        "protocol_handlers": [],
+        "shortcuts": [],
+        "icons": [
+          {
+            "src": "https://notebook.google.com/_/static/branding/v6/light_mode/favicon/pwa-icon.svg",
+            "type": "image/svg+xml",
+            "sizes": "any",
+            "purpose": "any"
+          },
+          {
+            "src": "https://notebook.google.com/_/static/branding/v6/light_mode/favicon/pwa-icon.png",
+            "type": "image/png",
+            "sizes": "512x512",
+            "purpose": "any"
+          }
+        ],
+        "screenshots": []
+      }
+    },
+    "01M0MDJMSSCDSF46BGGXEZX7BM": {
+      "ulid": "01M0MDJMSSCDSF46BGGXEZX7BM",
+      "profile": "01M0MDJMRN7488VKAXZ8XRT061",
+      "config": {
+        "name": null,
+        "description": null,
+        "start_url": null,
+        "icon_url": null,
+        "document_url": "https://open.spotify.com/intl-es",
+        "manifest_url": "https://open.spotifycdn.com/cdn/generated/manifest-web-player.1609946b.json",
+        "categories": null,
+        "keywords": null,
+        "enabled_url_handlers": [],
+        "enabled_protocol_handlers": [],
+        "custom_protocol_handlers": [],
+        "launch_on_login": false,
+        "launch_on_browser": false
+      },
+      "manifest": {
+        "start_url": "https://open.spotify.com/?utm_source=pwa_install",
+        "scope": "https://open.spotify.com/",
+        "name": "Spotify",
+        "short_name": "Spotify",
+        "description": "Spotify Web",
+        "categories": [],
+        "keywords": [],
+        "dir": "auto",
+        "display": "standalone",
+        "orientation": "any",
+        "background_color": "#12141a",
+        "theme_color": "#12141a",
+        "prefer_related_applications": false,
+        "related_applications": [],
+        "protocol_handlers": [],
+        "shortcuts": [],
+        "icons": [
+          {
+            "src": "https://open.spotifycdn.com/cdn/images/icons/Spotify_16.png",
+            "type": "image/png",
+            "sizes": "16x16",
+            "purpose": "any"
+          },
+          {
+            "src": "https://open.spotifycdn.com/cdn/images/icons/Spotify_32.png",
+            "type": "image/png",
+            "sizes": "32x32",
+            "purpose": "any"
+          },
+          {
+            "src": "https://open.spotifycdn.com/cdn/images/icons/Spotify_128.png",
+            "type": "image/png",
+            "sizes": "128x128",
+            "purpose": "any"
+          },
+          {
+            "src": "https://open.spotifycdn.com/cdn/images/icons/Spotify_256.png",
+            "type": "image/png",
+            "sizes": "256x256",
+            "purpose": "any"
+          },
+          {
+            "src": "https://open.spotifycdn.com/cdn/images/icons/Spotify_512.png",
+            "type": "image/png",
+            "sizes": "512x512",
+            "purpose": "any"
+          },
+          {
+            "src": "https://open.spotifycdn.com/cdn/images/icons/Spotify_1024.png",
+            "type": "image/png",
+            "sizes": "1024x1024",
+            "purpose": "any"
+          }
+        ],
+        "screenshots": []
+      }
+    },
+    "01M0MDWEHP1R25Y4B41P9FK2RW": {
+      "ulid": "01M0MDWEHP1R25Y4B41P9FK2RW",
+      "profile": "01M0MDWDXSYNPEHMA877P0Z4BE",
+      "config": {
+        "name": null,
+        "description": null,
+        "start_url": null,
+        "icon_url": null,
+        "document_url": "https://meet.google.com/home?pli=1",
+        "manifest_url": "https://meet.google.com/_/MeetingsDesktopUi/manifest.json",
+        "categories": null,
+        "keywords": null,
+        "enabled_url_handlers": [],
+        "enabled_protocol_handlers": [],
+        "custom_protocol_handlers": [],
+        "launch_on_login": false,
+        "launch_on_browser": false
+      },
+      "manifest": {
+        "start_url": "https://meet.google.com/landing?lfhs=2",
+        "scope": "https://meet.google.com/",
+        "name": "Google Meet",
+        "short_name": "Google Meet",
+        "categories": [],
+        "keywords": [],
+        "dir": "auto",
+        "display": "standalone",
+        "orientation": "any",
+        "background_color": "#12141a",
+        "theme_color": "#12141a",
+        "prefer_related_applications": false,
+        "related_applications": [],
+        "protocol_handlers": [],
+        "shortcuts": [],
+        "icons": [
+          {
+            "src": "https://www.gstatic.com//images/branding/productlogos/meet_2026/v2/web-96dp/logo_meet_2026_color_2x_web_96dp.png",
+            "type": "image/png",
+            "sizes": "192x192",
+            "purpose": "any"
+          },
+          {
+            "src": "https://www.gstatic.com//images/branding/productlogos/meet_2026/v2/web-512dp/logo_meet_2026_color_1x_web_512dp.png",
+            "type": "image/png",
+            "sizes": "512x512",
+            "purpose": "any"
+          }
+        ],
+        "screenshots": []
+      }
+    },
+    "01M0MDYN1C3K8P93K8978SZJ8J": {
+      "ulid": "01M0MDYN1C3K8P93K8978SZJ8J",
+      "profile": "01M0MDYMF811BR86R78NX2AXY5",
+      "config": {
+        "name": null,
+        "description": null,
+        "start_url": null,
+        "icon_url": null,
+        "document_url": "https://calendar.google.com/calendar/u/0/r?pli=1",
+        "manifest_url": "https://calendar.google.com/calendar/manifest.json",
+        "categories": null,
+        "keywords": null,
+        "enabled_url_handlers": [],
+        "enabled_protocol_handlers": [],
+        "custom_protocol_handlers": [],
+        "launch_on_login": false,
+        "launch_on_browser": false
+      },
+      "manifest": {
+        "start_url": "https://calendar.google.com/calendar/r",
+        "scope": "https://calendar.google.com/calendar/",
+        "name": "Calendario\u00a0de\u00a0Google",
+        "short_name": "Calendario ",
+        "categories": [],
+        "keywords": [],
+        "dir": "auto",
+        "display": "standalone",
+        "orientation": "any",
+        "background_color": "#12141a",
+        "theme_color": "#12141a",
+        "prefer_related_applications": false,
+        "related_applications": [],
+        "protocol_handlers": [],
+        "shortcuts": [],
+        "icons": [
+          {
+            "src": "https://www.gstatic.com/images/branding/productlogos/calendar_2026/v2/web-96dp/logo_calendar_2026_color_2x_web_96dp.png",
+            "type": "image/png",
+            "sizes": "192x192",
+            "purpose": "any"
+          },
+          {
+            "src": "https://www.gstatic.com/images/branding/productlogos/calendar_2026/v2/web-512dp/logo_calendar_2026_color_1x_web_512dp.png",
+            "type": "image/png",
+            "sizes": "512x512",
+            "purpose": "any"
+          },
+          {
+            "src": "https://www.gstatic.com/images/branding/productlogos/calendar_2026/v2/web-32dp/logo_calendar_2026_color_1x_web_32dp.png",
+            "type": "image/png",
+            "sizes": "32x32",
+            "purpose": "any"
+          }
+        ],
+        "screenshots": []
+      }
+    },
+    "01M0MEVDRBQMTVX6PKQF9WM1GG": {
+      "ulid": "01M0MEVDRBQMTVX6PKQF9WM1GG",
+      "profile": "01M0MEVD73V5PN20D2CK75J4JA",
+      "config": {
+        "name": null,
+        "description": null,
+        "start_url": null,
+        "icon_url": null,
+        "document_url": "https://drive.google.com/drive/my-drive?dmr=1&ec=wgc-drive-%5Bmodule%5D-goto",
+        "manifest_url": "https://drive.google.com/_/AppsNotifyUi/manifest.json",
+        "categories": null,
+        "keywords": null,
+        "enabled_url_handlers": [],
+        "enabled_protocol_handlers": [],
+        "custom_protocol_handlers": [],
+        "launch_on_login": false,
+        "launch_on_browser": false
+      },
+      "manifest": {
+        "start_url": "https://drive.google.com/?lfhs=2",
+        "scope": "https://drive.google.com/",
+        "name": "Google Drive",
+        "short_name": "Drive",
+        "categories": [],
+        "keywords": [],
+        "dir": "auto",
+        "display": "standalone",
+        "orientation": "any",
+        "theme_color": "#12141a",
+        "prefer_related_applications": false,
+        "related_applications": [],
+        "protocol_handlers": [],
+        "shortcuts": [],
+        "icons": [
+          {
+            "src": "https://www.gstatic.com/images/branding/product/1x/drive_2020q4_16dp.png",
+            "type": "image/png",
+            "sizes": "16x16",
+            "purpose": "any"
+          },
+          {
+            "src": "https://www.gstatic.com/images/branding/product/1x/drive_2020q4_96dp.png",
+            "type": "image/png",
+            "sizes": "96x96",
+            "purpose": "any"
+          },
+          {
+            "src": "https://www.gstatic.com/images/branding/product/2x/drive_2020q4_96dp.png",
+            "type": "image/png",
+            "sizes": "192x192",
+            "purpose": "any"
+          }
+        ],
+        "screenshots": [],
+        "background_color": "#12141a"
+      }
+    },
+    "01M16VD9MRPJ72JP7GMT86QMK6": {
+      "ulid": "01M16VD9MRPJ72JP7GMT86QMK6",
+      "profile": "01M16VD95WQ4EPGXAZHQDPNC8P",
+      "config": {
+        "name": null,
+        "description": null,
+        "start_url": null,
+        "icon_url": null,
+        "document_url": "https://github.com/sessions/verified-device",
+        "manifest_url": "https://github.com/manifest.json",
+        "categories": null,
+        "keywords": null,
+        "enabled_url_handlers": [],
+        "enabled_protocol_handlers": [],
+        "custom_protocol_handlers": [],
+        "launch_on_login": false,
+        "launch_on_browser": false
+      },
+      "manifest": {
+        "start_url": "https://github.com/",
+        "scope": "https://github.com/",
+        "name": "GitHub",
+        "short_name": "GitHub",
+        "categories": [],
+        "keywords": [],
+        "dir": "auto",
+        "display": "standalone",
+        "orientation": "any",
+        "prefer_related_applications": true,
+        "related_applications": [
+          {
+            "platform": "play",
+            "url": "https://play.google.com/store/apps/details?id=com.github.android",
+            "id": "com.github.android",
+            "fingerprints": []
+          }
+        ],
+        "protocol_handlers": [],
+        "shortcuts": [],
+        "icons": [
+          {
+            "src": "https://github.githubassets.com/assets/apple-touch-icon-114x114-09ce42d3ca4b.png",
+            "sizes": "114x114",
+            "purpose": "any"
+          },
+          {
+            "src": "https://github.githubassets.com/assets/apple-touch-icon-120x120-92bd46d04241.png",
+            "sizes": "120x120",
+            "purpose": "any"
+          },
+          {
+            "src": "https://github.githubassets.com/assets/apple-touch-icon-144x144-b882e354c005.png",
+            "sizes": "144x144",
+            "purpose": "any"
+          },
+          {
+            "src": "https://github.githubassets.com/assets/apple-touch-icon-152x152-5f777cdc30ae.png",
+            "sizes": "152x152",
+            "purpose": "any"
+          },
+          {
+            "src": "https://github.githubassets.com/assets/apple-touch-icon-180x180-a80b8e11abe2.png",
+            "sizes": "180x180",
+            "purpose": "any"
+          },
+          {
+            "src": "https://github.githubassets.com/assets/apple-touch-icon-57x57-22f09f5b3a64.png",
+            "sizes": "57x57",
+            "purpose": "any"
+          },
+          {
+            "src": "https://github.githubassets.com/assets/apple-touch-icon-60x60-19037ac897bf.png",
+            "sizes": "60x60",
+            "purpose": "any"
+          },
+          {
+            "src": "https://github.githubassets.com/assets/apple-touch-icon-72x72-e090c8a282d0.png",
+            "sizes": "72x72",
+            "purpose": "any"
+          },
+          {
+            "src": "https://github.githubassets.com/assets/apple-touch-icon-76x76-a4523d80afb4.png",
+            "sizes": "76x76",
+            "purpose": "any"
+          },
+          {
+            "src": "https://github.githubassets.com/assets/app-icon-192-bcc967ab9829.png",
+            "type": "image/png",
+            "sizes": "192x192",
+            "purpose": "any"
+          },
+          {
+            "src": "https://github.githubassets.com/assets/app-icon-512-7f9c4ff2e960.png",
+            "type": "image/png",
+            "sizes": "512x512",
+            "purpose": "any"
+          }
+        ],
+        "screenshots": [],
+        "theme_color": "#12141a",
+        "background_color": "#12141a"
+      }
+    }
+  },
+  "arguments": [],
+  "variables": {},
+  "config": {
+    "always_patch": false,
+    "runtime_enable_wayland": false,
+    "runtime_use_xinput2": false,
+    "runtime_use_portals": false,
+    "use_linked_runtime": false
+  }
+}

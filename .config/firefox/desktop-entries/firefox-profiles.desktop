@@ -1,0 +1,13 @@
+[Desktop Entry]
+Version=1.0
+Name=Firefox (Selector de Perfiles)
+GenericName=Gestor de Perfiles de Firefox
+Comment=Abrir el selector y administrador de perfiles de Firefox
+Exec=firefox -ProfileManager %u
+Icon=firefox
+Terminal=false
+Type=Application
+Categories=Network;WebBrowser;
+Keywords=firefox;perfiles;profiles;manager;selector;gestor;
+StartupWMClass=firefox
+StartupNotify=true
